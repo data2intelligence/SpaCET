@@ -1,2 +1,0 @@
-# SpaCE
-Spatial Cell Estimator
