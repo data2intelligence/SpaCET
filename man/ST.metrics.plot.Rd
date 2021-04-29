@@ -2,33 +2,21 @@
 % Please edit documentation in R/ST.metrics.R
 \name{ST.metrics.plot}
 \alias{ST.metrics.plot}
-\title{FUNCTION_TITLE}
+\title{ST metrics plot}
 \usage{
 ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{cols}{PARAM_DESCRIPTION, Default: c("lightblue", "blue", "darkblue")}
-
-\item{colsLimits}{PARAM_DESCRIPTION}
+\item{cols}{Colors, Default: c("lightblue", "blue", "darkblue")}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
-}
-\details{
-DETAILS
+Plot the quality control metrics for all ST spots
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 }

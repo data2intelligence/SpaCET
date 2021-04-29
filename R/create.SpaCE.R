@@ -1,18 +1,22 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param seqPath PARAM_DESCRIPTION
-#' @param imagePath PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Data Input
+#' @description Read ST data set and create an SpaCE object.
+#' @param seqPath Path to sequencing folder.
+#' @param imagePath Path to image folder.
+#' @return An SpaCE object
+#' @details 
+#' Basically, `create.SpaCE` requires two parameters `seqPath` and `imagePath`, which point the standard output folders of 10x Visium data. 
+#' 
+#' The `seqPath` folder should include 
+#' "barcodes.tsv.gz": spot level barcodes; 
+#' "features.tsv.gz": list of genes; 
+#' "matrix.mtx.gz": (sparse) matrix of counts.
+#' 
+#' The `imagePath` folder should include 
+#' “tissue_positions_list.csv” : barcodes and spatial information; 
+#' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; 
+#' “scalefactors_json.json” : scaling factors for adjusting the coordinates .
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[Matrix]{externalFormats}}
-#'  \code{\link[jsonlite]{toJSON, fromJSON}}
+#' ST <- create.SpaCE(seqPath,imagePath)
 #' @rdname create.SpaCE
 #' @export 
 #' @importFrom Matrix readMM
@@ -30,13 +34,19 @@ create.SpaCE <- function(seqPath,imagePath)
   scalef <- jsonFile$tissue_lowres_scalef
 
   barcode <- read.csv(paste0(imagePath,"/tissue_positions_list.csv"),as.is=T,row.names=1,header=F)
-  barcode[["comb"]] <- paste0(barcode[,4]*scalef,"x",barcode[,5]*scalef)
+  barcode[["comb"]] <- paste0(barcode[,2],"x",barcode[,3])
+  barcode[["comb2"]] <- paste0(barcode[,4]*scalef,"x",barcode[,5]*scalef)
   
-  colnames(st.matrix.data) <- barcode[colnames(st.matrix.data),"comb"]
+  spotID <- barcode[colnames(st.matrix.data),"comb"]
+  colnames(st.matrix.data) <- barcode[colnames(st.matrix.data),"comb2"]
   
   new("SpaCE",
-      input=list(counts=st.matrix.data,HEimage=paste0(imagePath,"/tissue_lowres_image.png")), 
+      input=list(
+        counts=st.matrix.data,
+        HEimage=paste0(imagePath,"/tissue_lowres_image.png"),
+        spotID=spotID
+      ), 
       results=list()
-      )
+  )
 }
 

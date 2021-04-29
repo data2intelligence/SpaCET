@@ -1,3 +1,21 @@
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param ST PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[BiRewire]{birewire.rewire.bipartite}}
+#'  \code{\link[reshape2]{melt}}
+#' @rdname ST.CCI.LRInteraction
+#' @export 
+#' @importFrom BiRewire birewire.rewire.bipartite
+#' @importFrom reshape2 melt
 ST.CCI.LRInteraction <- function(ST)
 {
   st.matrix.data <- ST@input$counts
@@ -79,34 +97,50 @@ ST.CCI.LRInteraction <- function(ST)
   statSigMat <- matrix(unlist(statSigList),byrow=TRUE,ncol=2)
   rownames(statSigMat) <- colnames(st.matrix.data)
 
-  ST@results$LRInteraction <- statSigMat
+  ST@results$LRInteraction <- t(statSigMat)
+  rownames(ST@results$LRInteraction ) <- c("Network Score", "P value")
+  
+  ST
+}
 
-  ###### LR_coexpr_raw ######
-  
-  
-  
-  Content <- statSigMat[,1]
-  names(Content) <- colnames(st.matrix.data) 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param ST PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[cowplot]{plot_grid}}
+#' @rdname ST.CCI.LRInteraction.plot
+#' @export 
+#' @importFrom cowplot plot_grid
+ST.CCI.LRInteraction.plot <- function(ST)
+{
+  Content <- ST@results$LRInteraction[1,]
   Content[Content==0] <- sort(setdiff(Content,0))[1] 
   Content <- log2(Content)
   
   Content[Content>0.5] <- 0.5
   Content[Content< -0.5] <- -0.5
   
-  p2 <- visualSpatial(
+  p1 <- visualSpatial(
     Content,
     ST@input$HEimage,
     cols=c("#081d58","#253494","blue","cyan","yellow"),
     colsLimits=NULL,
     "",
     "Log2\n(Network\nScore)"
-    )
+  )
   
-  Content <- statSigMat[,2]
-  names(Content) <- colnames(st.matrix.data)
+  Content <- ST@results$LRInteraction[2,]
   Content <- -log10(Content)
   
-  p3 <- visualSpatial(
+  p2 <- visualSpatial(
     Content,
     ST@input$HEimage,
     cols=c("blue","cyan","yellow"),
@@ -115,7 +149,6 @@ ST.CCI.LRInteraction <- function(ST)
     "-Log10pv"
   )
   
-  cowplot::plot_grid(p2,p3, nrow=1, rel_widths=c(1, 1))
+  cowplot::plot_grid(p1,p2, nrow=1, rel_widths=c(1, 1))
   
-  ST
 }

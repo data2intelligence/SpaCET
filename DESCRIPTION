@@ -1,15 +1,13 @@
 Package: SpaCE
-Title: What the Package Does (One Line, Title Case)
+Title: Spatial Cellular Estimator
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Beibei",
+           family = "Ru",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "first.last@example.com")
+Description: Estimation of cell lineage and interactions in tumors from spatial transcriptomics data.
+License: GNU General Public License v3.0
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

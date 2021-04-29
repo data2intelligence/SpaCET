@@ -10,10 +10,10 @@
 #'  }
 #' }
 #' @seealso 
-#'  \code{\link[reshape]{melt}}
+#'  \code{\link[reshape2]{melt}}
 #' @rdname ST.deconv.res.violin
 #' @export 
-#' @importFrom reshape melt
+#' @importFrom reshape2 melt
 ST.deconv.res.violin <- function(ST)
 {
   library(Polychrome)
@@ -46,7 +46,7 @@ ST.deconv.res.violin <- function(ST)
   myColors  <- colorMatrix[1,] # name : cell type
   
   deconv.res <- ST@results$fraction
-  deconv.res.m <- reshape::melt(deconv.res)
+  deconv.res.m <- reshape2::melt(deconv.res)
   deconv.res.m[,1] <- factor(deconv.res.m[,1],levels=row.names(deconv.res))
   
   library(ggplot2)

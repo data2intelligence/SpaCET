@@ -11,6 +11,7 @@ visualSpatial(
   colsLimits,
   titleName,
   legendName,
+  legendPosition = "right",
   is.continuous = TRUE
 )
 }
@@ -28,6 +29,8 @@ visualSpatial(
 \item{legendName}{PARAM_DESCRIPTION}
 
 \item{is.continuous}{PARAM_DESCRIPTION}
+
+\item{lgendPosition}{PARAM_DESCRIPTION}
 }
 \value{
 OUTPUT_DESCRIPTION

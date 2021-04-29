@@ -8,21 +8,23 @@ Here, we will show how to use SpaCE to deconvolve tumor spatial transcriptomics 
 In order to run SpaCE, first you need to load SpaCE and other libraries required into your R session. 
 
 ``` r
-library(SpaCE)
-library(Matrix)
-library(jsonlite)
-library(png)
-library(ggplot2)
-library(cowplot)
-library(GSVA)
-library(infercnv)
-library(Polychrome)
-library(ComplexHeatmap)
-library(psych)
-library(ppcor)
-library(ggraph)
-library(tidygraph)
-library(parallel)
+suppressPackageStartupMessages({
+  library(SpaCE)
+  library(Matrix)
+  library(jsonlite)
+  library(png)
+  library(ggplot2)
+  library(cowplot)
+  library(GSVA)
+  library(infercnv)
+  library(Polychrome)
+  library(ComplexHeatmap)
+  library(psych)
+  library(ppcor)
+  library(ggraph)
+  library(tidygraph)
+  library(parallel)
+})
 
 ```
 
@@ -73,7 +75,7 @@ ST@input$counts[1:8,1:3]
 
 ## Show key quality control (QC) metrics
 
-Once you have created an SpaCE object, you can use `ST.metrics`  to compute and plot both UMI and gene counts across  ST spots, respectively. Of note, the metrics matrix is stored in `ST@results$metrics`.
+Once you have created an SpaCE object, you can use `ST.metrics`  to compute and plot both UMI and gene counts across ST spots, respectively. Of note, the metrics matrix is stored in `ST@results$metrics`.
 
 ``` r
 # compute the QC metrics.
@@ -193,8 +195,11 @@ After decomposing cell fractions from tumor ST data, SpaCE will infer cell-cell 
 First, `ST.CCI.colocalization` can analyze the co-localization of cell-type pairs by calculating their Spearman correlation, and the corresponding results are stored in `ST@results$colocalization`. Of note, partial correlations, corrected for malignant cell fractions, were computed between non-malignant cell types.
 
 ``` r
-# calculate and visualize the cell-cell co-localization
+# calculate the cell-cell co-localization
 ST <- ST.CCI.colocalization(ST)
+
+# visualize the cell-cell co-localization
+ST.CCI.colocalization.plot(ST)
 
 ```
 <img src="image/CCI_colocal.png" />
@@ -204,39 +209,57 @@ Then, we further identified cell communication evidence by ligand-receptor (L-R)
 We implemented the aforementioned process by designing `ST.CCI.LRInteraction` function that can calculate and visualize the L-R interaction. The corresponding results are stored in `ST@results$LRInteraction`.
 
 ``` r
-# calculate and visualize the L-R interaction
+# calculate the L-R interaction
 ST <- ST.CCI.LRInteraction(ST)
+
+# visualize the L-R interaction
+ST.CCI.LRInteraction.plot(ST)
 
 ```
 <img src="image/LR.png" />
 
 ``` r
-# show the L-R network score and p value for the first six ST spots.
-ST@results$LRInteraction[,1:6]
+# show the L-R network score and p value for the first eight ST spots.
+ST@results$LRInteraction[,1:8]
+
+#               394.480194075x431.3861343 446.88118365x150.7920777 182.747522925x404.727718725
+# Network Score                1.10719731                0.9611687                   1.1017179
+# P value                      0.02297702                0.8091908                   0.2047952
+#               376.28712495x130.64356305 529.35643035x231.757423425 459.133658775x414.3564315
+# Network Score               1.123445913                 1.06916201                 0.9062269
+# P value                     0.007992008                 0.02897103                 0.9630370
 
 ```
 
-## Analyze the cell type pair of interest
+## Analyze the cell-type pair of interest
+`ST.CCI.cellTypePair.scatter` and `ST.CCI.cellTypePair.boxplot` can further analyze the intercellular interaction of a particular cell-type pair by setting the parameter `cellTypePair`. 
 
-Here, we take the cell type pair of CAF and M2 as an example.
+Here, we take the cell-type pair of CAF and M2 as an example. For the co-localization between CAF and M2 cells in the breast tumor, SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 
 ``` r
-
-# analyze the interaction between CAF and M2 cells
-ST.CCI.cell.pair(ST.deconv.res,imagePath, c("CAF","M2"))
+# display the spatial distribution of CAF-M2 co-localization
+ST.CCI.cellTypePair.scatter(ST,cellTypePair=c("CAF","M2"))
 
 ```
-<img src="image/CAF-M2.png" />
+<img src="image/CAF-M2_scatter.png" />
 
-
-## Tumor-immune interface
-
-Besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution. The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
+We found that CAF-M2 colocalization spots have more substantial L-R network scores and p-values than CAF or M2-dominated spots. This result corroborates the correlation between two cell type fractions.
 
 ``` r
+# test the L-R interactions for CAF-M2 co-localization
+ST.CCI.cellTypePair.boxplot(ST,cellTypePair=c("CAF","M2"))
 
+```
+<img src="image/CAF-M2_boxplot.png" width="66%"/>
+
+
+
+## Enrich cell-cell interactions at the tumor-immune interface
+`ST.CCI.tumorBorder.distance` can be used to calculate the distance of cell-cell interactions to tumor-immune interface. We still use the same example as before. Interestingly, besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution. The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
+
+``` r
 # compute the distance of CAF-M2 to tumor border
-ST.CCI.border(ST.deconv.res,imagePath,c("CAF","M2"))
+ST.CCI.tumorBorder.distance(ST,cellTypePair=c("CAF","M2"))
 
 ```
 <img src="image/border.png" width="80%" />
@@ -247,8 +270,82 @@ ST.CCI.border(ST.deconv.res,imagePath,c("CAF","M2"))
 User can save the SpaCE object in order to check the analysis results in future.
 
 ``` r
-save(ST, file="./mySpaCE.rda")
+save(ST, file="/Users/rub2/Downloads/ST.rda")
 
 ```
 
+## Session Info
 
+``` r
+sessionInfo()
+
+```
+
+``` r
+## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Mojave 10.14.6
+## 
+## Matrix products: default
+## BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] parallel  grid      stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] ppcor_1.1                  MASS_7.3-53                psych_2.1.3               
+##  [4] ComplexHeatmap_2.7.10.9002 Polychrome_1.2.6           infercnv_1.6.0            
+##  [7] GSVA_1.38.0                cowplot_1.1.1              png_0.1-7                 
+## [10] jsonlite_1.7.2             Matrix_1.2-18              tidygraph_1.2.0           
+## [13] ggraph_2.0.5               ggplot2_3.3.2              SpaCE_0.0.0.9000          
+## 
+## loaded via a namespace (and not attached):
+##   [1] circlize_0.4.12             plyr_1.8.6                  igraph_1.2.6               
+##   [4] GSEABase_1.52.1             splines_4.0.3               BiocParallel_1.24.1        
+##   [7] listenv_0.8.0               GenomeInfoDb_1.26.2         TH.data_1.0-10             
+##  [10] digest_0.6.27               foreach_1.5.1               htmltools_0.5.0            
+##  [13] rsconnect_0.8.16            viridis_0.5.1               magrittr_2.0.1             
+##  [16] memoise_1.1.0               cluster_2.1.0               doParallel_1.0.16          
+##  [19] limma_3.46.0                globals_0.14.0              fastcluster_1.1.25         
+##  [22] annotate_1.68.0             graphlayouts_0.7.1          matrixStats_0.57.0         
+##  [25] sandwich_3.0-0              colorspace_2.0-0            blob_1.2.1                 
+##  [28] ggrepel_0.9.1               xfun_0.20                   dplyr_1.0.2                
+##  [31] crayon_1.3.4                RCurl_1.98-1.2              libcoin_1.0-6              
+##  [34] graph_1.68.0                survival_3.2-7              zoo_1.8-8                  
+##  [37] iterators_1.0.13            ape_5.4-1                   glue_1.4.2                 
+##  [40] polyclip_1.10-0             gtable_0.3.0                zlibbioc_1.36.0            
+##  [43] XVector_0.30.0              GetoptLong_1.0.5            DelayedArray_0.16.0        
+##  [46] shape_1.4.5                 SingleCellExperiment_1.12.0 BiocGenerics_0.36.0        
+##  [49] scales_1.1.1                futile.options_1.0.1        mvtnorm_1.1-1              
+##  [52] DBI_1.1.0                   edgeR_3.32.0                Rcpp_1.0.5                 
+##  [55] viridisLite_0.3.0           xtable_1.8-4                clue_0.3-59                
+##  [58] tmvnsim_1.0-2               bit_4.0.4                   stats4_4.0.3               
+##  [61] tsne_0.1-3                  httr_1.4.2                  gplots_3.1.1               
+##  [64] RColorBrewer_1.1-2          modeltools_0.2-23           ellipsis_0.3.1             
+##  [67] pkgconfig_2.0.3             reshape_0.8.8               XML_3.99-0.5               
+##  [70] farver_2.0.3                locfit_1.5-9.4              tidyselect_1.1.0           
+##  [73] labeling_0.4.2              rlang_0.4.9                 reshape2_1.4.4             
+##  [76] AnnotationDbi_1.52.0        munsell_0.5.0               tools_4.0.3                
+##  [79] generics_0.1.0              RSQLite_2.2.1               evaluate_0.14              
+##  [82] stringr_1.4.0               argparse_2.0.3              knitr_1.30                 
+##  [85] bit64_4.0.5                 fitdistrplus_1.1-3          caTools_1.18.0             
+##  [88] purrr_0.3.4                 packrat_0.5.0               coin_1.3-1                 
+##  [91] future_1.21.0               nlme_3.1-149                slam_0.1-48                
+##  [94] formatR_1.7                 compiler_4.0.3              rstudioapi_0.13            
+##  [97] tibble_3.0.4                tweenr_1.0.1                stringi_1.5.3              
+## [100] futile.logger_1.4.3         lattice_0.20-41             vctrs_0.3.5                
+## [103] pillar_1.4.7                lifecycle_0.2.0             GlobalOptions_0.1.2        
+## [106] bitops_1.0-6                GenomicRanges_1.42.0        R6_2.5.0                   
+## [109] KernSmooth_2.23-17          gridExtra_2.3               IRanges_2.24.1             
+## [112] parallelly_1.22.0           rjags_4-10                  codetools_0.2-16           
+## [115] lambda.r_1.2.4              gtools_3.8.2                SummarizedExperiment_1.20.0
+## [118] rjson_0.2.20                withr_2.3.0                 mnormt_2.0.2               
+## [121] multcomp_1.4-15             S4Vectors_0.28.1            GenomeInfoDbData_1.2.4     
+## [124] tidyr_1.1.2                 coda_0.19-4                 rmarkdown_2.7              
+## [127] MatrixGenerics_1.2.0        Cairo_1.5-12.2              BiRewire_3.22.0            
+## [130] ggforce_0.3.2               scatterplot3d_0.3-41        Biobase_2.50.0   
+```

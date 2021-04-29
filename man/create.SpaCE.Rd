@@ -2,32 +2,34 @@
 % Please edit documentation in R/create.SpaCE.R
 \name{create.SpaCE}
 \alias{create.SpaCE}
-\title{FUNCTION_TITLE}
+\title{Data Input}
 \usage{
 create.SpaCE(seqPath, imagePath)
 }
 \arguments{
-\item{seqPath}{PARAM_DESCRIPTION}
+\item{seqPath}{Path to sequencing folder.}
 
-\item{imagePath}{PARAM_DESCRIPTION}
+\item{imagePath}{Path to image folder.}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Read ST data set and create an SpaCE object.
 }
 \details{
-DETAILS
+Basically, \code{create.SpaCE} requires two parameters \code{seqPath} and \code{imagePath}, which point the standard output folders of 10x Visium data.
+
+The \code{seqPath} folder should include
+"barcodes.tsv.gz": spot level barcodes;
+"features.tsv.gz": list of genes;
+"matrix.mtx.gz": (sparse) matrix of counts.
+
+The \code{imagePath} folder should include
+“tissue_positions_list.csv” : barcodes and spatial information;
+“tissue_lowres_image.png” : hematoxylin and eosin (H&E) image;
+“scalefactors_json.json” : scaling factors for adjusting the coordinates .
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[Matrix]{externalFormats}}
-\code{\link[jsonlite]{toJSON, fromJSON}}
+ST <- create.SpaCE(seqPath,imagePath)
 }

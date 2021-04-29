@@ -2,26 +2,22 @@
 % Please edit documentation in R/ST.metrics.R
 \name{ST.metrics}
 \alias{ST.metrics}
-\title{FUNCTION_TITLE}
+\title{Metrics}
 \usage{
 ST.metrics(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Calculate the ST metrics
 }
 \details{
-DETAILS
+This function omputes both UMI and gene counts across ST spots
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+ST <- ST.metrics(ST)
 }

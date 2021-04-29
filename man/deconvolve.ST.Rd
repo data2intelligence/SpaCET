@@ -2,28 +2,24 @@
 % Please edit documentation in R/deconvolve.ST.R
 \name{deconvolve.ST}
 \alias{deconvolve.ST}
-\title{FUNCTION_TITLE}
+\title{Deconvolution}
 \usage{
 deconvolve.ST(ST, tempFilePath)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{tempFilePath}{PARAM_DESCRIPTION}
+\item{tempFilePath}{Path to a temporary folder for storing infercnv results.}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Deconvovle tumor ST data
 }
 \details{
-DETAILS
+This function first estimates cancer cell abundance and clonal substructures through modeling the segmental copy number variations across ST spots. A constrained regression model can calibrate local tissue densities and determine stromal and immune cell lineage hierarchies.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+ST <- deconvolve.ST(ST,tempFilePath)
 }

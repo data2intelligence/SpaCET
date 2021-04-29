@@ -6,6 +6,7 @@
 #' @param colsLimits PARAM_DESCRIPTION
 #' @param titleName PARAM_DESCRIPTION
 #' @param legendName PARAM_DESCRIPTION
+#' @param lgendPosition PARAM_DESCRIPTION
 #' @param is.continuous PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -22,7 +23,7 @@
 #' @export 
 #' @importFrom png readPNG
 #' @importFrom grid rasterGrob unit
-visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legendName,is.continuous=TRUE)
+visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legendName,legendPosition="right",is.continuous=TRUE)
 {
   r <- png::readPNG(HEimage)
   rg <- grid::rasterGrob(r, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
@@ -50,15 +51,16 @@ visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legend
         axis.title = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        panel.border = element_blank()
+        panel.border = element_blank(),
+        legend.position = legendPosition
       )+coord_flip()
   }else{
     ggplot(fig.df,aes(x=x,y=y))+ 
       annotation_custom(rg) + # add background image
       geom_point(aes(colour=value))+
+      scale_colour_manual(name=legendName, values = cols)+
       scale_x_continuous(limits = c(0, nDiml), expand = c(0, 0)) +
       scale_y_continuous(limits = c(0, nDiml), expand = c(0, 0)) +
-      labs(colour=legendName)+
       ggtitle(titleName)+
       theme(
         plot.title = element_text(hjust = 0.5),
@@ -66,7 +68,8 @@ visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legend
         axis.title = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        panel.border = element_blank()
+        panel.border = element_blank(),
+        legend.position = legendPosition
       )+coord_flip()
     
   }

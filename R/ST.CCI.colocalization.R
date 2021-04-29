@@ -1,6 +1,23 @@
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param ST PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[psych]{corr.test}}
+#'  \code{\link[reshape2]{melt}}
+#' @rdname ST.CCI.colocalization
+#' @export 
+#' @importFrom psych corr.test
+#' @importFrom reshape2 melt
 ST.CCI.colocalization <- function(ST)
 {
- 
   MacrophageName <- c("M1","M2","Macrophage other")
   TCD4Name <- c("Treg","T CD4 naive","T helper","T CD4 other")
   
@@ -48,6 +65,30 @@ ST.CCI.colocalization <- function(ST)
   
   ST@results$colocalization <- summary_df
   
+  ST
+}
+
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param ST PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[cowplot]{plot_grid}}
+#' @rdname ST.CCI.colocalization.plot
+#' @export 
+#' @importFrom cowplot plot_grid
+ST.CCI.colocalization.plot <- function(ST)
+{
+  ST@results$colocalization -> summary_df
+ 
   if(sum(summary_df[,"log10pv"]>5)>0)
   {	
     summary_df[summary_df[,"log10pv"]>5,"log10pv"] <- 5
@@ -55,6 +96,7 @@ ST.CCI.colocalization <- function(ST)
   
   summary_df[,1] <- factor(summary_df[,1],levels=rev(levels(summary_df[,1])))
   
+  library(ggplot2)
   p1 <- ggplot(summary_df, aes( Var2, Var1)) + 
     geom_point(aes(colour = value,size=log10pv),na.rm = TRUE) + 
     scale_colour_gradient2(low = "blue", high = "red", mid = "white", na.value = NA,
@@ -93,7 +135,7 @@ ST.CCI.colocalization <- function(ST)
     geom_node_point(size = 5, color="grey") +
     geom_node_label(aes(label = name), size = 5, color="black") +
     ggtitle(" ")+
-    xlab(" \n\n ")+
+    xlab("")+
     theme_bw()+
     theme(
       panel.grid = element_blank(),
@@ -103,8 +145,7 @@ ST.CCI.colocalization <- function(ST)
     )
   
   
-  cowplot::plot_grid(p1, p2, nrow=1, rel_widths=c(1, 1))
+  cowplot::plot_grid(p1, p2, labels = "AUTO", ncol = 2)
   
-  ST
 }
 

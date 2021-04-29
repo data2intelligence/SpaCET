@@ -1,17 +1,12 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param tempFilePath PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Deconvolution
+#' @description Deconvovle tumor ST data
+#' @param ST An SpaCE object
+#' @param tempFilePath Path to a temporary folder for storing infercnv results.
+#' @return An SpaCE object
+#' @details This function first estimates cancer cell abundance and clonal substructures through modeling the segmental copy number variations across ST spots. A constrained regression model can calibrate local tissue densities and determine stromal and immune cell lineage hierarchies.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' ST <- deconvolve.ST(ST,tempFilePath)
 #' @rdname deconvolve.ST
-#' @export 
 deconvolve.ST <- function(ST,tempFilePath)
 {
   infercnv_dir <- paste0(tempFilePath,"/tempFile_SpaCE/")
@@ -41,7 +36,7 @@ deconvolve.ST <- function(ST,tempFilePath)
   cnv2 <- read.csv(paste0(infercnv_dir,"/infercnv.observations.txt"),as.is=T,sep=" ",quote = "\"")
   cnv <- as.matrix(cbind(cnv1,cnv2))
   colnames(cnv) <- gsub("X","",colnames(cnv))
-  #system(paste0("rm -rf ",infercnv_dir))
+  system(paste0("rm -rf ",infercnv_dir))
   
   ST@results$CNV <- cnv[,colnames(propMat)]
   

@@ -4,12 +4,14 @@
 \alias{ST.malignant.clone.heatmap}
 \title{FUNCTION_TITLE}
 \usage{
-ST.malignant.clone.heatmap(ST, nClone = 3)
+ST.malignant.clone.heatmap(ST, cutoffMalignant, nClone)
 }
 \arguments{
 \item{ST}{PARAM_DESCRIPTION}
 
-\item{nClone}{PARAM_DESCRIPTION, Default: 3}
+\item{cutoffMalignant}{PARAM_DESCRIPTION}
+
+\item{nClone}{PARAM_DESCRIPTION}
 }
 \value{
 OUTPUT_DESCRIPTION

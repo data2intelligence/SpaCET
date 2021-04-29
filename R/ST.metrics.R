@@ -1,14 +1,10 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Metrics
+#' @description Calculate the ST metrics
+#' @param ST An SpaCE object
+#' @return An SpaCE object
+#' @details This function omputes both UMI and gene counts across ST spots
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' ST <- ST.metrics(ST)
 #' @rdname ST.metrics
 #' @export 
 ST.metrics <- function(ST)
@@ -22,21 +18,13 @@ ST.metrics <- function(ST)
   ST
 }
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cols PARAM_DESCRIPTION, Default: c("lightblue", "blue", "darkblue")
-#' @param colsLimits PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' @title ST metrics plot
+#' @description Plot the quality control metrics for all ST spots
+#' @param ST An SpaCE object
+#' @param cols Colors, Default: c("lightblue", "blue", "darkblue")
+#' @return A ggplot2 object
+#' @details NULL
+#' @examples ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 #' @rdname ST.metrics.plot
 #' @export 
 #' @importFrom cowplot plot_grid

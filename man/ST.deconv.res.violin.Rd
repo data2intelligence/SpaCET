@@ -26,5 +26,5 @@ if(interactive()){
 }
 }
 \seealso{
-\code{\link[reshape]{melt}}
+\code{\link[reshape2]{melt}}
 }

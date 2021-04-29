@@ -4,12 +4,12 @@
 \name{SpaCE-package}
 \alias{SpaCE}
 \alias{SpaCE-package}
-\title{SpaCE: What the Package Does (One Line, Title Case)}
+\title{SpaCE: Spatial Cellular Estimator}
 \description{
-What the package does (one paragraph).
+Estimation of cell lineage and interactions in tumors from spatial transcriptomics data.
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Beibei Ru \email{first.last@example.com}
 
 }
 \keyword{internal}
