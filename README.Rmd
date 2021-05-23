@@ -36,7 +36,7 @@ To install `SpaCE`, we recommend using `devtools`:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("beibeiru/SpaCE")
+devtools::install_github("data2intelligence/SpaCE")
 ```
 
 ## Tutorials
