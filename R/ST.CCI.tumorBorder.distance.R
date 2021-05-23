@@ -1,3 +1,20 @@
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param ST An SpaCE object
+#' @param cellTypePair PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @seealso 
+#'  \code{\link[cowplot]{plot_grid}}
+#' @rdname ST.CCI.tumorBorder.distance
+#' @export 
+#' @importFrom cowplot plot_grid
 ST.CCI.tumorBorder.distance <- function(ST,cellTypePair)
 {
     res_deconv <- ST@results$fraction
