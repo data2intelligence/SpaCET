@@ -1,19 +1,19 @@
 #' @title Data Input
-#' @description Read ST data set and create an SpaCE object.
-#' @param seqPath Path to sequencing folder.
-#' @param imagePath Path to image folder.
+#' @description Read ST data set to create an SpaCE object.
+#' @param seqPath Path to the folder 'sequencing'.
+#' @param imagePath Path to the folder 'image'.
 #' @return An SpaCE object
 #' @details 
 #' Basically, `create.SpaCE` requires two parameters `seqPath` and `imagePath`, which point the standard output folders of 10x Visium data. 
 #' 
-#' The `seqPath` folder should include 
-#' "barcodes.tsv.gz": spot level barcodes; 
-#' "features.tsv.gz": list of genes; 
+#' The `seqPath` folder should include \cr
+#' "barcodes.tsv.gz": spot level barcodes; \cr
+#' "features.tsv.gz": list of genes; \cr
 #' "matrix.mtx.gz": (sparse) matrix of counts.
 #' 
-#' The `imagePath` folder should include 
-#' “tissue_positions_list.csv” : barcodes and spatial information; 
-#' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; 
+#' The `imagePath` folder should include \cr
+#' “tissue_positions_list.csv” : barcodes and spatial information; \cr
+#' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
 #' “scalefactors_json.json” : scaling factors for adjusting the coordinates .
 #' @examples 
 #' ST <- create.SpaCE(seqPath,imagePath)

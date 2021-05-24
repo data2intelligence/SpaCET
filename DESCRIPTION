@@ -1,17 +1,10 @@
 Package: SpaCE
-Title: Spatial Cellular Estimator
 Version: 0.0.0.9000
+Title: Spatial Cellular Estimator
+Description: Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.
 Authors@R: 
-    person(given = "Beibei",
-           family = "Ru",
-           role = c("aut", "cre"),
-           email = "first.last@example.com")
-Description: Estimation of cell lineage and interactions in tumors from spatial transcriptomics data.
+    person(given = "Beibei",family = "Ru", role = c("aut", "cre"), email = "beibei.ru@nih.gov")
 License: GNU General Public License v3.0
 Encoding: UTF-8
 LazyData: true
-Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
