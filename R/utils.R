@@ -1,4 +1,4 @@
-#' @title FUNCTION_TITLE
+#' @title ST Visualization
 #' @description FUNCTION_DESCRIPTION
 #' @param visiualVector PARAM_DESCRIPTION
 #' @param HEimage PARAM_DESCRIPTION

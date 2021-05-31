@@ -2,7 +2,7 @@
 % Please edit documentation in R/deconvolve.ST.R
 \name{deconvolve.ST}
 \alias{deconvolve.ST}
-\title{Deconvolution}
+\title{ST Deconvolution}
 \usage{
 deconvolve.ST(ST, tempFilePath)
 }
@@ -15,10 +15,10 @@ deconvolve.ST(ST, tempFilePath)
 An SpaCE object
 }
 \description{
-Deconvovle tumor ST data
+Deconvovle tumor ST data hierarchically
 }
 \details{
-This function first estimates cancer cell abundance and clonal substructures through modeling the segmental copy number variations across ST spots. A constrained regression model can calibrate local tissue densities and determine stromal and immune cell lineage hierarchies.
+This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
 }
 \examples{
 ST <- deconvolve.ST(ST,tempFilePath)

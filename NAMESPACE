@@ -2,7 +2,7 @@
 
 export(ST.CCI.LRInteraction)
 export(ST.CCI.LRInteraction.plot)
-export(ST.CCI.cellTypePair.boxplot)
+export(ST.CCI.cellTypePair.box)
 export(ST.CCI.cellTypePair.scatter)
 export(ST.CCI.colocalization)
 export(ST.CCI.colocalization.plot)

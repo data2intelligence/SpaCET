@@ -2,30 +2,22 @@
 % Please edit documentation in R/ST.CCI.colocalization.R
 \name{ST.CCI.colocalization}
 \alias{ST.CCI.colocalization}
-\title{FUNCTION_TITLE}
+\title{Cell colocalization}
 \usage{
 ST.CCI.colocalization(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Calculate the cell-cell colocalization
 }
 \details{
-DETAILS
+This function calculates the Spearman correlation of cell types as colocalization.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[psych]{corr.test}}
-\code{\link[reshape2]{melt}}
+ST <- ST.CCI.colocalization(ST)
 }

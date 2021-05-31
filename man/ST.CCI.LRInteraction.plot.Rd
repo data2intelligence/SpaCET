@@ -2,29 +2,22 @@
 % Please edit documentation in R/ST.CCI.LRInteraction.R
 \name{ST.CCI.LRInteraction.plot}
 \alias{ST.CCI.LRInteraction.plot}
-\title{FUNCTION_TITLE}
+\title{Ligand-Receptor interaction plot}
 \usage{
 ST.CCI.LRInteraction.plot(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Plot the Ligand-Receptor interaction with network score and p value
 }
 \details{
-DETAILS
+This function show the L-R network scores and p values for ST spots.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.CCI.LRInteraction.plot(ST)
 }

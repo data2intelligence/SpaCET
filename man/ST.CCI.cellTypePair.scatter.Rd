@@ -2,31 +2,24 @@
 % Please edit documentation in R/ST.CCI.cellTypePair.R
 \name{ST.CCI.cellTypePair.scatter}
 \alias{ST.CCI.cellTypePair.scatter}
-\title{FUNCTION_TITLE}
+\title{Cell-type pair scatter plot}
 \usage{
 ST.CCI.cellTypePair.scatter(ST, cellTypePair)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{cellTypePair}{PARAM_DESCRIPTION}
+\item{cellTypePair}{A vactor of two cell-types}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Plot the cell fraction of a cell-type pair
 }
 \details{
-DETAILS
+This function plots the cell fraction of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.CCI.cellTypePair.scatter(ST,cellTypePair=c("CAF","M2"))
 }

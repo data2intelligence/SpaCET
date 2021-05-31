@@ -1,17 +1,11 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cellTypePair PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Distance to tumor border
+#' @description Calculate the distance of cell-cell interactions to tumor-immune interface
+#' @param ST An SpaCE object
+#' @param cellTypePair A vactor of two cell-types
+#' @return A ggplot2 object
+#' @details The distance between a cell-type pair (e.g., CAF-M2) and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' ST.CCI.tumorBorder.distance(ST, cellTypePair=c("CAF","M2"))
 #' @rdname ST.CCI.tumorBorder.distance
 #' @export 
 #' @importFrom cowplot plot_grid

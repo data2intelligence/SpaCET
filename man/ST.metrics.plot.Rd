@@ -15,7 +15,10 @@ ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 A ggplot2 object
 }
 \description{
-Plot the quality control metrics for all ST spots
+Plot the quality control metrics
+}
+\details{
+This function plots both UMI and gene counts across all ST spots
 }
 \examples{
 ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))

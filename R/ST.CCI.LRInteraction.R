@@ -1,17 +1,10 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Ligand-Receptor interaction
+#' @description Calculate the Ligand-Receptor interaction with network score and p value
+#' @param ST An SpaCE object
+#' @return An SpaCE object
+#' @details SpaCE computes an L-R interactions network score for each spot as the sum of expression products between L-R pairs, normalized by the average L-R network score from 1,000 random networks with the same degrees. The p-value is calculated as the fraction of random network scores that exceeded the original score.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[BiRewire]{birewire.rewire.bipartite}}
-#'  \code{\link[reshape2]{melt}}
+#' ST <- ST.CCI.LRInteraction(ST)
 #' @rdname ST.CCI.LRInteraction
 #' @export 
 #' @importFrom BiRewire birewire.rewire.bipartite
@@ -103,19 +96,14 @@ ST.CCI.LRInteraction <- function(ST)
   ST
 }
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+
+#' @title Ligand-Receptor interaction plot
+#' @description Plot the Ligand-Receptor interaction with network score and p value
+#' @param ST An SpaCE object
+#' @return A ggplot2 object
+#' @details This function show the L-R network scores and p values for ST spots.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' ST.CCI.LRInteraction.plot(ST)
 #' @rdname ST.CCI.LRInteraction.plot
 #' @export 
 #' @importFrom cowplot plot_grid

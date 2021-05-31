@@ -2,7 +2,7 @@
 % Please edit documentation in R/deconvolve.ST.R
 \name{inferMalignant}
 \alias{inferMalignant}
-\title{FUNCTION_TITLE}
+\title{ST Deconvolution step 1}
 \usage{
 inferMalignant(ST, Ref, infercnv_dir)
 }
@@ -17,7 +17,7 @@ inferMalignant(ST, Ref, infercnv_dir)
 OUTPUT_DESCRIPTION
 }
 \description{
-FUNCTION_DESCRIPTION
+Malignant cell fraction inference
 }
 \details{
 DETAILS
@@ -31,5 +31,5 @@ if(interactive()){
 }
 \seealso{
 \code{\link[GSVA]{gsva}},\code{\link[GSVA]{igsva}},\code{\link[GSVA]{GSVA}}
-\code{\link[infercnv]{c("CreateInfercnvObject", "CreateInfercnvObject")}},\code{\link[infercnv]{run}}
+ \code{\link[infercnv]{c("CreateInfercnvObject", "CreateInfercnvObject")}},\code{\link[infercnv]{run}}
 }

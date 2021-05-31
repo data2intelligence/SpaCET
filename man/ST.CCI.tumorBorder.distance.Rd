@@ -2,31 +2,24 @@
 % Please edit documentation in R/ST.CCI.tumorBorder.distance.R
 \name{ST.CCI.tumorBorder.distance}
 \alias{ST.CCI.tumorBorder.distance}
-\title{FUNCTION_TITLE}
+\title{Distance to tumor border}
 \usage{
 ST.CCI.tumorBorder.distance(ST, cellTypePair)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{cellTypePair}{PARAM_DESCRIPTION}
+\item{cellTypePair}{A vactor of two cell-types}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Calculate the distance of cell-cell interactions to tumor-immune interface
 }
 \details{
-DETAILS
+The distance between a cell-type pair (e.g., CAF-M2) and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.CCI.tumorBorder.distance(ST, cellTypePair=c("CAF","M2"))
 }

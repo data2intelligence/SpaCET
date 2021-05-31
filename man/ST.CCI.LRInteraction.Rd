@@ -2,30 +2,22 @@
 % Please edit documentation in R/ST.CCI.LRInteraction.R
 \name{ST.CCI.LRInteraction}
 \alias{ST.CCI.LRInteraction}
-\title{FUNCTION_TITLE}
+\title{Ligand-Receptor interaction}
 \usage{
 ST.CCI.LRInteraction(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Calculate the Ligand-Receptor interaction with network score and p value
 }
 \details{
-DETAILS
+SpaCE computes an L-R interactions network score for each spot as the sum of expression products between L-R pairs, normalized by the average L-R network score from 1,000 random networks with the same degrees. The p-value is calculated as the fraction of random network scores that exceeded the original score.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[BiRewire]{birewire.rewire.bipartite}}
-\code{\link[reshape2]{melt}}
+ST <- ST.CCI.LRInteraction(ST)
 }

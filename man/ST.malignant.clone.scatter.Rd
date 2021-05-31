@@ -2,26 +2,22 @@
 % Please edit documentation in R/ST.malignant.clone.R
 \name{ST.malignant.clone.scatter}
 \alias{ST.malignant.clone.scatter}
-\title{FUNCTION_TITLE}
+\title{Malignant cell clone scatter plot}
 \usage{
 ST.malignant.clone.scatter(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Show the spatial distribution of malignant cell clones
 }
 \details{
-DETAILS
+This function obtains the spatial distribution of distinct malignant cell clones.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+ST.malignant.clone.scatter(ST)
 }

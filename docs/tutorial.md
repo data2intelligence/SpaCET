@@ -1,7 +1,7 @@
 
-# Tutorials for SpaCE (Spatial Cellular Estimator)
+# Tutorial for SpaCE (Spatial Cellular Estimator)
 
-Here, we will show how to use SpaCE to deconvolve tumor spatial transcriptomics (ST) data, visualize the deconvolution results, and explore the mechanism of cell-cell interaction during cancer progression.
+Here, we will show how to use SpaCE to deconvolve tumor spatial transcriptomics (ST) data, visualize the deconvolution results, and explore the cell-cell interaction during cancer progression.
 
 ## Load libraries
 
@@ -30,7 +30,7 @@ suppressPackageStartupMessages({
 
 ## Create SpaCE object
 
-To read their ST data into R, user can create an SpaCE object by `create.SpaCE`. Basically, `create.SpaCE` requires two parameters `seqPath` and `imagePath`, which point the standard output folders of 10x Visium data. 
+To read your ST data into R, user can create an SpaCE object by `create.SpaCE`. Basically, `create.SpaCE` requires two parameters `seqPath` and `imagePath`, which point the standard output folders of 10x Visium dataset. 
 
 The `seqPath` folder should include\
 "barcodes.tsv.gz": spot level barcodes\
@@ -52,7 +52,7 @@ seqPath <- system.file("extdata",'seq',package = 'SpaCE')
 imagePath <- system.file("extdata",'image',package = 'SpaCE')
 
 # load ST data to create an SpaCE object.
-ST <- create.SpaCE(seqPath,imagePath)
+ST <- create.SpaCE(seqPath, imagePath)
 
 ```
 
@@ -90,7 +90,7 @@ ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 
 ## Deconvolve ST data
 
-By two steps, `ST.deconvolve` would deconvolve all mixtures of ST spots into malignant, immune, and stromal cells as well as an unidentifiable component. We first estimate malignant cell faction by modeling the segmental copy number variations (CNVs) from the expression profiles of ST data. Of note, this strategy avoids the workload of building malignant references case by case. Subsequently, based on an in-house hierarchical cell lineage derived from single-cell RNA-seq data sets from diverse cancer types, we use a constrained regression model to determine stromal and immune cell fraction, and also include an unidentifiable component to calibrate cellular density variations across spatial regions.
+By two steps, `ST.deconvolve` would deconvolve all mixtures of ST spots into malignant, immune, and stromal cells as well as an unidentifiable component. We first estimate malignant cell faction by modeling the segmental copy number variations (CNVs) from the expression profiles of ST data. Of note, this strategy avoids the workload of building malignant references case by case. Subsequently, based on an in-house hierarchical cell lineage derived from single-cell RNA-seq data sets from diverse cancer types, we use a constrained regression model to determine stromal and immune cell fraction, and also include an unidentifiable component to calibrate cellular density variations across tissue regions.
 
 The inferred cell-type fraction and CNV value of all ST spots are stored in `ST@input$Fraction` and `ST@input$CNV`. Of note, the latter one will be used to explore the malignant cell clone structure in the following section. 
 
@@ -99,7 +99,7 @@ The inferred cell-type fraction and CNV value of all ST spots are stored in `ST@
 tempFilePath <- "/Users/rub2/Downloads/"
 
 # deconvolve ST data
-ST <- deconvolve.ST(ST,tempFilePath)
+ST <- deconvolve.ST(ST, tempFilePath)
 
 # show the ST deconvolution results (cell type × spot)
 ST@results$fraction[,1:3]
@@ -153,7 +153,7 @@ ST.deconv.res.scatter(ST, cellTypes=c("Macrophage","M1","M2") )
 
 ## Identify the clone structure of malignant cells
 
-To assess the spatial organization of tumor clones, we focus on the ST spots with high fractions (>0.5) of malignant cells based on the deconvolution results. Users can run `ST.malignant.clone.heatmap` to cluster the inferred CNV values of malignant cell spots to determine the clone structure. Of note, `cutoffMalignant` is used to set the cutoff of high malignant cell fractions, and `nClone` is the clone (cluster) number of hierarchical clustering. The estimated clone identities are stored in `ST@results$clone`.
+To assess the spatial organization of cancer clones, we focus on the ST spots with high fractions (>0.5) of malignant cells based on the deconvolution results. Users can run `ST.malignant.clone.heatmap` to cluster the inferred CNV values of malignant cell spots to determine the clone structure. Of note, `cutoffMalignant` is used to set the cutoff of high malignant cell fractions, and `nClone` is the clone (cluster) number of hierarchical clustering. The estimated clone identities are stored in `ST@results$clone`.
 
 ``` r
 # cluster the cnv values to identify malignant cell clone
@@ -190,7 +190,7 @@ ST.malignant.clone.scatter(ST)
 
 ## Explore the intercellular interaction 
 
-After decomposing cell fractions from tumor ST data, SpaCE will infer cell-cell interactions (CCIs) in tumor microenvironment based on cell co-localization and ligand-receptor co-expression analyses. We first calculate the correlation between cell fractions across ST spots to evaluate co-localization of cell-type pairs. Cell distance co-localization does not directly indicate physical interactions. Furthermore, for the co-localized cell-type pairs, we test the enrichment of up-regulated ligand and receptor gene pairs as evidence of physical interactions.
+After decomposing cell fractions from tumor ST data, SpaCE can infer cell-cell interactions (CCIs) in tumor microenvironment based on cell co-localization and ligand-receptor co-expression analyses. We first calculate the correlation between cell fractions across ST spots to evaluate co-localization of cell-type pairs. Furthermore, for the co-localized cell-type pairs, we test the enrichment of up-regulated ligand and receptor gene pairs as evidence of physical interactions.
 
 First, `ST.CCI.colocalization` can analyze the co-localization of cell-type pairs by calculating their Spearman correlation, and the corresponding results are stored in `ST@results$colocalization`. Of note, partial correlations, corrected for malignant cell fractions, were computed between non-malignant cell types.
 
@@ -205,6 +205,8 @@ ST.CCI.colocalization.plot(ST)
 <img src="image/CCI_colocal.png" />
 
 Then, we further identified cell communication evidence by ligand-receptor (L-R) interactions. We computed an L-R interactions network score for each spot as the sum of expression products between L-R pairs, normalized by the average L-R network score from 1,000 random networks with the same degrees. The p-value was calculated as the fraction of random network scores that exceeded the original score. 
+
+<img src="image/fig5c.png" width="40%"/>
 
 We implemented the aforementioned process by designing `ST.CCI.LRInteraction` function that can calculate and visualize the L-R interaction. The corresponding results are stored in `ST@results$LRInteraction`.
 
@@ -238,7 +240,7 @@ Here, we take the cell-type pair of CAF and M2 as an example. For the co-localiz
 
 ``` r
 # display the spatial distribution of CAF-M2 co-localization
-ST.CCI.cellTypePair.scatter(ST,cellTypePair=c("CAF","M2"))
+ST.CCI.cellTypePair.scatter(ST, cellTypePair=c("CAF","M2"))
 
 ```
 <img src="image/CAF-M2_scatter.png" />
@@ -247,7 +249,7 @@ We found that CAF-M2 colocalization spots have more substantial L-R network scor
 
 ``` r
 # test the L-R interactions for CAF-M2 co-localization
-ST.CCI.cellTypePair.boxplot(ST,cellTypePair=c("CAF","M2"))
+ST.CCI.cellTypePair.box(ST, cellTypePair=c("CAF","M2"))
 
 ```
 <img src="image/CAF-M2_boxplot.png" width="66%"/>
@@ -259,7 +261,7 @@ ST.CCI.cellTypePair.boxplot(ST,cellTypePair=c("CAF","M2"))
 
 ``` r
 # compute the distance of CAF-M2 to tumor border
-ST.CCI.tumorBorder.distance(ST,cellTypePair=c("CAF","M2"))
+ST.CCI.tumorBorder.distance(ST, cellTypePair=c("CAF","M2"))
 
 ```
 <img src="image/border.png" width="80%" />

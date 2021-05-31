@@ -1,16 +1,10 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Deconvolution results violin plot
+#' @description Visualize the deconvolution results in violin plot
+#' @param ST An SpaCE object
+#' @return A ggplot2 object
+#' @details This function plot the deconvolution results across all ST spots
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[reshape2]{melt}}
+#' ST.deconv.res.violin(ST)
 #' @rdname ST.deconv.res.violin
 #' @export 
 #' @importFrom reshape2 melt
@@ -67,22 +61,16 @@ ST.deconv.res.violin <- function(ST)
   
 }
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cellTypes PARAM_DESCRIPTION
-#' @param cols PARAM_DESCRIPTION, Default: c("blue", "yellow", "red")
-#' @param colsLimits PARAM_DESCRIPTION, Default: c(0, 1)
-#' @return OUTPUT_DESCRIPTION
+#' @title Deconvolution results scatter plot
+#' @description Visualize the deconvolution results in scatter plot
+#' @param ST An SpaCE object
+#' @param cellTypes A vector of cell-types
+#' @param cols Colors, Default: c("blue", "yellow", "red")
+#' @param colsLimits Colors Limits of cell type fraction, Default: c(0, 1)
+#' @return A ggplot2 object
 #' @details DETAILS
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' ST.deconv.res.scatter(ST, cellTypes=c("Malignant","B cell","CAF") )
 #' @rdname ST.deconv.res.scatter
 #' @export 
 #' @importFrom cowplot plot_grid

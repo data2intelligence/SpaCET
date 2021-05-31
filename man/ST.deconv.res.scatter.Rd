@@ -2,7 +2,7 @@
 % Please edit documentation in R/ST.deconv.res.plot.R
 \name{ST.deconv.res.scatter}
 \alias{ST.deconv.res.scatter}
-\title{FUNCTION_TITLE}
+\title{Deconvolution results scatter plot}
 \usage{
 ST.deconv.res.scatter(
   ST,
@@ -12,30 +12,23 @@ ST.deconv.res.scatter(
 )
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{cellTypes}{PARAM_DESCRIPTION}
+\item{cellTypes}{A vector of cell-types}
 
-\item{cols}{PARAM_DESCRIPTION, Default: c("blue", "yellow", "red")}
+\item{cols}{Colors, Default: c("blue", "yellow", "red")}
 
-\item{colsLimits}{PARAM_DESCRIPTION, Default: c(0, 1)}
+\item{colsLimits}{Colors Limits of cell type fraction, Default: c(0, 1)}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Visualize the deconvolution results in scatter plot
 }
 \details{
 DETAILS
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.deconv.res.scatter(ST, cellTypes=c("Malignant","B cell","CAF") )
 }

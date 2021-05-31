@@ -38,6 +38,6 @@ To install `SpaCE`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCE")
 ```
 
-## Tutorials
+## Tutorial
 
 Please click [here](./docs/tutorial.md) to visit the `SpaCE` tutorial.

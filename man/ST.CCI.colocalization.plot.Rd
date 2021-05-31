@@ -2,29 +2,22 @@
 % Please edit documentation in R/ST.CCI.colocalization.R
 \name{ST.CCI.colocalization.plot}
 \alias{ST.CCI.colocalization.plot}
-\title{FUNCTION_TITLE}
+\title{Cell colocalization plot}
 \usage{
 ST.CCI.colocalization.plot(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+A gggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+visualize the cell-cell colocalization
 }
 \details{
-DETAILS
+This function visualizes the cell colocalization in point and network plots.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[cowplot]{plot_grid}}
+ST.CCI.colocalization.plot(ST)
 }

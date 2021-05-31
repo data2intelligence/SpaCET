@@ -18,14 +18,14 @@ An SpaCE object
 Read ST data set to create an SpaCE object.
 }
 \details{
-Basically, \code{create.SpaCE} requires two parameters \code{seqPath} and \code{imagePath}, which point the standard output folders of 10x Visium data.
+Basically, `create.SpaCE` requires two parameters `seqPath` and `imagePath`, which point the standard output folders of 10x Visium data. 
 
-The \code{seqPath} folder should include \cr
+The `seqPath` folder should include \cr
 "barcodes.tsv.gz": spot level barcodes; \cr
 "features.tsv.gz": list of genes; \cr
 "matrix.mtx.gz": (sparse) matrix of counts.
 
-The \code{imagePath} folder should include \cr
+The `imagePath` folder should include \cr
 “tissue_positions_list.csv” : barcodes and spatial information; \cr
 “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
 “scalefactors_json.json” : scaling factors for adjusting the coordinates .

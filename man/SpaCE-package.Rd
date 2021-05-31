@@ -6,10 +6,10 @@
 \alias{SpaCE-package}
 \title{SpaCE: Spatial Cellular Estimator}
 \description{
-Estimation of cell lineage and interactions in tumors from spatial transcriptomics data.
+Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.
 }
 \author{
-\strong{Maintainer}: Beibei Ru \email{first.last@example.com}
+\strong{Maintainer}: Beibei Ru \email{beibei.ru@nih.gov}
 
 }
 \keyword{internal}

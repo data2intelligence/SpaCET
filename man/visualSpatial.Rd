@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{visualSpatial}
 \alias{visualSpatial}
-\title{FUNCTION_TITLE}
+\title{ST Visualization}
 \usage{
 visualSpatial(
   visiualVector,
@@ -50,5 +50,5 @@ if(interactive()){
 }
 \seealso{
 \code{\link[png]{readPNG}}
-\code{\link[grid]{grid.raster}},\code{\link[grid]{unit}}
+ \code{\link[grid]{grid.raster}},\code{\link[grid]{unit}}
 }

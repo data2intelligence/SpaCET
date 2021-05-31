@@ -2,7 +2,7 @@
 % Please edit documentation in R/deconvolve.ST.R
 \name{SpatialDeconv}
 \alias{SpatialDeconv}
-\title{FUNCTION_TITLE}
+\title{ST Deconvolution step 2}
 \usage{
 SpatialDeconv(
   ST,
@@ -33,7 +33,7 @@ SpatialDeconv(
 OUTPUT_DESCRIPTION
 }
 \description{
-FUNCTION_DESCRIPTION
+Hierarchical deconvolution of non-malignant cell fractions
 }
 \details{
 DETAILS

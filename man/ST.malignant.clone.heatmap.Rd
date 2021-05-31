@@ -2,30 +2,26 @@
 % Please edit documentation in R/ST.malignant.clone.R
 \name{ST.malignant.clone.heatmap}
 \alias{ST.malignant.clone.heatmap}
-\title{FUNCTION_TITLE}
+\title{Malignant cell clone heatmap}
 \usage{
 ST.malignant.clone.heatmap(ST, cutoffMalignant, nClone)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 
-\item{cutoffMalignant}{PARAM_DESCRIPTION}
+\item{cutoffMalignant}{Number ranging 0-1}
 
-\item{nClone}{PARAM_DESCRIPTION}
+\item{nClone}{Integer}
 }
 \value{
-OUTPUT_DESCRIPTION
+An SpaCE object
 }
 \description{
-FUNCTION_DESCRIPTION
+Cluster the inferred copy number variations to indentify malignant cell clone
 }
 \details{
-DETAILS
+This function carries out hierarchical clustering of inferred copy number variation values.
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+ST <- ST.malignant.clone.heatmap(ST, cutoffMalignant=0.5, nClone=3)
 }

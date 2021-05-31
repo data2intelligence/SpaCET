@@ -1,17 +1,11 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cellTypePair PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Cell-type pair scatter plot
+#' @description Plot the cell fraction of a cell-type pair
+#' @param ST An SpaCE object
+#' @param cellTypePair A vactor of two cell-types
+#' @return A ggplot2 object
+#' @details This function plots the cell fraction of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' ST.CCI.cellTypePair.scatter(ST,cellTypePair=c("CAF","M2"))
 #' @rdname ST.CCI.cellTypePair.scatter
 #' @export 
 #' @importFrom cowplot plot_grid
@@ -92,24 +86,19 @@ ST.CCI.cellTypePair.scatter <- function(ST,cellTypePair)
 }
 
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cellTypePair PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+
+#' @title Cell-type pair box plot
+#' @description Plot the L-R network score and p-value of a cell-type pair
+#' @param ST An SpaCE object
+#' @param cellTypePair A vactor of two cell-types
+#' @return A ggplot2 object
+#' @details This function plots the L-R network score and p-value of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
-#' @rdname ST.CCI.cellTypePair.boxplot
+#' ST.CCI.cellTypePair.box(ST,cellTypePair=c("CAF","M2"))
+#' @rdname ST.CCI.cellTypePair.box
 #' @export 
 #' @importFrom cowplot plot_grid
-ST.CCI.cellTypePair.boxplot <- function(ST,cellTypePair)
+ST.CCI.cellTypePair.box <- function(ST,cellTypePair)
 {
   res_deconv <- ST@results$fraction
   

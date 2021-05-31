@@ -2,29 +2,22 @@
 % Please edit documentation in R/ST.deconv.res.plot.R
 \name{ST.deconv.res.violin}
 \alias{ST.deconv.res.violin}
-\title{FUNCTION_TITLE}
+\title{Deconvolution results violin plot}
 \usage{
 ST.deconv.res.violin(ST)
 }
 \arguments{
-\item{ST}{PARAM_DESCRIPTION}
+\item{ST}{An SpaCE object}
 }
 \value{
-OUTPUT_DESCRIPTION
+A ggplot2 object
 }
 \description{
-FUNCTION_DESCRIPTION
+Visualize the deconvolution results in violin plot
 }
 \details{
-DETAILS
+This function plot the deconvolution results across all ST spots
 }
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
-\seealso{
-\code{\link[reshape2]{melt}}
+ST.deconv.res.violin(ST)
 }

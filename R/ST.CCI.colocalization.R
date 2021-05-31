@@ -1,17 +1,10 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Cell colocalization
+#' @description Calculate the cell-cell colocalization
+#' @param ST An SpaCE object
+#' @return An SpaCE object
+#' @details This function calculates the Spearman correlation of cell types as colocalization.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[psych]{corr.test}}
-#'  \code{\link[reshape2]{melt}}
+#' ST <- ST.CCI.colocalization(ST)
 #' @rdname ST.CCI.colocalization
 #' @export 
 #' @importFrom psych corr.test
@@ -69,19 +62,13 @@ ST.CCI.colocalization <- function(ST)
 }
 
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Cell colocalization plot
+#' @description visualize the cell-cell colocalization
+#' @param ST An SpaCE object
+#' @return A gggplot2 object
+#' @details This function visualizes the cell colocalization in point and network plots.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
-#' @seealso 
-#'  \code{\link[cowplot]{plot_grid}}
+#' ST.CCI.colocalization.plot(ST)
 #' @rdname ST.CCI.colocalization.plot
 #' @export 
 #' @importFrom cowplot plot_grid

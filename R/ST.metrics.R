@@ -1,8 +1,8 @@
-#' @title Metrics
-#' @description Calculate the ST metrics
+#' @title ST metrics
+#' @description Calculate the quality control metrics
 #' @param ST An SpaCE object
 #' @return An SpaCE object
-#' @details This function omputes both UMI and gene counts across ST spots
+#' @details This function computes both UMI and gene counts across all ST spots
 #' @examples 
 #' ST <- ST.metrics(ST)
 #' @rdname ST.metrics
@@ -19,11 +19,11 @@ ST.metrics <- function(ST)
 }
 
 #' @title ST metrics plot
-#' @description Plot the quality control metrics for all ST spots
+#' @description Plot the quality control metrics 
 #' @param ST An SpaCE object
 #' @param cols Colors, Default: c("lightblue", "blue", "darkblue")
 #' @return A ggplot2 object
-#' @details NULL
+#' @details This function plots both UMI and gene counts across all ST spots
 #' @examples ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
 #' @rdname ST.metrics.plot
 #' @export 

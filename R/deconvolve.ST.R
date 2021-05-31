@@ -1,9 +1,9 @@
-#' @title Deconvolution
-#' @description Deconvovle tumor ST data
+#' @title ST Deconvolution
+#' @description Deconvovle tumor ST data hierarchically
 #' @param ST An SpaCE object
 #' @param tempFilePath Path to a temporary folder for storing infercnv results.
 #' @return An SpaCE object
-#' @details This function first estimates cancer cell abundance and clonal substructures through modeling the segmental copy number variations across ST spots. A constrained regression model can calibrate local tissue densities and determine stromal and immune cell lineage hierarchies.
+#' @details This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
 #' @examples 
 #' ST <- deconvolve.ST(ST,tempFilePath)
 #' @rdname deconvolve.ST
@@ -43,8 +43,8 @@ deconvolve.ST <- function(ST,tempFilePath)
   ST
 }
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
+#' @title ST Deconvolution step 1
+#' @description Malignant cell fraction inference
 #' @param ST PARAM_DESCRIPTION
 #' @param Ref PARAM_DESCRIPTION
 #' @param infercnv_dir PARAM_DESCRIPTION
@@ -178,8 +178,8 @@ inferMalignant <- function(ST,Ref,infercnv_dir)
 }
 
 
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
+#' @title ST Deconvolution step 2
+#' @description Hierarchical deconvolution of non-malignant cell fractions
 #' @param ST PARAM_DESCRIPTION
 #' @param Ref PARAM_DESCRIPTION
 #' @param malInput PARAM_DESCRIPTION, Default: TRUE

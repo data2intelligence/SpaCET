@@ -2,7 +2,7 @@
 % Please edit documentation in R/ST.metrics.R
 \name{ST.metrics}
 \alias{ST.metrics}
-\title{Metrics}
+\title{ST metrics}
 \usage{
 ST.metrics(ST)
 }
@@ -13,10 +13,10 @@ ST.metrics(ST)
 An SpaCE object
 }
 \description{
-Calculate the ST metrics
+Calculate the quality control metrics
 }
 \details{
-This function omputes both UMI and gene counts across ST spots
+This function computes both UMI and gene counts across all ST spots
 }
 \examples{
 ST <- ST.metrics(ST)

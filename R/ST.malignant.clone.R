@@ -1,16 +1,12 @@
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @param cutoffMalignant PARAM_DESCRIPTION
-#' @param nClone PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Malignant cell clone heatmap
+#' @description Cluster the inferred copy number variations to indentify malignant cell clone
+#' @param ST An SpaCE object
+#' @param cutoffMalignant Number ranging 0-1
+#' @param nClone Integer 
+#' @return An SpaCE object
+#' @details This function carries out hierarchical clustering of inferred copy number variation values. 
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' ST <- ST.malignant.clone.heatmap(ST, cutoffMalignant=0.5, nClone=3)
 #' @rdname ST.malignant.clone.heatmap
 #' @export 
 ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
@@ -97,18 +93,13 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
   ST
 }
 
-
-#' @title FUNCTION_TITLE
-#' @description FUNCTION_DESCRIPTION
-#' @param ST PARAM_DESCRIPTION
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @title Malignant cell clone scatter plot
+#' @description Show the spatial distribution of malignant cell clones
+#' @param ST An SpaCE object
+#' @return A ggplot2 object
+#' @details This function obtains the spatial distribution of distinct malignant cell clones.
 #' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' ST.malignant.clone.scatter(ST)
 #' @rdname ST.malignant.clone.scatter
 #' @export 
 ST.malignant.clone.scatter <- function(ST)
