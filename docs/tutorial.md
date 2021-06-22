@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
   library(png)
   library(ggplot2)
+  library(reshape2)
   library(cowplot)
   library(GSVA)
   library(infercnv)
