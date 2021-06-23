@@ -1,48 +1,3 @@
-#' @title ST Deconvolution
-#' @description Deconvovle tumor ST data hierarchically
-#' @param ST An SpaCE object
-#' @param tempFilePath Path to a temporary folder for storing infercnv results.
-#' @return An SpaCE object
-#' @details This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
-#' @examples 
-#' ST <- deconvolve.ST(ST,tempFilePath)
-#' @rdname deconvolve.ST
-deconvolve.ST <- function(ST,tempFilePath)
-{
-  infercnv_dir <- paste0(tempFilePath,"/tempFile_SpaCE/")
-  dir.create(infercnv_dir)
-  
-  st.matrix.data <- ST@input$counts
-  st.matrix.data <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
-  
-  load( system.file("extdata",'Ref.rda',package = 'SpaCE') )
-  
- 	malProp <- inferMalignant(
- 	  st.matrix.data,
- 	  Ref,
- 	  infercnv_dir
- 	)
-  
-  propMat <- SpatialDeconv(
-    st.matrix.data,
-  	Ref,
-  	malInput=TRUE,
-  	malProp=malProp
-  )
-  
-  ST@results$fraction <- propMat
-  
-  cnv1 <- read.csv(paste0(infercnv_dir,"/infercnv.references.txt"),as.is=T,sep=" ",quote = "\"")
-  cnv2 <- read.csv(paste0(infercnv_dir,"/infercnv.observations.txt"),as.is=T,sep=" ",quote = "\"")
-  cnv <- as.matrix(cbind(cnv1,cnv2))
-  colnames(cnv) <- gsub("X","",colnames(cnv))
-  system(paste0("rm -rf ",infercnv_dir))
-  
-  ST@results$CNV <- cnv[,colnames(propMat)]
-  
-  ST
-}
-
 #' @title ST Deconvolution step 1
 #' @description Malignant cell fraction inference
 #' @param ST PARAM_DESCRIPTION
@@ -56,13 +11,8 @@ deconvolve.ST <- function(ST,tempFilePath)
 #'  #EXAMPLE1
 #'  }
 #' }
-#' @seealso 
-#'  \code{\link[GSVA]{gsva}},\code{\link[GSVA]{igsva}},\code{\link[GSVA]{GSVA}}
-#'  \code{\link[infercnv]{c("CreateInfercnvObject", "CreateInfercnvObject")}},\code{\link[infercnv]{run}}
 #' @rdname inferMalignant
 #' @export 
-#' @importFrom GSVA gsva
-#' @importFrom infercnv CreateInfercnvObject run
 inferMalignant <- function(ST,Ref,infercnv_dir)
 {
   MacrophageName <- c("M1","M2","Macrophage other")
@@ -428,4 +378,50 @@ SpatialDeconv <- function(
   
     propMat
   
+}
+
+#' @title ST Deconvolution
+#' @description Deconvovle tumor ST data hierarchically
+#' @param ST An SpaCE object
+#' @param tempFilePath Path to a temporary folder for storing infercnv results.
+#' @return An SpaCE object
+#' @details This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
+#' @examples 
+#' ST <- deconvolve.ST(ST,tempFilePath)
+#' @rdname deconvolve.ST
+#' @export 
+deconvolve.ST <- function(ST,tempFilePath)
+{
+  infercnv_dir <- paste0(tempFilePath,"/tempFile_SpaCE/")
+  #dir.create(infercnv_dir)
+  
+  st.matrix.data <- ST@input$counts
+  st.matrix.data <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
+  
+  load( system.file("extdata",'Ref.rda',package = 'SpaCE') )
+  
+  malProp <- inferMalignant(
+    st.matrix.data,
+    Ref,
+    infercnv_dir
+  )
+  
+  propMat <- SpatialDeconv(
+    st.matrix.data,
+    Ref,
+    malInput=TRUE,
+    malProp=malProp
+  )
+  
+  ST@results$fraction <- propMat
+  
+  cnv1 <- read.csv(paste0(infercnv_dir,"/infercnv.references.txt"),as.is=T,sep=" ",quote = "\"")
+  cnv2 <- read.csv(paste0(infercnv_dir,"/infercnv.observations.txt"),as.is=T,sep=" ",quote = "\"")
+  cnv <- as.matrix(cbind(cnv1,cnv2))
+  colnames(cnv) <- gsub("X","",colnames(cnv))
+  system(paste0("rm -rf ",infercnv_dir))
+  
+  ST@results$CNV <- cnv[,colnames(propMat)]
+  
+  ST
 }

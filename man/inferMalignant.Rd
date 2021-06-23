@@ -29,7 +29,3 @@ if(interactive()){
  }
 }
 }
-\seealso{
-\code{\link[GSVA]{gsva}},\code{\link[GSVA]{igsva}},\code{\link[GSVA]{GSVA}}
- \code{\link[infercnv]{c("CreateInfercnvObject", "CreateInfercnvObject")}},\code{\link[infercnv]{run}}
-}
