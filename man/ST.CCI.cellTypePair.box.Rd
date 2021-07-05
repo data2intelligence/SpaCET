@@ -21,5 +21,5 @@ Plot the L-R network score and p-value of a cell-type pair
 This function plots the L-R network score and p-value of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 }
 \examples{
-ST.CCI.cellTypePair.box(ST,cellTypePair=c("CAF","M2"))
+
 }

@@ -30,5 +30,5 @@ Visualize the deconvolution results in scatter plot
 DETAILS
 }
 \examples{
-ST.deconv.res.scatter(ST, cellTypes=c("Malignant","B cell","CAF") )
+
 }

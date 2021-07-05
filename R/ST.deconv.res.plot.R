@@ -4,14 +4,61 @@
 #' @return A ggplot2 object
 #' @details This function plot the deconvolution results across all ST spots
 #' @examples 
-#' ST.deconv.res.violin(ST)
+#' 
 #' @rdname ST.deconv.res.violin
 #' @export 
 #' @importFrom reshape2 melt
 ST.deconv.res.violin <- function(ST)
 {
-  library(Polychrome)
-  mypal <- kelly.colors(22)
+  mypal <- c(
+    "#f2f3f4",
+    "#222222",
+    "#f3c300",
+    "#875692",
+    "#f38400",
+    "#a1caf1",
+    "#be0032",
+    "#c2b280",
+    "#848482",
+    "#008856",
+    "#e68fac",
+    "#0067a5",
+    "#f99379",
+    "#604e97",
+    "#f6a600",
+    "#b3446c",
+    "#dcd300",
+    "#882d17",
+    "#8db600",
+    "#654522",
+    "#e25822",
+    "#2b3d26"
+  )
+  
+  names(mypal) <- c(
+    "white",
+    "black",
+    "yellow",
+    "purple",
+    "orange",
+    "lightblue",
+    "red",
+    "buff",
+    "gray",
+    "green",
+    "purplishpink",
+    "blue",
+    "yellowishpink",
+    "violet",
+    "orangeyellow",
+    "purplishred",
+    "greenishyellow",
+    "reddishbrown",
+    "yellowgreen",
+    "yellowishbrown",
+    "reddishorange",
+    "olivegreen"
+  )
   
   colorVector <- c(
     mypal["purplishpink"],"B cell",
@@ -43,7 +90,6 @@ ST.deconv.res.violin <- function(ST)
   deconv.res.m <- reshape2::melt(deconv.res)
   deconv.res.m[,1] <- factor(deconv.res.m[,1],levels=row.names(deconv.res))
   
-  library(ggplot2)
   ggplot(deconv.res.m)+
     geom_violin(aes(x=X1,y=value,fill=X1), scale = "width")+
     scale_y_continuous(limits=c(0,1),breaks = seq(0, 1, by =0.2 ))+
@@ -70,7 +116,7 @@ ST.deconv.res.violin <- function(ST)
 #' @return A ggplot2 object
 #' @details DETAILS
 #' @examples 
-#' ST.deconv.res.scatter(ST, cellTypes=c("Malignant","B cell","CAF") )
+#' 
 #' @rdname ST.deconv.res.scatter
 #' @export 
 #' @importFrom cowplot plot_grid

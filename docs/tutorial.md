@@ -18,7 +18,6 @@ suppressPackageStartupMessages({
   library(cowplot)
   library(GSVA)
   library(infercnv)
-  library(Polychrome)
   library(ComplexHeatmap)
   library(psych)
   library(ppcor)

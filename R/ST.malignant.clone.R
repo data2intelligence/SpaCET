@@ -6,7 +6,7 @@
 #' @return An SpaCE object
 #' @details This function carries out hierarchical clustering of inferred copy number variation values. 
 #' @examples 
-#' ST <- ST.malignant.clone.heatmap(ST, cutoffMalignant=0.5, nClone=3)
+#' 
 #' @rdname ST.malignant.clone.heatmap
 #' @export 
 ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
@@ -17,7 +17,7 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
   spot_Malignant <- colnames(deconv.res)[deconv.res["Malignant",]>0.5]
   cnv_malignant <- t(as.matrix(cnv[,spot_Malignant]))
   
-  gene_order <- read.csv(system.file("extdata",'gencode_v19_gene_pos.txt', package = 'SpaCE'),as.is=T,sep="\t",header=F)
+  gene_order <- utils::read.csv(system.file("extdata",'gencode_v19_gene_pos.txt', package = 'SpaCE'),as.is=T,sep="\t",header=F)
   gene_order_filter <- gene_order[gene_order[,1]%in%rownames(cnv),]
   gene_order_filter[,2] <- gsub("chr","",gene_order_filter[,2]) #1~22,X
   gene_order_filter[,"chr"] <- gsub("chr","",gene_order_filter[,2]) #1~23
@@ -41,7 +41,6 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
     chr_midPoint <- c(chr_midPoint,mid)
   }
 
-  library(ComplexHeatmap)
   ht_opt$message = FALSE
   
   column_ha = columnAnnotation(
@@ -99,7 +98,7 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
 #' @return A ggplot2 object
 #' @details This function obtains the spatial distribution of distinct malignant cell clones.
 #' @examples 
-#' ST.malignant.clone.scatter(ST)
+#' 
 #' @rdname ST.malignant.clone.scatter
 #' @export 
 ST.malignant.clone.scatter <- function(ST)

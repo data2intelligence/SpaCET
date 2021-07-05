@@ -21,5 +21,5 @@ Calculate the distance of cell-cell interactions to tumor-immune interface
 The distance between a cell-type pair (e.g., CAF-M2) and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution.
 }
 \examples{
-ST.CCI.tumorBorder.distance(ST, cellTypePair=c("CAF","M2"))
+
 }

@@ -5,7 +5,7 @@
 #' @return A ggplot2 object
 #' @details The distance between a cell-type pair (e.g., CAF-M2) and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution.
 #' @examples 
-#' ST.CCI.tumorBorder.distance(ST, cellTypePair=c("CAF","M2"))
+#' 
 #' @rdname ST.CCI.tumorBorder.distance
 #' @export 
 #' @importFrom cowplot plot_grid
@@ -143,7 +143,7 @@ ST.CCI.tumorBorder.distance <- function(ST,cellTypePair)
     }
 
     fg.df <- data.frame(value=d_vec)
-    library(ggplot2)
+
     p2 <- ggplot(fg.df,aes(x=value)) + 
       geom_histogram(aes(y=..density..), colour="black", fill="grey")+
       ylab("Density")+

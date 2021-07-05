@@ -6,7 +6,7 @@
 #' @param colsLimits PARAM_DESCRIPTION
 #' @param titleName PARAM_DESCRIPTION
 #' @param legendName PARAM_DESCRIPTION
-#' @param lgendPosition PARAM_DESCRIPTION
+#' @param legendPosition PARAM_DESCRIPTION
 #' @param is.continuous PARAM_DESCRIPTION
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
@@ -33,8 +33,6 @@ visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legend
   fig.df <- data.frame(x=nDiml-coordi[,1],y=coordi[,2])
   fig.df[["value"]] <- visiualVector
   rownames(fig.df) <- names(visiualVector)
-  
-  library(ggplot2)
   
   if(is.continuous==TRUE)
   {

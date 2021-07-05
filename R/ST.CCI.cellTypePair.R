@@ -5,7 +5,7 @@
 #' @return A ggplot2 object
 #' @details This function plots the cell fraction of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 #' @examples 
-#' ST.CCI.cellTypePair.scatter(ST,cellTypePair=c("CAF","M2"))
+#' 
 #' @rdname ST.CCI.cellTypePair.scatter
 #' @export 
 #' @importFrom cowplot plot_grid
@@ -36,8 +36,7 @@ ST.CCI.cellTypePair.scatter <- function(ST,cellTypePair)
   }
   
   
-  library(ppcor)
-  ppcor_res <- pcor.test(res_deconv[cellTypePair[1],],res_deconv[cellTypePair[2],],res_deconv["Malignant",], method="spearman")
+  ppcor_res <- ppcor::pcor.test(res_deconv[cellTypePair[1],],res_deconv[cellTypePair[2],],res_deconv["Malignant",], method="spearman")
   ppcor_rho <- round(ppcor_res[1,"estimate"],3)
   ppcor_pv <-  signif(ppcor_res[1,"p.value"],2)
   
@@ -94,7 +93,7 @@ ST.CCI.cellTypePair.scatter <- function(ST,cellTypePair)
 #' @return A ggplot2 object
 #' @details This function plots the L-R network score and p-value of a cell-type pair (e.g., CAF and M2). SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 #' @examples 
-#' ST.CCI.cellTypePair.box(ST,cellTypePair=c("CAF","M2"))
+#' 
 #' @rdname ST.CCI.cellTypePair.box
 #' @export 
 #' @importFrom cowplot plot_grid
@@ -133,8 +132,8 @@ ST.CCI.cellTypePair.box <- function(ST,cellTypePair)
   
   bb <- bb[bb[,"x"]%in%c(cellTypePairName,cellTypePair),]
   
-  pv1 <- signif(wilcox.test(bb[bb[,1]%in%cellTypePairName,2],bb[bb[,1]%in%c(cellTypePair),2])$p.value,2)
-  pv2 <- signif(wilcox.test(bb[bb[,1]%in%cellTypePairName,3],bb[bb[,1]%in%c(cellTypePair),3])$p.value,2)
+  pv1 <- signif(stats::wilcox.test(bb[bb[,1]%in%cellTypePairName,2],bb[bb[,1]%in%c(cellTypePair),2])$p.value,2)
+  pv2 <- signif(stats::wilcox.test(bb[bb[,1]%in%cellTypePairName,3],bb[bb[,1]%in%c(cellTypePair),3])$p.value,2)
   
   bb[bb[,1]%in%cellTypePair,1] <- paste0(paste0(cellTypePair,collapse="/"),"\ndominated")   
   bb[bb[,1]%in%cellTypePairName,1] <- paste0(cellTypePairName,"\nco-localization")

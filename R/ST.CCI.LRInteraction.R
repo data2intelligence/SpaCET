@@ -4,7 +4,7 @@
 #' @return An SpaCE object
 #' @details SpaCE computes an L-R interactions network score for each spot as the sum of expression products between L-R pairs, normalized by the average L-R network score from 1,000 random networks with the same degrees. The p-value is calculated as the fraction of random network scores that exceeded the original score.
 #' @examples 
-#' ST <- ST.CCI.LRInteraction(ST)
+#' 
 #' @rdname ST.CCI.LRInteraction
 #' @export 
 #' @importFrom BiRewire birewire.rewire.bipartite
@@ -21,7 +21,7 @@ ST.CCI.LRInteraction <- function(ST)
   
   ###### filter and permute L-R network ######
   
-  LR2015 <- read.csv(system.file("extdata",'LR.txt', package = 'SpaCE'),as.is=T,sep="\t")
+  LR2015 <- utils::read.csv(system.file("extdata",'LR.txt', package = 'SpaCE'),as.is=T,sep="\t")
   LR2015 <- data.frame(L=LR2015[,2],R=LR2015[,4],stringsAsFactors=FALSE)
   
   Ls <- unique(LR2015[,"L"])
@@ -83,9 +83,7 @@ ST.CCI.LRInteraction <- function(ST)
     list(score,pv)
   }
   
-  
-  library(parallel)
-  statSigList <- mclapply(1:spotNum,statSig,mc.cores=5)
+  statSigList <- parallel::mclapply(1:spotNum,statSig,mc.cores=2)
 
   statSigMat <- matrix(unlist(statSigList),byrow=TRUE,ncol=2)
   rownames(statSigMat) <- colnames(st.matrix.data)
@@ -103,7 +101,7 @@ ST.CCI.LRInteraction <- function(ST)
 #' @return A ggplot2 object
 #' @details This function show the L-R network scores and p values for ST spots.
 #' @examples 
-#' ST.CCI.LRInteraction.plot(ST)
+#' 
 #' @rdname ST.CCI.LRInteraction.plot
 #' @export 
 #' @importFrom cowplot plot_grid

@@ -19,5 +19,5 @@ Calculate the quality control metrics
 This function computes both UMI and gene counts across all ST spots
 }
 \examples{
-ST <- ST.metrics(ST)
+
 }

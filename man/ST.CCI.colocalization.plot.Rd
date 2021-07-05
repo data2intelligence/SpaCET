@@ -19,5 +19,5 @@ visualize the cell-cell colocalization
 This function visualizes the cell colocalization in point and network plots.
 }
 \examples{
-ST.CCI.colocalization.plot(ST)
+
 }

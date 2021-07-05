@@ -4,7 +4,7 @@
 #' @return An SpaCE object
 #' @details This function computes both UMI and gene counts across all ST spots
 #' @examples 
-#' ST <- ST.metrics(ST)
+#' 
 #' @rdname ST.metrics
 #' @export 
 ST.metrics <- function(ST)
@@ -24,7 +24,8 @@ ST.metrics <- function(ST)
 #' @param cols Colors, Default: c("lightblue", "blue", "darkblue")
 #' @return A ggplot2 object
 #' @details This function plots both UMI and gene counts across all ST spots
-#' @examples ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
+#' @examples 
+#' 
 #' @rdname ST.metrics.plot
 #' @export 
 #' @importFrom cowplot plot_grid

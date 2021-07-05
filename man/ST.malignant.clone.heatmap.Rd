@@ -23,5 +23,5 @@ Cluster the inferred copy number variations to indentify malignant cell clone
 This function carries out hierarchical clustering of inferred copy number variation values.
 }
 \examples{
-ST <- ST.malignant.clone.heatmap(ST, cutoffMalignant=0.5, nClone=3)
+
 }

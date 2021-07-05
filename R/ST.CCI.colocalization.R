@@ -4,11 +4,11 @@
 #' @return An SpaCE object
 #' @details This function calculates the Spearman correlation of cell types as colocalization.
 #' @examples 
-#' ST <- ST.CCI.colocalization(ST)
+#' 
 #' @rdname ST.CCI.colocalization
 #' @export 
-#' @importFrom psych corr.test
 #' @importFrom reshape2 melt
+#' @importFrom psych corr.test
 ST.CCI.colocalization <- function(ST)
 {
   MacrophageName <- c("M1","M2","Macrophage other")
@@ -43,10 +43,9 @@ ST.CCI.colocalization <- function(ST)
   
   for(i in 1:dim(summary_df)[1])
   {
-    library(ppcor)
     if(summary_df[i,1]!="Malignant"&summary_df[i,2]!="Malignant"&summary_df[i,1]!=summary_df[i,2])
     {
-      ppcor_res <- pcor.test(
+      ppcor_res <- ppcor::pcor.test(
         ST.deconv.res[summary_df[i,1],],
         ST.deconv.res[summary_df[i,2],],
         ST.deconv.res["Malignant",],
@@ -68,7 +67,7 @@ ST.CCI.colocalization <- function(ST)
 #' @return A gggplot2 object
 #' @details This function visualizes the cell colocalization in point and network plots.
 #' @examples 
-#' ST.CCI.colocalization.plot(ST)
+#' 
 #' @rdname ST.CCI.colocalization.plot
 #' @export 
 #' @importFrom cowplot plot_grid
@@ -83,7 +82,6 @@ ST.CCI.colocalization.plot <- function(ST)
   
   summary_df[,1] <- factor(summary_df[,1],levels=rev(levels(summary_df[,1])))
   
-  library(ggplot2)
   p1 <- ggplot(summary_df, aes( Var2, Var1)) + 
     geom_point(aes(colour = value,size=log10pv),na.rm = TRUE) + 
     scale_colour_gradient2(low = "blue", high = "red", mid = "white", na.value = NA,
@@ -99,10 +97,7 @@ ST.CCI.colocalization.plot <- function(ST)
       axis.title = element_blank()
     )
   
-  
-  library(ggraph)
-  library(tidygraph)
-  
+
   summary_df <- summary_df[order(abs(summary_df[,3])),]
   graph <- as_tbl_graph(summary_df[as.character(summary_df[,1])>as.character(summary_df[,2]),]) 
   

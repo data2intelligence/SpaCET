@@ -19,5 +19,5 @@ Show the spatial distribution of malignant cell clones
 This function obtains the spatial distribution of distinct malignant cell clones.
 }
 \examples{
-ST.malignant.clone.scatter(ST)
+
 }

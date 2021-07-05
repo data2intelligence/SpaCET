@@ -19,5 +19,5 @@ Plot the Ligand-Receptor interaction with network score and p value
 This function show the L-R network scores and p values for ST spots.
 }
 \examples{
-ST.CCI.LRInteraction.plot(ST)
+
 }

@@ -19,5 +19,5 @@ Calculate the Ligand-Receptor interaction with network score and p value
 SpaCE computes an L-R interactions network score for each spot as the sum of expression products between L-R pairs, normalized by the average L-R network score from 1,000 random networks with the same degrees. The p-value is calculated as the fraction of random network scores that exceeded the original score.
 }
 \examples{
-ST <- ST.CCI.LRInteraction(ST)
+
 }

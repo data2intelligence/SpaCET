@@ -42,7 +42,7 @@ inferMalignant <- function(ST,Ref,infercnv_dir)
   # create annotation file for infercnv
   annotations <- cbind(names(Content),Content)
   annotations_file <- paste0(infercnv_dir,"annotations.txt")
-  write.table(annotations,annotations_file,quote=F,sep="\t",row.names=F,col.names=F)
+  utils::write.table(annotations,annotations_file,quote=F,sep="\t",row.names=F,col.names=F)
   
   # create gene order file for infercnv
   gene_order_file <- system.file("extdata",'gencode_v19_gene_pos.txt', package = 'SpaCE')
@@ -87,14 +87,14 @@ inferMalignant <- function(ST,Ref,infercnv_dir)
   refNorm <- "infercnv.references.txt"
   obsNorm <- "infercnv.observations.txt"
   
-  ref <- read.csv(paste0(infercnv_dir,refNorm), as.is=T, sep=" ", row.names=1)
-  obs <- read.csv(paste0(infercnv_dir,obsNorm), as.is=T, sep=" ", row.names=1)
+  ref <- utils::read.csv(paste0(infercnv_dir,refNorm), as.is=T, sep=" ", row.names=1)
+  obs <- utils::read.csv(paste0(infercnv_dir,obsNorm), as.is=T, sep=" ", row.names=1)
   
   colnames(ref) <- gsub("X","",colnames(ref))
   colnames(obs) <- gsub("X","",colnames(obs))
   
   HMMfile <- "infercnv.17_HMM_predHMMi6.hmm_mode-samples.observations.txt"
-  HMM <- read.csv(paste0(infercnv_dir,HMMfile), as.is=T, sep=" ", row.names=1)
+  HMM <- utils::read.csv(paste0(infercnv_dir,HMMfile), as.is=T, sep=" ", row.names=1)
   
   cnvRegion <- rownames(HMM)[HMM[,1]!=3]
   
@@ -387,7 +387,7 @@ SpatialDeconv <- function(
 #' @return An SpaCE object
 #' @details This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
 #' @examples 
-#' ST <- deconvolve.ST(ST,tempFilePath)
+#' 
 #' @rdname deconvolve.ST
 #' @export 
 deconvolve.ST <- function(ST,tempFilePath)
@@ -415,8 +415,8 @@ deconvolve.ST <- function(ST,tempFilePath)
   
   ST@results$fraction <- propMat
   
-  cnv1 <- read.csv(paste0(infercnv_dir,"/infercnv.references.txt"),as.is=T,sep=" ",quote = "\"")
-  cnv2 <- read.csv(paste0(infercnv_dir,"/infercnv.observations.txt"),as.is=T,sep=" ",quote = "\"")
+  cnv1 <- utils::read.csv(paste0(infercnv_dir,"/infercnv.references.txt"),as.is=T,sep=" ",quote = "\"")
+  cnv2 <- utils::read.csv(paste0(infercnv_dir,"/infercnv.observations.txt"),as.is=T,sep=" ",quote = "\"")
   cnv <- as.matrix(cbind(cnv1,cnv2))
   colnames(cnv) <- gsub("X","",colnames(cnv))
   system(paste0("rm -rf ",infercnv_dir))

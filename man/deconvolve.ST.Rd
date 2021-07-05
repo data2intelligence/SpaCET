@@ -21,5 +21,5 @@ Deconvovle tumor ST data hierarchically
 This function first estimates cancer cell abundance through modeling the segmental copy number variations across ST spots. Then, a constrained regression model calibrates local tissue densities and determines stromal and immune cell lineage hierarchies.
 }
 \examples{
-ST <- deconvolve.ST(ST,tempFilePath)
+
 }

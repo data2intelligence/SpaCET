@@ -19,5 +19,5 @@ Visualize the deconvolution results in violin plot
 This function plot the deconvolution results across all ST spots
 }
 \examples{
-ST.deconv.res.violin(ST)
+
 }

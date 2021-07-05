@@ -31,5 +31,5 @@ The `imagePath` folder should include \cr
 “scalefactors_json.json” : scaling factors for adjusting the coordinates .
 }
 \examples{
-ST <- create.SpaCE(seqPath,imagePath)
+
 }

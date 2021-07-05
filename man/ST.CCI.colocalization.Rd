@@ -19,5 +19,5 @@ Calculate the cell-cell colocalization
 This function calculates the Spearman correlation of cell types as colocalization.
 }
 \examples{
-ST <- ST.CCI.colocalization(ST)
+
 }

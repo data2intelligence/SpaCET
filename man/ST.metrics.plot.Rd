@@ -21,5 +21,5 @@ Plot the quality control metrics
 This function plots both UMI and gene counts across all ST spots
 }
 \examples{
-ST.metrics.plot(ST, cols = c("lightblue", "blue", "darkblue"))
+
 }

@@ -28,9 +28,9 @@ visualSpatial(
 
 \item{legendName}{PARAM_DESCRIPTION}
 
-\item{is.continuous}{PARAM_DESCRIPTION}
+\item{legendPosition}{PARAM_DESCRIPTION}
 
-\item{lgendPosition}{PARAM_DESCRIPTION}
+\item{is.continuous}{PARAM_DESCRIPTION}
 }
 \value{
 OUTPUT_DESCRIPTION
