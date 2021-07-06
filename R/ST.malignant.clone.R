@@ -111,6 +111,7 @@ ST.malignant.clone.heatmap <- function(ST)
 #' @title Malignant cell clone scatter plot
 #' @description Show the spatial distribution of malignant cell clones
 #' @param ST An SpaCE object
+#' @param cols Specify a custom set of colors for clones
 #' @return A ggplot2 object
 #' @details This function obtains the spatial distribution of distinct malignant cell clones.
 #' @examples 

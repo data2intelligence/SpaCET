@@ -8,6 +8,8 @@ ST.malignant.clone.scatter(ST, cols)
 }
 \arguments{
 \item{ST}{An SpaCE object}
+
+\item{cols}{Specify a custom set of colors for clones}
 }
 \value{
 A ggplot2 object
