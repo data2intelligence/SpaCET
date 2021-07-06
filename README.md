@@ -24,7 +24,7 @@ To install `SpaCE`, we recommend using `devtools`:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("data2intelligence/SpaCE")
+devtools::install_github("data2intelligence/SpaCE@HEAD")
 ```
 
 ## Dependencies
