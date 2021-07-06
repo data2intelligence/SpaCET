@@ -4,7 +4,7 @@
 \alias{ST.malignant.clone.scatter}
 \title{Malignant cell clone scatter plot}
 \usage{
-ST.malignant.clone.scatter(ST)
+ST.malignant.clone.scatter(ST, cols)
 }
 \arguments{
 \item{ST}{An SpaCE object}

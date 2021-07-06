@@ -27,6 +27,12 @@ To install `SpaCE`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCE")
 ```
 
+## Dependencies
+
+R version \>= 3.6.0. R packages: Matrix, jsonlite, png, ggplot2,
+reshape2, cowplot, GSVA, infercnv, Rjags, ComplexHeatmap, psych, ppcor,
+ggraph, tidygraph, parallel.
+
 ## Tutorial
 
 Please click [here](./docs/tutorial.md) to visit the `SpaCE` tutorial.

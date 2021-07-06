@@ -153,17 +153,12 @@ ST.deconv.res.scatter(ST, cellTypes=c("Macrophage","M1","M2") )
 
 ## Identify the clone structure of malignant cells
 
-To assess the spatial organization of cancer clones, we focus on the ST spots with high fractions (>0.5) of malignant cells based on the deconvolution results. Users can run `ST.malignant.clone.heatmap` to cluster the inferred CNV values of malignant cell spots to determine the clone structure. Of note, `cutoffMalignant` is used to set the cutoff of high malignant cell fractions, and `nClone` is the clone (cluster) number of hierarchical clustering. The estimated clone identities are stored in `ST@results$clone`.
+To assess the spatial organization of cancer clones, we focus on the ST spots with high fractions (>0.5) of malignant cells based on the deconvolution results. Users can run `ST.malignant.clone` to cluster the inferred CNV values of malignant cell spots to determine the clone structure. Of note, `cutoffMalignant` is used to set the cutoff of high malignant cell fractions, and `nClone` is the clone (cluster) number of hierarchical clustering. The estimated clone identities are stored in `ST@results$clone`.
 
 ``` r
 # cluster the cnv values to identify malignant cell clone
-ST <- ST.malignant.clone.heatmap(ST, cutoffMalignant=0.5, nClone=3)
+ST <- ST.malignant.clone(ST, cutoffMalignant=0.5, nClone=3)
 
-```
-
-<img src="image/ST.malignant.clone.heatmap.png" />
-
-``` r
 # show the clone (cluster) identity for malignant cell spots
 ST@results$clone[1:16]
 #   446.88118365x150.7920777  529.35643035x231.757423425   459.133658775x414.3564315 482.549500125x367.004946825 
@@ -176,9 +171,21 @@ ST@results$clone[1:16]
 #                        "1"                         "1"                         "1"                         "1" 
 ```
 
+Also, `ST.malignant.clone.heatmap` shows the heatmap plot of clustering results based on inferred copy number variation values.
+
+
+``` r  
+ST.malignant.clone.heatmap(ST)
+
+```
+
+<img src="image/ST.malignant.clone.heatmap.png" />
+
+
 Moreover, you can obtain the spatial distribution of distinct malignant cell clones by running `ST.malignant.clone.scatter`.
 
-``` r                      
+
+``` r  
 # plot the spatial distribution of malignant cell clones
 ST.malignant.clone.scatter(ST,cols=c("#F8766D","#00BA38","#619CFF"))
 

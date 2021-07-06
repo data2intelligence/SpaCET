@@ -1,4 +1,4 @@
-#' @title Malignant cell clone heatmap
+#' @title Malignant cell clone
 #' @description Cluster the inferred copy number variations to indentify malignant cell clone
 #' @param ST An SpaCE object
 #' @param cutoffMalignant Number ranging 0-1
@@ -7,9 +7,9 @@
 #' @details This function carries out hierarchical clustering of inferred copy number variation values. 
 #' @examples 
 #' 
-#' @rdname ST.malignant.clone.heatmap
+#' @rdname ST.malignant.clone
 #' @export 
-ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
+ST.malignant.clone <- function(ST, cutoffMalignant, nClone)
 {
   deconv.res <- ST@results$fraction
   cnv <- log2(ST@results$CNV)
@@ -59,6 +59,7 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
     show_annotation_name=TRUE
     )
   
+  set.seed(123)
   ht <- Heatmap(
     cnv_malignant, 
     name = "Log2(\ninferred\nCNV\nvalue)", 
@@ -66,8 +67,8 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
     cluster_rows = TRUE,
     cluster_columns = FALSE,
     
-    clustering_method_rows = "ward.D",
-    
+    clustering_method_rows = "ward.D2",
+
     show_row_names = FALSE,
     show_column_names = FALSE,
     
@@ -87,9 +88,24 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
     visiualVector[spot] <- i
   } 
 
+  ST@results$ht <- ht
   ST@results$clone <- visiualVector
   
   ST
+}
+
+#' @title Malignant cell clone heatmap
+#' @description Show the heatmap plot of inferred copy number variation values
+#' @param ST An SpaCE object
+#' @return An SpaCE object
+#' @details This function obtains the heatmap plot of inferred copy number variation values. 
+#' @examples 
+#' 
+#' @rdname ST.malignant.clone.heatmap
+#' @export 
+ST.malignant.clone.heatmap <- function(ST)
+{
+  ST@results$ht
 }
 
 #' @title Malignant cell clone scatter plot
@@ -112,8 +128,5 @@ ST.malignant.clone.scatter <- function(ST,cols)
     "Clone",
     is.continuous=FALSE
     )
-
 }
-
-
 

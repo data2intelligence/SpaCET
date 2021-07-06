@@ -4,23 +4,19 @@
 \alias{ST.malignant.clone.heatmap}
 \title{Malignant cell clone heatmap}
 \usage{
-ST.malignant.clone.heatmap(ST, cutoffMalignant, nClone)
+ST.malignant.clone.heatmap(ST)
 }
 \arguments{
 \item{ST}{An SpaCE object}
-
-\item{cutoffMalignant}{Number ranging 0-1}
-
-\item{nClone}{Integer}
 }
 \value{
 An SpaCE object
 }
 \description{
-Cluster the inferred copy number variations to indentify malignant cell clone
+Show the heatmap plot of inferred copy number variation values
 }
 \details{
-This function carries out hierarchical clustering of inferred copy number variation values.
+This function obtains the heatmap plot of inferred copy number variation values.
 }
 \examples{
 
