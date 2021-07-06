@@ -75,7 +75,7 @@ ST@input$counts[1:8,1:3]
 
 ## Show key quality control (QC) metrics
 
-Once you have created an SpaCE object, you can use `ST.metrics`  to compute and plot both UMI and gene counts across ST spots, respectively. Of note, the metrics matrix is stored in `ST@results$metrics`.
+Once you have created an SpaCE object, you can use `ST.metrics` and `ST.metrics.plot`  to compute and plot both UMI and gene counts across ST spots, respectively. Of note, the metrics matrix is stored in `ST@results$metrics`.
 
 ``` r
 # compute the QC metrics.
@@ -180,7 +180,7 @@ Moreover, you can obtain the spatial distribution of distinct malignant cell clo
 
 ``` r                      
 # plot the spatial distribution of malignant cell clones
-ST.malignant.clone.scatter(ST)
+ST.malignant.clone.scatter(ST,cols=c("#F8766D","#00BA38","#619CFF"))
 
 ```
 

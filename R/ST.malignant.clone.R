@@ -101,12 +101,12 @@ ST.malignant.clone.heatmap <- function(ST, cutoffMalignant, nClone)
 #' 
 #' @rdname ST.malignant.clone.scatter
 #' @export 
-ST.malignant.clone.scatter <- function(ST)
+ST.malignant.clone.scatter <- function(ST,cols)
 {
   visualSpatial(
     ST@results$clone,
     ST@input$HEimage,
-    NULL,
+    cols,
     NULL,
     "Malignant cell clone",
     "Clone",

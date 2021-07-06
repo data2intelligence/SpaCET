@@ -89,9 +89,10 @@ ST.deconv.res.violin <- function(ST)
   deconv.res <- ST@results$fraction
   deconv.res.m <- reshape2::melt(deconv.res)
   deconv.res.m[,1] <- factor(deconv.res.m[,1],levels=row.names(deconv.res))
+  colnames(deconv.res.m)[1] <- "cellType"
   
   ggplot(deconv.res.m)+
-    geom_violin(aes(x=X1,y=value,fill=X1), scale = "width")+
+    geom_violin(aes(x=cellType,y=value,fill=cellType), scale = "width")+
     scale_y_continuous(limits=c(0,1),breaks = seq(0, 1, by =0.2 ))+
     scale_fill_manual(values = myColors)+
     ylab("Cell fraction")+

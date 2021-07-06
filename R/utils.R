@@ -56,7 +56,7 @@ visualSpatial <- function(visiualVector,HEimage,cols,colsLimits,titleName,legend
     ggplot(fig.df,aes(x=x,y=y))+ 
       annotation_custom(rg) + # add background image
       geom_point(aes(colour=value))+
-      scale_colour_manual(name=legendName, values = cols)+
+      scale_colour_manual(name=legendName,values=cols)+
       scale_x_continuous(limits = c(0, nDiml), expand = c(0, 0)) +
       scale_y_continuous(limits = c(0, nDiml), expand = c(0, 0)) +
       ggtitle(titleName)+
