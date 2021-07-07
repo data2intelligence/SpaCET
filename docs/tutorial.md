@@ -47,7 +47,7 @@ Here, we use a breast cancer ST dataset from 10x Visium website as an example.
 ``` r
 library(SpaCE)
 
-# load the in-house breast cancer ST data. User also can set these two pathes to their own data.
+# load the in-house breast cancer ST data. User also can set these two paths to their own data.
 seqPath <- system.file("extdata",'seq',package = 'SpaCE')
 imagePath <- system.file("extdata",'image',package = 'SpaCE')
 
@@ -187,7 +187,7 @@ Moreover, you can obtain the spatial distribution of distinct malignant cell clo
 
 ``` r  
 # plot the spatial distribution of malignant cell clones
-ST.malignant.clone.scatter(ST,cols=c("#F8766D","#00BA38","#619CFF"))
+ST.malignant.clone.scatter(ST, cols=c("#F8766D","#00BA38","#619CFF"))
 
 ```
 
@@ -215,7 +215,7 @@ Then, we further identified cell communication evidence by ligand-receptor (L-R)
 
 <img src="image/fig5c.png" width="40%"/>
 
-We implemented the aforementioned process by designing `ST.CCI.LRInteraction` function that can calculate and visualize the L-R interaction. The corresponding results are stored in `ST@results$LRInteraction`.
+We implemented the aforementioned process by designing `ST.CCI.LRInteraction` and `ST.CCI.LRInteraction.plot` function that can calculate and visualize the L-R interaction, respectively. The corresponding results are stored in `ST@results$LRInteraction`.
 
 ``` r
 # calculate the L-R interaction
@@ -241,9 +241,9 @@ ST@results$LRInteraction[,1:8]
 ```
 
 ## Analyze the cell-type pair of interest
-`ST.CCI.cellTypePair.scatter` and `ST.CCI.cellTypePair.boxplot` can further analyze the intercellular interaction of a particular cell-type pair by setting the parameter `cellTypePair`. 
+Here, `ST.CCI.cellTypePair.scatter` and `ST.CCI.cellTypePair.boxplot` can further analyze the intercellular interaction of a particular cell-type pair by setting the parameter `cellTypePair`. 
 
-Here, we take the cell-type pair of CAF and M2 as an example. For the co-localization between CAF and M2 cells in the breast tumor, SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
+We take the cell-type pair of CAF and M2 as an example, which has a high rank in last section. For the co-localization between CAF and M2 cells in the breast tumor, SpaCE grouped ST spots into four categories, including CAF-M2 co-localization, CAF dominated, M2 dominated, and the rest.
 
 ``` r
 # display the spatial distribution of CAF-M2 co-localization
@@ -264,7 +264,7 @@ ST.CCI.cellTypePair.box(ST, cellTypePair=c("CAF","M2"))
 
 
 ## Enrich cell-cell interactions at the tumor-immune interface
-`ST.CCI.tumorBorder.distance` can be used to calculate the distance of cell-cell interactions to tumor-immune interface. We still use the same example as before. Interestingly, besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution. The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
+`ST.CCI.tumorBorder.distance` can be used to calculate the distance of cell-cell interactions to tumor-immune interface. We still use the same example as before. Interestingly, besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution (1000 times). The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
 
 ``` r
 # compute the distance of CAF-M2 to tumor border
