@@ -393,7 +393,7 @@ SpatialDeconv <- function(
 deconvolve.ST <- function(ST,tempFilePath)
 {
   infercnv_dir <- paste0(tempFilePath,"/tempFile_SpaCE/")
-  #dir.create(infercnv_dir)
+  dir.create(infercnv_dir)
   
   st.matrix.data <- ST@input$counts
   st.matrix.data <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
