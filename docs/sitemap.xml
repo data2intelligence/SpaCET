@@ -7,6 +7,33 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>/articles/SpaCE.html</loc>
+  </url>
+  <url>
+    <loc>/articles/basic1_visium_BC.html</loc>
+  </url>
+  <url>
+    <loc>/articles/basic2_slideseq_CRC.html</loc>
+  </url>
+  <url>
+    <loc>/articles/extension1.html</loc>
+  </url>
+  <url>
+    <loc>/articles/extension2.html</loc>
+  </url>
+  <url>
+    <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/oldST_PDAC.html</loc>
+  </url>
+  <url>
+    <loc>/articles/tutorial.html</loc>
+  </url>
+  <url>
+    <loc>/articles/visium_BC.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -16,69 +43,45 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.LRInteraction.html</loc>
+    <loc>/reference/SpaCE-class.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.LRInteraction.plot.html</loc>
+    <loc>/reference/SpaCE.CCI.LRNetworkScore.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.cellTypePair.box.html</loc>
+    <loc>/reference/SpaCE.CCI.cellTypePair.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.cellTypePair.scatter.html</loc>
+    <loc>/reference/SpaCE.CCI.colocalization.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.colocalization.html</loc>
+    <loc>/reference/SpaCE.deconvolution.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.colocalization.plot.html</loc>
+    <loc>/reference/SpaCE.deconvolution.malignant.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.CCI.tumorBorder.distance.html</loc>
+    <loc>/reference/SpaCE.deconvolution.matched.scRNAseq.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.deconv.res.scatter.html</loc>
+    <loc>/reference/SpaCE.visualize.LRNetworkScore.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.deconv.res.violin.html</loc>
+    <loc>/reference/SpaCE.visualize.colocalization.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.malignant.clone.heatmap.html</loc>
+    <loc>/reference/SpaCE.visualize.deconvolution.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.malignant.clone.html</loc>
+    <loc>/reference/SpaCE.visualize.gene.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.malignant.clone.scatter.html</loc>
+    <loc>/reference/SpaCE.visualize.metrics.html</loc>
   </url>
   <url>
-    <loc>/reference/ST.metrics.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ST.metrics.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpatialDeconv.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create.SpaCE.html</loc>
-  </url>
-  <url>
-    <loc>/reference/deconvolve.ST.html</loc>
+    <loc>/reference/create.SpaCE.object.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/inferMalignant.html</loc>
-  </url>
-  <url>
-    <loc>/reference/visualSpatial.html</loc>
   </url>
 </urlset>

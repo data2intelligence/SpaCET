@@ -1,25 +1,13 @@
 Package: SpaCE
-Version: 0.1.0
+Version: 1.0.0
 Title: Spatial Cellular Estimator
 Description: Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.
-Authors@R: 
-    person(given = "Beibei",family = "Ru", role = c("aut", "cre"), email = "beibei.ru@nih.gov")
+Authors@R: c(person(given = "Beibei",family = "Ru", role = c("aut", "cre"), email = "beibei.ru@nih.gov"),person(given = "Peng",family = "Jiang", role = c("aut"), email = "peng.jiang@nih.gov"))
 License: file LICENSE
+URL: https://github.com/data2intelligence/SpaCE
+BugReports: https://github.com/data2intelligence/SpaCE/issues
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.0
 Imports: 
-    BiRewire,
     Matrix,
-    cowplot,
-    jsonlite,
-    png,
-    psych,
-    ggplot2,
-    reshape2,
-    infercnv,
-    GSVA,
-    methods,
-    ppcor,
-    Rcpp
-LinkingTo: 
-    Rcpp
+    jsonlite

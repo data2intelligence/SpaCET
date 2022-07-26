@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SpaCE</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,16 +18,29 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../index.html">Overview</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
+    <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with matched scRNA-seq data</a>
+  </div>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
+  <a class="nav-link" href="../news/index.html">News</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
-      <ul class="navbar-nav"></ul></div>
+      <ul class="navbar-nav"><li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/data2intelligence/SpaCE/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div>
 
     
   </div>
@@ -50,114 +63,79 @@
 
       <dl><dt>
           
-          <code><a href="ST.CCI.LRInteraction.html">ST.CCI.LRInteraction()</a></code> 
+          <code><a href="SpaCE-class.html">SpaCE-class</a></code> 
         </dt>
-        <dd>Ligand-Receptor interaction</dd>
+        <dd>Define the SpaCE object</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.LRInteraction.plot.html">ST.CCI.LRInteraction.plot()</a></code> 
+          <code><a href="SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore()</a></code> 
         </dt>
-        <dd>Ligand-Receptor interaction plot</dd>
+        <dd>Ligand-Receptor interaction enrichment analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.cellTypePair.box.html">ST.CCI.cellTypePair.box()</a></code> 
+          <code><a href="SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair()</a></code> 
         </dt>
-        <dd>Cell-type pair box plot</dd>
+        <dd>Ligand-Receptor analysis for a co-localized cell-type pair</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.cellTypePair.scatter.html">ST.CCI.cellTypePair.scatter()</a></code> 
+          <code><a href="SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization()</a></code> 
         </dt>
-        <dd>Cell-type pair scatter plot</dd>
+        <dd>Cell-cell colocalization analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.colocalization.html">ST.CCI.colocalization()</a></code> 
+          <code><a href="SpaCE.deconvolution.html">SpaCE.deconvolution()</a></code> 
         </dt>
-        <dd>Cell colocalization</dd>
+        <dd>Deconvolve tumor ST data set</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.colocalization.plot.html">ST.CCI.colocalization.plot()</a></code> 
+          <code><a href="SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant()</a></code> 
         </dt>
-        <dd>Cell colocalization plot</dd>
+        <dd>Deconvolve malignant cell fraction</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.CCI.tumorBorder.distance.html">ST.CCI.tumorBorder.distance()</a></code> 
+          <code><a href="SpaCE.deconvolution.matched.scRNAseq.html">SpaCE.deconvolution.matched.scRNAseq()</a></code> 
         </dt>
-        <dd>Distance to tumor border</dd>
+        <dd>Deconvolve tumor ST data set</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.deconv.res.scatter.html">ST.deconv.res.scatter()</a></code> 
+          <code><a href="SpaCE.visualize.LRNetworkScore.html">SpaCE.visualize.LRNetworkScore()</a></code> 
         </dt>
-        <dd>Deconvolution results scatter plot</dd>
+        <dd>Ligand-Receptor network score visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.deconv.res.violin.html">ST.deconv.res.violin()</a></code> 
+          <code><a href="SpaCE.visualize.colocalization.html">SpaCE.visualize.colocalization()</a></code> 
         </dt>
-        <dd>Deconvolution results violin plot</dd>
+        <dd>Cell-cell colocalization visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.malignant.clone.html">ST.malignant.clone()</a></code> 
+          <code><a href="SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution()</a></code> 
         </dt>
-        <dd>Malignant cell clone</dd>
+        <dd>Cell type fraction visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.malignant.clone.heatmap.html">ST.malignant.clone.heatmap()</a></code> 
+          <code><a href="SpaCE.visualize.gene.html">SpaCE.visualize.gene()</a></code> 
         </dt>
-        <dd>Malignant cell clone heatmap</dd>
+        <dd>Gene expression visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.malignant.clone.scatter.html">ST.malignant.clone.scatter()</a></code> 
+          <code><a href="SpaCE.visualize.metrics.html">SpaCE.visualize.metrics()</a></code> 
         </dt>
-        <dd>Malignant cell clone scatter plot</dd>
+        <dd>Quality control metrics visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="ST.metrics.html">ST.metrics()</a></code> 
+          <code><a href="create.SpaCE.object.html">create.SpaCE.object()</a></code> 
         </dt>
-        <dd>ST metrics</dd>
-      </dl><dl><dt>
-          
-          <code><a href="ST.metrics.plot.html">ST.metrics.plot()</a></code> 
-        </dt>
-        <dd>ST metrics plot</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpatialDeconv.html">SpatialDeconv()</a></code> 
-        </dt>
-        <dd>ST Deconvolution step 2</dd>
-      </dl><dl><dt>
-          
-          <code><a href="cl.html">cl()</a></code> 
-        </dt>
-        <dd>Multiply a number by two</dd>
-      </dl><dl><dt>
-          
-          <code><a href="create.SpaCE.html">create.SpaCE()</a></code> 
-        </dt>
-        <dd>Data Input</dd>
-      </dl><dl><dt>
-          
-          <code><a href="deconvolve.ST.html">deconvolve.ST()</a></code> 
-        </dt>
-        <dd>ST Deconvolution</dd>
-      </dl><dl><dt>
-          
-          <code><a href="inferMalignant.html">inferMalignant()</a></code> 
-        </dt>
-        <dd>ST Deconvolution step 1</dd>
-      </dl><dl><dt>
-          
-          <code><a href="visualSpatial.html">visualSpatial()</a></code> 
-        </dt>
-        <dd>ST Visualization</dd>
+        <dd>Create an SpaCE object</dd>
       </dl></div>
   </main></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Beibei Ru.</p>
+  <p></p><p>Developed by Beibei Ru, Peng Jiang.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer></div>

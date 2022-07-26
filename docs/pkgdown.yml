@@ -1,6 +1,8 @@
 pandoc: 2.17.1.1
-pkgdown: 2.0.4
+pkgdown: 2.0.6
 pkgdown_sha: ~
-articles: {}
-last_built: 2022-06-10T19:50Z
+articles:
+  oldST_PDAC: oldST_PDAC.html
+  visium_BC: visium_BC.html
+last_built: 2022-07-26T15:35Z
 

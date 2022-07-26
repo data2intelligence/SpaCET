@@ -1,4 +1,17 @@
-url: https://beibeiru.github.io/SpaCE/
+url: ~
 template:
   bootstrap: 5
+
+navbar:
+  left:
+    - text: Overview
+      href: index.html
+    - text: Tutorials
+      menu:
+      - text: Cell type deconvolution and interaction analysis
+        href: articles/visium_BC.html
+      - text: Deconvolution with matched scRNA-seq data
+        href: articles/oldST_PDAC.html
+    - text: News
+      href: news/index.html
 
