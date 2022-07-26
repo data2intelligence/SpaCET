@@ -74,8 +74,6 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
 
     colnames(st.matrix.data) <- rownames(spotCoordinates) # barcode to spot id
 
-    spotCoordinates <- t(spotCoordinates)
-
     imageFile <- paste0(visiumPath,"/spatial/tissue_lowres_image.png")
 
     deconvolution <- as.matrix(read.csv(paste0(visiumPath,"/propMat_SpaCE.csv"),row.names=1))

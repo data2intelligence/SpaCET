@@ -288,7 +288,7 @@ SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
   }
 
   visiualVector <- Content
-  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[1,],"x",SpaCE_obj@input$spotCoordinates[2,])
+  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
   p2 <- visualSpatial(
     visiualVector,
     SpaCE_obj@input$image,

@@ -303,7 +303,7 @@ visualSpatialInteractive <- function(SpaCE_obj,gene)
         pointAlpha <- input$pointAlpha
 
         visiualVector <- SpaCE_obj@results$deconvolution[cellType,]
-        names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[1,],"x",SpaCE_obj@input$spotCoordinates[2,])
+        names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
         visualSpatial(
           visiualVector,

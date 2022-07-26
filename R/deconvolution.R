@@ -39,7 +39,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   rownames(clustering) <- paste0("c",rownames(clustering))
 
   # silhouette
-  library(factoextra)
+  suppressPackageStartupMessages(library(factoextra))
   library(NbClust)
   library(cluster)
 

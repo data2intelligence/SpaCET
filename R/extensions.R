@@ -36,7 +36,7 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
   rownames(clustering) <- paste0("c",rownames(clustering))
 
   # silhouette
-  library(factoextra)
+  suppressPackageStartupMessages(library(factoextra))
   library(NbClust)
   library(cluster)
 
