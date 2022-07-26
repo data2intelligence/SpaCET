@@ -15,7 +15,7 @@ SpaCE.visualize.metrics <- function(
     imageBg = TRUE
 )
 {
-  visiualVector <- SpaCE_obj@metrics$counts[itemQC,]
+  visiualVector <- SpaCE_obj@results$metrics[itemQC,]
   names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
   visualSpatial(
