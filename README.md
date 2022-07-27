@@ -1,28 +1,24 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
 
 # SpaCE (Spatial Cellular Estimator)
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-SpaCE can analyze cancer spatial transcriptomics (ST) datasets to decompose cell identities and estimate cell-cell interactions in tumor microenvironment. Briefly, SpaCE first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCE then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage hierarchies. Further, SpaCE can reveal putative cell-cell interactions in the tumor microenvironment. In addition, although SpaCE does not require a input cell reference profile to process tumor ST data, SpaCE can still accept a matched scRNA-seq data as customized reference to carry out cell type deconvolution.
-
+SpaCE can analyze cancer spatial transcriptomics (ST) datasets to
+decompose cell identities and estimate cell-cell interactions in tumor
+microenvironment. Briefly, SpaCE first estimates cancer cell abundance
+by integrating a gene pattern dictionary of common malignancies. SpaCE
+then uses a constrained regression model to calibrate local tissue
+densities and determine stromal and immune cell lineage hierarchies.
+Further, SpaCE can reveal putative cell-cell interactions in the tumor
+microenvironment. In addition, although SpaCE does not require a input
+cell reference profile to process tumor ST data, SpaCE can still accept
+a matched scRNA-seq data as customized reference to carry out cell type
+deconvolution.
 
 <img src="man/figures/workflow.png" width="100%" />
-
 
 ## Installation
 
@@ -35,8 +31,9 @@ devtools::install_github("data2intelligence/SpaCE")
 
 ## Dependencies
 
-R version >= 4.1.0. 
-R packages: Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny, MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire, limma.
+R version \>= 4.1.0. R packages: Matrix, jsonlite, ggplot2, reshape2,
+png, jpeg, shiny, MUDAN, factoextra, NbClust, cluster, parallel, psych,
+BiRewire, limma.
 
 ## Example
 
@@ -66,5 +63,8 @@ Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05
 ```
 
 ## Tutorial
-1. [Cell type deconvolution and interaction analysis without reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html) 
-2. [Deconvolution with a matched scRNA-seq data set](https:/data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html) 
+
+1.  [Cell type deconvolution and interaction analysis without
+    reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html)
+2.  [Deconvolution with a matched scRNA-seq data
+    set](https:/data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html)
