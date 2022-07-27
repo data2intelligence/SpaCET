@@ -64,10 +64,7 @@ Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05
 
 ## Tutorial
 
-[Deconvolution with a matched scRNA-seq data
-set](https://data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html)
-[Cell type deconvolution and interaction analysis without
-reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html)
-
-Please click [here](https:/data2intelligence.github.io/SpaCE/) for the
-whole documentation.
+-   [Cell type deconvolution and interaction analysis without
+    reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html)  
+-   [Deconvolution with a matched scRNA-seq data
+    set](https://data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html)
