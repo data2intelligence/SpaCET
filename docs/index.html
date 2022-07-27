@@ -67,8 +67,62 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="space-spatial-cellular-estimator">SpaCE (Spatial Cellular Estimator)<a class="anchor" aria-label="anchor" href="#space-spatial-cellular-estimator"></a>
+</h1></div>
+<!-- badges: start -->
+<!-- badges: end -->
+<p>SpaCE can analyze cancer spatial transcriptomics (ST) datasets to decompose cell identities and estimate cell-cell interactions in tumor microenvironment. Briefly, SpaCE first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCE then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage hierarchies. Further, SpaCE can reveal putative cell-cell interactions in the tumor microenvironment. In addition, although SpaCE does not require a input cell reference profile to process tumor ST data, SpaCE can still accept a matched scRNA-seq data as customized reference to carry out cell type deconvolution.</p>
+<p><img src="reference/figures/workflow.png" width="100%"></p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>To install <code>SpaCE</code>, we recommend using <code>devtools</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"data2intelligence/SpaCE"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
+</h2>
+<p>R version &gt;= 4.1.0. R packages: Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny, MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire, limma.</p>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SpaCE)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>visiumPath <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>,<span class="st">'Visium_BC'</span>,<span class="at">package =</span> <span class="st">'SpaCE'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>SpaCE_obj <span class="ot">&lt;-</span> <span class="fu">create.SpaCE.object</span>(<span class="at">visiumPath =</span> visiumPath)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>SpaCE_obj <span class="ot">&lt;-</span> <span class="fu">SpaCE.deconvolution</span>(SpaCE_obj, <span class="at">cancerType=</span><span class="st">"BRCA"</span>, <span class="at">coreNo=</span><span class="dv">8</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>SpaCE_obj<span class="sc">@</span>results<span class="sc">$</span>deconvolution[<span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                  50x102 59x19        14x94        47x13        73x43</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>Malignant   <span class="fl">2.860636e-01</span>     <span class="dv">1</span> <span class="fl">6.845966e-02</span> <span class="fl">3.899756e-01</span> <span class="fl">9.608802e-01</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>CAF         <span class="fl">3.118545e-01</span>     <span class="dv">0</span> <span class="fl">3.397067e-01</span> <span class="fl">1.111980e-01</span> <span class="fl">3.372692e-02</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>Endothelial <span class="fl">5.510895e-02</span>     <span class="dv">0</span> <span class="fl">1.427060e-01</span> <span class="fl">3.080531e-02</span> <span class="fl">5.263544e-03</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>Plasma      <span class="fl">2.213392e-02</span>     <span class="dv">0</span> <span class="fl">1.507382e-02</span> <span class="fl">1.183170e-02</span> <span class="fl">9.071809e-06</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>B cell      <span class="fl">3.885793e-03</span>     <span class="dv">0</span> <span class="fl">9.271616e-02</span> <span class="fl">1.406470e-01</span> <span class="fl">1.329085e-06</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>T CD4       <span class="fl">1.344389e-01</span>     <span class="dv">0</span> <span class="fl">1.554305e-02</span> <span class="fl">1.249414e-01</span> <span class="fl">1.112392e-05</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>T CD8       <span class="fl">7.578696e-03</span>     <span class="dv">0</span> <span class="fl">2.514558e-07</span> <span class="fl">1.379856e-03</span> <span class="fl">1.123043e-06</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>NK          <span class="fl">7.104005e-04</span>     <span class="dv">0</span> <span class="fl">1.670019e-06</span> <span class="fl">4.890387e-08</span> <span class="fl">3.562557e-07</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>cDC         <span class="fl">1.421632e-07</span>     <span class="dv">0</span> <span class="fl">8.278023e-02</span> <span class="fl">7.584295e-02</span> <span class="fl">2.851146e-07</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>pDC         <span class="fl">1.606443e-06</span>     <span class="dv">0</span> <span class="fl">2.283754e-02</span> <span class="fl">1.805671e-02</span> <span class="fl">3.878344e-07</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>Macrophage  <span class="fl">1.703304e-01</span>     <span class="dv">0</span> <span class="fl">5.021248e-02</span> <span class="fl">9.531511e-02</span> <span class="fl">9.253645e-07</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>Mast        <span class="fl">7.905067e-08</span>     <span class="dv">0</span> <span class="fl">1.621498e-05</span> <span class="fl">1.333430e-07</span> <span class="fl">1.162099e-07</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>Neutrophil  <span class="fl">1.380073e-05</span>     <span class="dv">0</span> <span class="fl">9.528996e-07</span> <span class="fl">1.167503e-08</span> <span class="fl">9.908635e-05</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="tutorial">Tutorial<a class="anchor" aria-label="anchor" href="#tutorial"></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li><a href="https://data2intelligence.github.io/SpaCE/articles/visium_BC.html" class="external-link">Cell type deconvolution and interaction analysis without reference</a></li>
+<li>
+<a href="https:/data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a> Please click <a href="https:/data2intelligence.github.io/SpaCE/">here</a> for the whole documentation.</li>
+</ol>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

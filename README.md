@@ -68,3 +68,5 @@ Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05
     reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html)
 2.  [Deconvolution with a matched scRNA-seq data
     set](https:/data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html)
+    Please click [here](https:/data2intelligence.github.io/SpaCE/) for
+    the whole documentation.
