@@ -25,5 +25,5 @@ A ggplot2 object
 Visualize gene expression level in ST dataset.
 }
 \examples{
-SpaCE.visualize.gene(SpaCE_obj,"EPCAM",imageBg = FALSE)
+SpaCE.visualize.gene(SpaCE_obj,"EPCAM")
 }

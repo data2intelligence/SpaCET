@@ -4,16 +4,18 @@
 \alias{SpaCE.CCI.LRNetworkScore}
 \title{Ligand-Receptor interaction enrichment analysis}
 \usage{
-SpaCE.CCI.LRNetworkScore(SpaCE_obj)
+SpaCE.CCI.LRNetworkScore(SpaCE_obj, coreNo = 8)
 }
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
+
+\item{coreNo}{Core number in parallel.}
 }
 \value{
 An SpaCE object
 }
 \description{
-Calculate the overall intensity of L-R interactions at each ST spot.
+Calculate the overall intensity of L-R interactions within ST spots.
 }
 \examples{
 SpaCE_obj <- SpaCE.CCI.LRNetworkScore(SpaCE_obj)

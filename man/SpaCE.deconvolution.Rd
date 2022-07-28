@@ -11,13 +11,13 @@ SpaCE.deconvolution(SpaCE_obj, cancerType, coreNo = 8)
 
 \item{cancerType}{Cancer type of this tumor ST dataset.}
 
-\item{coreNo}{Core number.}
+\item{coreNo}{Core number in parallel.}
 }
 \value{
 An SpaCE object
 }
 \description{
-Estimate the fraction of cell lineage and sub lineage.
+Estimate the fraction of cell lineages and sub lineages.
 }
 \examples{
 SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)

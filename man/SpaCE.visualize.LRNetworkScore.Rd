@@ -6,18 +6,15 @@
 \usage{
 SpaCE.visualize.LRNetworkScore(
   SpaCE_obj,
-  colors = c("black", "#081d58", "#253494", "blue", "blue", "blue", "blue", "cyan",
-    "cyan", "yellow"),
-  interactive = FALSE,
+  colors = c("black", "black", "black", "blue", "blue", "blue", "blue", "cyan", "cyan",
+    "yellow"),
   imageBg = TRUE
 )
 }
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
-
-\item{limits}{Value range, Default: c(0,2).}
+\item{colors}{Legend color scale, Default: c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow").}
 }
 \value{
 A ggplot2 object

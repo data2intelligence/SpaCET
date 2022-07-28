@@ -20,7 +20,7 @@ SpaCE.visualize.deconvolution(
 
 \item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
 
-\item{limits}{Value range, Default: c(0,1).}
+\item{limits}{Value range, Default: c(0,1). Also can be set as NULL.}
 }
 \value{
 A ggplot2 object

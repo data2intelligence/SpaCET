@@ -1,3 +1,3 @@
-# SpaCE 1.0.0.
+# SpaCE 1.0.0
 
 * Release SpaCE package.

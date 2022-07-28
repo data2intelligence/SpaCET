@@ -6,17 +6,17 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-SpaCE can analyze cancer spatial transcriptomics (ST) datasets to
-decompose cell identities and estimate cell-cell interactions in tumor
-microenvironment. Briefly, SpaCE first estimates cancer cell abundance
-by integrating a gene pattern dictionary of common malignancies. SpaCE
-then uses a constrained regression model to calibrate local tissue
-densities and determine stromal and immune cell lineage hierarchies.
-Further, SpaCE can reveal putative cell-cell interactions in the tumor
-microenvironment. In addition, although SpaCE does not require a input
-cell reference profile to process tumor ST data, SpaCE can still accept
-a matched scRNA-seq data as customized reference to carry out cell type
-deconvolution.
+SpaCE is a reference-free method for analyzing cancer spatial
+transcriptomics (ST) datasets to estimate cell lineage and cell-cell
+interactions in tumor microenvironment. Briefly, SpaCE first estimates
+cancer cell abundance by integrating a gene pattern dictionary of common
+malignancies. SpaCE then uses a constrained regression model to
+calibrate local tissue densities and determine stromal and immune cell
+lineage hierarchies. Further, SpaCE can reveal putative cell-cell
+interactions in the tumor microenvironment. What’s more, although SpaCE
+does not require an input cell reference profile to process tumor ST
+data, SpaCE can still accept a matched scRNA-seq data as customized
+reference to carry out cell type deconvolution.
 
 <img src="man/figures/workflow.png" width="100%" />
 
@@ -31,9 +31,10 @@ devtools::install_github("data2intelligence/SpaCE")
 
 ## Dependencies
 
-R version \>= 4.1.0. R packages: Matrix, jsonlite, ggplot2, reshape2,
-png, jpeg, shiny, MUDAN, factoextra, NbClust, cluster, parallel, psych,
-BiRewire, limma.
+-   R version \>= 4.2.0.
+-   R packages: Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
+    MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire,
+    limma.
 
 ## Example
 

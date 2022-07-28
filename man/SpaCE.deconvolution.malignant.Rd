@@ -11,7 +11,7 @@ SpaCE.deconvolution.malignant(SpaCE_obj, malignantCutoff = 0.7, coreNo = 8)
 
 \item{malignantCutoff}{Fraction cutoff for defining spots with high abundant malignant cells.}
 
-\item{coreNo}{Core number.}
+\item{coreNo}{Core number in parallel.}
 }
 \value{
 An SpaCE object

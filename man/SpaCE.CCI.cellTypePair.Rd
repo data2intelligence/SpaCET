@@ -9,10 +9,10 @@ SpaCE.CCI.cellTypePair(SpaCE_obj, cellTypePair)
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{cellTypePair}{Cancer type of this tumor ST dataset.}
+\item{cellTypePair}{A pair of cell types.}
 }
 \value{
-An SpaCE object
+A ggplot object
 }
 \description{
 Test the co-expression of ligands and receptors within the same ST spot for the co-localized cell-type pairs.

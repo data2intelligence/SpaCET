@@ -1,16 +1,16 @@
 #' @title Quality control metrics visualization
 #' @description Visualize quality control metrics in ST dataset.
 #' @param SpaCE_obj An SpaCE object.
-#' @param itemQC Item for quality control metrics.i.e., "UMI" or "gene".
+#' @param itemQC Item for quality control metrics. i.e., "UMI" or "gene".
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.metrics(SpaCE_obj,"EPCAM",imageBg = FALSE)
+#' SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
 #' @rdname SpaCE.visualize.metrics
 #' @export
 SpaCE.visualize.metrics <- function(
     SpaCE_obj,
-    itemQC=c("UMI","Gene"),
+    itemQC = c("UMI","Gene"),
     colors = c("lightblue", "blue", "darkblue"),
     imageBg = TRUE
 )
@@ -39,7 +39,7 @@ SpaCE.visualize.metrics <- function(
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.gene(SpaCE_obj,"EPCAM",imageBg = FALSE)
+#' SpaCE.visualize.gene(SpaCE_obj,"EPCAM")
 #' @rdname SpaCE.visualize.gene
 #' @export
 SpaCE.visualize.gene <- function(
@@ -49,7 +49,11 @@ SpaCE.visualize.gene <- function(
     imageBg = TRUE
 )
 {
-  visiualVector <- log2(SpaCE_obj@input$counts[gene,]+1)
+  expression <- SpaCE_obj@input$counts
+  expression <- sweep(expression,2,colSums(expression),"/")
+  expression_gene <- expression[gene,]
+
+  visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
   names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
   visualSpatial(
@@ -71,7 +75,7 @@ SpaCE.visualize.gene <- function(
 #' @param SpaCE_obj An SpaCE object.
 #' @param cellType Cell type name.
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
-#' @param limits Value range, Default: c(0,1).
+#' @param limits Value range, Default: c(0,1). Also can be set as NULL.
 #' @return A ggplot2 object
 #' @examples
 #' SpaCE.visualize.deconvolution(SpaCE_obj,"Malignant")
@@ -82,7 +86,7 @@ SpaCE.visualize.deconvolution <- function(
     cellType,
     colors = c("blue", "yellow", "red"),
     limits = c(0,1),
-    interactive=FALSE,
+    interactive = FALSE,
     imageBg = TRUE
 )
 {
@@ -111,8 +115,7 @@ SpaCE.visualize.deconvolution <- function(
 #' @title Ligand-Receptor network score visualization
 #' @description Visualize L-R network score in ST dataset.
 #' @param SpaCE_obj An SpaCE object.
-#' @param colors Legend color scale, Default: c("blue", "yellow", "red").
-#' @param limits Value range, Default: c(0,2).
+#' @param colors Legend color scale, Default: c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow").
 #' @return A ggplot2 object
 #' @examples
 #' SpaCE.visualize.LRNetworkScore(SpaCE_obj)
@@ -120,27 +123,26 @@ SpaCE.visualize.deconvolution <- function(
 #' @export
 SpaCE.visualize.LRNetworkScore <- function(
     SpaCE_obj,
-    colors = c("black","#081d58","#253494","blue","blue","blue","blue","cyan","cyan","yellow"),
-    interactive=FALSE,
+    colors = c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow"),
     imageBg = TRUE
 )
 {
-    visiualVector <- SpaCE_obj@results$LRNetworkScore["Network_Score",]
-    names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
-    visiualVector[visiualVector>1.5] <- 1.5
+  visiualVector <- SpaCE_obj@results$LRNetworkScore["Network_Score",]
+  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+  visiualVector[visiualVector>1.5] <- 1.5
 
-    visualSpatial(
-      visiualVector,
-      SpaCE_obj@input$image,
-      SpaCE_obj@input$platform,
-      scaleType="color-continuous",
-      colors=colors,
-      pointSize=1,
-      pointAlpha=1,
-      limits=range(visiualVector),
-      titleName="Network_Score",
-      legendName="Score",
-      imageBg=imageBg)
+  visualSpatial(
+    visiualVector,
+    SpaCE_obj@input$image,
+    SpaCE_obj@input$platform,
+    scaleType="color-continuous",
+    colors=colors,
+    pointSize=1,
+    pointAlpha=1,
+    limits=range(visiualVector),
+    titleName="Network_Score",
+    legendName="Score",
+    imageBg=imageBg)
 }
 
 
@@ -160,7 +162,7 @@ visualSpatial <- function(
 {
   library(ggplot2)
 
-  if(platform=="Visium")
+  if(tolower(platform)=="visium")
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
 
@@ -268,6 +270,7 @@ visualSpatial <- function(
 
   }
 }
+
 
 visualSpatialInteractive <- function(SpaCE_obj,gene)
 {

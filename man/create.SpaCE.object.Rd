@@ -15,9 +15,9 @@ create.SpaCE.object(
 \arguments{
 \item{counts}{Count matrix with gene name (row) x spot ID (column)}
 
-\item{spotCoordinates}{Spot coordinate matrix with coordinates (row) x spot ID (column). This matrix should include two rows, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
+\item{spotCoordinates}{Spot coordinate matrix with spot ID (column) x coordinates (row). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
 
-\item{imageFile}{Path to the H&E image file. Can be "NA" if it is not available.}
+\item{imageFile}{Path to the H&E image file. Can be NA if it is not available.}
 
 \item{platform}{A character string indicating the platform, i.e., "Visium", "oldST", or "Slide-Seq".}
 
@@ -32,7 +32,7 @@ Read an ST dataset to create an SpaCE object.
 \details{
 To create an SpaCE object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
 
-However, if user are analyzing Visium data, they only need to input "visiumPath". Please make sure that "visiumPath" point the standard output folders of 10x Visium, which have both `filtered_feature_bc_matrix` and `spatial` folders.
+However, if user are analyzing Visium data, they only need to input "visiumPath". Please make sure that "visiumPath" points to the standard output folder of 10x Visium, which have both `filtered_feature_bc_matrix` and `spatial` folders.
 
 The "filtered_feature_bc_matrix" folder includes \cr
 "barcodes.tsv.gz": spot level barcodes; \cr
@@ -42,9 +42,10 @@ The "filtered_feature_bc_matrix" folder includes \cr
 The "spatial" folder includes \cr
 “tissue_positions_list.csv” : barcodes and spatial information; \cr
 “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
-“scalefactors_json.json” : scaling factors for adjusting the coordinates .
+“scalefactors_json.json” : scaling factors for adjusting the coordinates.
 }
 \examples{
 visiumPath <- system.file("extdata",'Visium_BC',package = 'SpaCE')
 SpaCE_obj <- create.SpaCE.object(visiumPath = visiumPath)
+
 }

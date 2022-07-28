@@ -15,11 +15,11 @@ SpaCE.deconvolution.matched.scRNAseq(
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{sc_counts}{Count matrix with gene name (row) x cell ID (column).}
+\item{sc_counts}{Single cell count matrix with gene name (row) x cell ID (column).}
 
-\item{sc_annotation}{This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.}
+\item{sc_annotation}{Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.}
 
-\item{sc_lineageTree}{This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.}
+\item{sc_lineageTree}{Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.}
 
 \item{coreNo}{Core number.}
 }
@@ -29,9 +29,6 @@ An SpaCE object
 \description{
 Estimate the fraction of cell lineage and sub lineage.
 }
-\details{
-Deconvolve tumor ST data set
-}
 \examples{
-SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(SpaCE_obj)
+SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(SpaCE_obj, sc_counts, sc_annotation, sc_lineageTree)
 }

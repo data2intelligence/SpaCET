@@ -20,15 +20,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCE does not require a malignant reference and has a built-in immune and stromal cell reference. However, SpaCE can accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCE with matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}.
+Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCE does not require malignant, stromal and immune cell reference. However, SpaCE can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCE with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}.
 
 ## Create SpaCE object
 
-To create an SpaCE object, user need to prepare three types of input data referring to a tumor ST dataset. 
+To create an SpaCE object, user need to prepare four types of input data referring to a tumor ST dataset. 
 
 1) spatial transcriptomics count data. The spatial transcriptomics count data must be in the format of matrix with gene name (row) x spot ID (column).
-2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x  coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
+2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
 3) path to the H&E image file. The image path can be NA if unavailable.
+4) platform
 
 ``` r
 library(SpaCE)
@@ -38,22 +39,24 @@ load(paste0(PDAC_Path,"/st_PDAC.rda"))
 
 # show count matrix
 counts[1:6,1:5]
-       10x10 10x13 10x14 10x15 10x16
-A1CF       0     0     0     0     0
-A2M       13     0     4     0     0
-A4GALT     1     0     0     0     0
-A4GNT      0     0     1     0     0
-AAAS       0     0     0     0     0
-AACS       0     0     0     0     0
+
+##        10x10 10x13 10x14 10x15 10x16
+## A1CF       0     0     0     0     0
+## A2M       13     0     4     0     0
+## A4GALT     1     0     0     0     0
+## A4GNT      0     0     1     0     0
+## AAAS       0     0     0     0     0
+## AACS       0     0     0     0     0
 
 # show coordinate matrix
 spotCoordinates[1:5,]
-       X  Y
-10x10 10 10
-10x13 10 13
-10x14 10 14
-10x15 10 15
-10x16 10 16
+
+##        X  Y
+## 10x10 10 10
+## 10x13 10 13
+## 10x14 10 14
+## 10x15 10 15
+## 10x16 10 16
 
 # load ST data to create an SpaCE object.
 SpaCE_obj <- create.SpaCE.object(
@@ -67,14 +70,12 @@ SpaCE_obj <- create.SpaCE.object(
 str(SpaCE_obj)
 
 ```
-
-## Deconvolve cell type identities
-We provide `SpaCE.deconvolution.matched.scRNAseq` to deconvolve an SpaCE object with a customized scRNA-seq data. User need to prepare three types of input data referring to the scRNA-seq dataset.
+## Deconvolve cell lineages
+We provide `SpaCE.deconvolution.matched.scRNAseq` to deconvolve an SpaCE object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
 
 1) single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data must be in the format of matrix with gene name (row) x cell ID (column).
 2) cell annotation information. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 3) Hierarchical tree of cell types. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
-
 
 ``` r
 # load sc data
@@ -83,44 +84,47 @@ load(paste0(PDAC_Path,"/sc_PDAC.rda"))
 
 # show count matrix
 sc_counts[1:6,1:5]
-        c1 c2 c3 c4 c5
-A1BG     0  0  0  0  0
-A1CF     0  0  0  1  0
-A2M      0  0  0  0  0
-A2ML1    0  0  0  0  0
-A3GALT2  0  0  0  0  0
-A4GALT   0  0  0  0  0
+
+##         c1 c2 c3 c4 c5
+## A1BG     0  0  0  0  0
+## A1CF     0  0  0  1  0
+## A2M      0  0  0  0  0
+## A2ML1    0  0  0  0  0
+## A3GALT2  0  0  0  0  0
+## A4GALT   0  0  0  0  0
 
 # show cell annotation matrix
 sc_annotation[1:6,1:5]
-   cellID bio_celltype                            
-c1 "c1"   "Acinar cells"                          
-c2 "c2"   "Ductal - terminal ductal like"         
-c3 "c3"   "Ductal - terminal ductal like"         
-c4 "c4"   "Ductal - CRISP3 high/centroacinar like"
-c5 "c5"   "Cancer clone A"                        
-c6 "c6"   "Cancer clone A" 
+
+##    cellID bio_celltype                            
+## c1 "c1"   "Acinar cells"                          
+## c2 "c2"   "Ductal - terminal ductal like"         
+## c3 "c3"   "Ductal - terminal ductal like"         
+## c4 "c4"   "Ductal - CRISP3 high/centroacinar like"
+## c5 "c5"   "Cancer clone A"                        
+## c6 "c6"   "Cancer clone A" 
 
 # show cell type lineage tree
 head(sc_lineageTree)
-$Cancer
-[1] "Cancer clone A" "Cancer clone B"
 
-$Ductal
-[1] "Ductal - APOL1 high/hypoxic"            "Ductal - CRISP3 high/centroacinar like"
-[3] "Ductal - MHC Class II"                  "Ductal - terminal ductal like"         
-
-$Macrophage
-[1] "Macrophages A" "Macrophages B"
-
-$mDC
-[1] "mDCs A" "mDCs B"
-
-$`Acinar cells`
-[1] "Acinar cells"
-
-$`Endocrine cells`
-[1] "Endocrine cells"
+## $Cancer
+## [1] "Cancer clone A" "Cancer clone B"
+## 
+## $Ductal
+## [1] "Ductal - APOL1 high/hypoxic"            "Ductal - CRISP3 high/centroacinar like"
+## [3] "Ductal - MHC Class II"                  "Ductal - terminal ductal like"         
+## 
+## $Macrophage
+## [1] "Macrophages A" "Macrophages B"
+## 
+## $mDC
+## [1] "mDCs A" "mDCs B"
+## 
+## $`Acinar cells`
+## [1] "Acinar cells"
+## 
+## $`Endocrine cells`
+## [1] "Endocrine cells"
 ```
 
 Then, user can run `SpaCE.deconvolution.matched.scRNAseq` to carry out cell type deconvolution.
@@ -143,7 +147,24 @@ p4 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Ductal - CRISP3 high/ce
 
 ``` 
 
-<img src="img/PDAC.png" width="100%" style="border:none" />
+<img src="img/PDAC_prop.png" width="100%" style="border:none" />
+
+User can use the following code to visualize the marker gene expression level and verify the cell type deconvolution.
+
+``` r
+p5 <- SpaCE.visualize.gene(SpaCE_obj,"TM4SF1") # marker for cancer cell state A
+p6 <- SpaCE.visualize.gene(SpaCE_obj,"S100A4") # marker for cancer cell state B
+p7 <- SpaCE.visualize.gene(SpaCE_obj,"PRSS1") # marker for acinar cell
+p8 <- SpaCE.visualize.gene(SpaCE_obj,"CRISP3") # marker for centroacinar like ductal cell
+(p5+p6) / (p7+p8)
+``` 
+
+<img src="img/PDAC_expr.png" width="100%" style="border:none" />
+
+## Identify cell-cell interaction
+After decomposing cell fractions, SpaCE can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCE tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs. SpaCE provides `SpaCE.CCI.colocalization` and `SpaCE.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
+
+<img src="img/PDAC_CCC.png" width="100%" style="border:none" />
 
 ## Extand this function module
 Although our tutorials focus on analyzing ST data from tumor samples, in principle, SpaCE can be applied to any ST datasets with matched scRNA-seq data.

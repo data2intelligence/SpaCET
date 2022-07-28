@@ -6,7 +6,6 @@
 #' SpaCE_obj <- SpaCE.CCI.colocalization(SpaCE_obj)
 #' @rdname SpaCE.CCI.colocalization
 #' @export
-#'
 SpaCE.CCI.colocalization <- function(SpaCE_obj)
 {
   res_deconv <- SpaCE_obj@results$deconvolution
@@ -32,11 +31,11 @@ SpaCE.CCI.colocalization <- function(SpaCE_obj)
   rownames(summary_df) <- paste0(summary_df[,1],"_",summary_df[,2])
 
 
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCE') )
+  Ref <- SpaCE_obj@results$Ref
   reff <- Ref$refProfiles[unique(unlist(Ref$sigGenes[names(Ref$sigGenes)%in%c(names(Ref$lineageTree),"T cell")])),]
   reff <- reff-rowMeans(reff)
 
-  cc_corr <- psych::corr.test(reff,reff,method="pearson",adjust="none",ci=FALSE)
+  cc_corr <- psych::corr.test(reff,reff,method="spearman",adjust="none",ci=FALSE)
 
   cc_corr_r <- cc_corr$r
   cc_corr_p <- cc_corr$p
@@ -47,12 +46,12 @@ SpaCE.CCI.colocalization <- function(SpaCE_obj)
   summary_df2 <- data.frame(
     cell_type_1 = as.character(cc_corr_r.m[,1]),
     cell_type_2 = as.character(cc_corr_r.m[,2]),
-    reference_r = round(cc_corr_r.m[,3],3),
+    reference_rho = round(cc_corr_r.m[,3],3),
     reference_pv = cc_corr_p.m[,3]
   )
   rownames(summary_df2) <- paste0(summary_df2[,1],"_",summary_df2[,2])
 
-  summary_df[rownames(summary_df2),"reference_r"] <- summary_df2[,"reference_r"]
+  summary_df[rownames(summary_df2),"reference_rho"] <- summary_df2[,"reference_rho"]
   summary_df[rownames(summary_df2),"reference_pv"] <- summary_df2[,"reference_pv"]
 
   summary_df <- summary_df[ summary_df[,1] != summary_df[,2], ] #remove same cell type
@@ -78,7 +77,13 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
   summary_df[summary_df[,"fraction_product"]>0.02,"fraction_product"] <- 0.02
 
-  ctOrder <- c("Malignant",unlist(SpaCE_obj@results$Ref$lineageTree))
+  if("Cancer cell state A"%in%rownames(SpaCE_obj@results$deconvolution))
+  {
+    states <- rownames(SpaCE_obj@results$deconvolution)[grepl("Cancer cell state",rownames(SpaCE_obj@results$deconvolution))]
+    ctOrder <- c(states,unlist(SpaCE_obj@results$Ref$lineageTree))
+  }else{
+    ctOrder <- c("Malignant",unlist(SpaCE_obj@results$Ref$lineageTree))
+  }
 
   summary_df <- summary_df[summary_df[,1]%in%ctOrder,]
   summary_df <- summary_df[summary_df[,2]%in%ctOrder,]
@@ -107,11 +112,12 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
   summary_df <- summary_df[as.character(summary_df[,1])<as.character(summary_df[,2]),]
 
-  summary_df <- summary_df[!as.character(summary_df[,1])%in%c("Malignant"),]
-  summary_df <- summary_df[!as.character(summary_df[,2])%in%c("Malignant"),]
+  summary_df <- summary_df[as.character(summary_df[,1])%in%unlist(SpaCE_obj@results$Ref$lineageTree),]
+  summary_df <- summary_df[as.character(summary_df[,2])%in%unlist(SpaCE_obj@results$Ref$lineageTree),]
 
   summary_df <- cbind(summary_df,label=paste0(summary_df[,1],"_",summary_df[,2]))
-  summary_df[summary_df[,"fraction_product"]<0.0005 ,"label"] <- NA
+  summary_df[summary_df[,"fraction_product"]<0.0005 ,"label"] <- ""
+  summary_df[summary_df[,"fraction_rho"]<0.1 ,"label"] <- ""
 
   summary_df[is.na(summary_df[,"fraction_rho"]),c("fraction_rho")] <- 0
 
@@ -120,17 +126,17 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
   res_weight <- lm(summary_df$fraction_rho ~ summary_df$reference_r, weight=summary_df$fraction)
 
-  p2 <- ggplot(summary_df, aes( reference_r, fraction_rho, label=label )) +
+  p2 <- ggplot(summary_df, aes( reference_rho, fraction_rho, label=label )) +
     geom_point(aes(size=fraction_product),color="#856aad")+
-    geom_smooth(method="lm",color="darkgrey",mapping = aes(weight = fraction_product))+
+    geom_smooth(method="lm",formula="y~x",color="darkgrey",mapping = aes(weight = fraction_product))+
     scale_size(range = c(0, 6))+
-    ggrepel::geom_text_repel()+
+    ggrepel::geom_text_repel(max.overlaps=20)+
     ggtitle(" ")+
     xlab("Cor (Reference profiles)")+
     ylab("Cor (Cell fractions)")+
     labs(size = "Fraction\nProduct")+
-    ylim(min(summary_df[,"fraction_rho"])-0.1,max(summary_df[,"fraction_rho"])+0.1)+
-    xlim(-0.6,1)+
+    ylim(min(summary_df[,"fraction_rho"])-0.02,max(summary_df[,"fraction_rho"])+0.02)+
+    xlim(min(summary_df[,"reference_rho"])-0.02,max(summary_df[,"reference_rho"])+0.02)+
     theme_bw()+
     theme(
       plot.background = element_blank(),
@@ -149,15 +155,16 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
 
 #' @title Ligand-Receptor interaction enrichment analysis
-#' @description Calculate the overall intensity of L-R interactions at each ST spot.
+#' @description Calculate the overall intensity of L-R interactions within ST spots.
 #' @param SpaCE_obj An SpaCE object.
+#' @param coreNo Core number in parallel.
 #' @return An SpaCE object
 #' @examples
 #' SpaCE_obj <- SpaCE.CCI.LRNetworkScore(SpaCE_obj)
 #' @rdname SpaCE.CCI.LRNetworkScore
 #' @export
 #'
-SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj)
+SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
 {
   st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
 
@@ -194,6 +201,7 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj)
   }
 
   ###### permute
+  print("Permute Ligand-Receptor network.")
   LRdb_string <- c()
 
   set.seed(123456)
@@ -232,7 +240,8 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj)
     list(LR_raw,score)
   }
 
-  LRNetworkScoreList <- parallel::mclapply(1:spotNum,LRNetworkScore,mc.cores=8)
+  print("Calculate L-R network score.")
+  LRNetworkScoreList <- parallel::mclapply(1:spotNum,LRNetworkScore,mc.cores=coreNo)
 
   LRNetworkScoreMat <- matrix(unlist(LRNetworkScoreList),ncol=ncol(st.matrix.data))
   colnames(LRNetworkScoreMat) <- colnames(st.matrix.data)
@@ -248,8 +257,8 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj)
 #' @title Ligand-Receptor analysis for a co-localized cell-type pair
 #' @description Test the co-expression of ligands and receptors within the same ST spot for the co-localized cell-type pairs.
 #' @param SpaCE_obj An SpaCE object.
-#' @param cellTypePair Cancer type of this tumor ST dataset.
-#' @return An SpaCE object
+#' @param cellTypePair A pair of cell types.
+#' @return A ggplot object
 #' @examples
 #' SpaCE.CCI.cellTypePair(SpaCE_obj,cellTypePair=c("CAF","Macrophage M2"))
 #' @rdname SpaCE.CCI.cellTypePair
@@ -339,8 +348,6 @@ SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
 
   LRNetworkScoreMat <- SpaCE_obj@results$LRNetworkScore
 
-  #LRNetworkScoreMat[3,] <- -log10(LRNetworkScoreMat[3,])
-
   fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
   fg.df <- fg.df[!fg.df[,"group"]%in%"None",]
 
@@ -378,4 +385,3 @@ SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
   library(patchwork)
   p1+p2+p3
 }
-

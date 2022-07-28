@@ -12,15 +12,15 @@ setClass("SpaCE",
 #' @title Create an SpaCE object
 #' @description Read an ST dataset to create an SpaCE object.
 #' @param counts Count matrix with gene name (row) x spot ID (column)
-#' @param spotCoordinates Spot coordinate matrix with coordinates (row) x spot ID (column). This matrix should include two rows, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
-#' @param imageFile Path to the H&E image file. Can be "NA" if it is not available.
+#' @param spotCoordinates Spot coordinate matrix with spot ID (column) x coordinates (row). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
+#' @param imageFile Path to the H&E image file. Can be NA if it is not available.
 #' @param platform A character string indicating the platform, i.e., "Visium", "oldST", or "Slide-Seq".
 #' @param visiumPath Path to the visium output folder. See ‘Details’ for more information.
 #' @return An SpaCE object
 #' @details
 #' To create an SpaCE object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
 #'
-#' However, if user are analyzing Visium data, they only need to input "visiumPath". Please make sure that "visiumPath" point the standard output folders of 10x Visium, which have both `filtered_feature_bc_matrix` and `spatial` folders.
+#' However, if user are analyzing Visium data, they only need to input "visiumPath". Please make sure that "visiumPath" points to the standard output folder of 10x Visium, which have both `filtered_feature_bc_matrix` and `spatial` folders.
 #'
 #' The "filtered_feature_bc_matrix" folder includes \cr
 #' "barcodes.tsv.gz": spot level barcodes; \cr
@@ -30,10 +30,12 @@ setClass("SpaCE",
 #' The "spatial" folder includes \cr
 #' “tissue_positions_list.csv” : barcodes and spatial information; \cr
 #' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
-#' “scalefactors_json.json” : scaling factors for adjusting the coordinates .
+#' “scalefactors_json.json” : scaling factors for adjusting the coordinates.
+#'
 #' @examples
 #' visiumPath <- system.file("extdata",'Visium_BC',package = 'SpaCE')
 #' SpaCE_obj <- create.SpaCE.object(visiumPath = visiumPath)
+#'
 #' @rdname create.SpaCE.object
 #' @export
 #' @importFrom Matrix readMM
@@ -41,11 +43,11 @@ setClass("SpaCE",
 #'
 create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Visium","oldST","Slide-Seq"),visiumPath=NULL)
 {
-  if(!is.null(visiumPath)) platform<-"Visium"
-
   library(Matrix)
-  if(platform=="Visium")
+  if(!is.null(visiumPath))
   {
+    platform <- "Visium"
+
     st.matrix.data <- readMM(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz"))
     st.matrix.data <- as(st.matrix.data, "dgCMatrix")
 
@@ -54,9 +56,6 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
 
     rownames(st.matrix.data) <- st.matrix.gene[,2]
     colnames(st.matrix.data) <- st.matrix.anno[,1]
-
-    st.matrix.data <- rm_duplicates(st.matrix.data)
-    st.matrix.data <- rm_zeroRows(st.matrix.data)
 
     library(jsonlite)
     jsonFile <- fromJSON(paste0(visiumPath,"/spatial/scalefactors_json.json"))
@@ -68,7 +67,6 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
     barcode[["X"]] <- round(barcode[,4]*scalef,3)
     barcode[["Y"]] <- round(barcode[,5]*scalef,3)
 
-
     spotCoordinates <- barcode[colnames(st.matrix.data),c("X","Y")]
     rownames(spotCoordinates) <- barcode[colnames(st.matrix.data),c("comb")]
 
@@ -76,15 +74,12 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
 
     imageFile <- paste0(visiumPath,"/spatial/tissue_lowres_image.png")
 
-    deconvolution <- as.matrix(read.csv(paste0(visiumPath,"/propMat_SpaCE.csv"),row.names=1))
-    colnames(deconvolution) <- gsub("X","",colnames(deconvolution))
-
   }else{
     st.matrix.data <- as(counts, "dgCMatrix")
-
-    st.matrix.data <- rm_duplicates(st.matrix.data)
-    st.matrix.data <- rm_zeroRows(st.matrix.data)
   }
+
+  st.matrix.data <- rm_zeroRows(st.matrix.data)
+  st.matrix.data <- rm_duplicates(st.matrix.data)
 
   UMI <- colSums(as.matrix(st.matrix.data))
   Gene <- colSums(as.matrix(st.matrix.data)>0)
@@ -104,6 +99,9 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
   SpaCE_obj
 }
 
+rm_zeroRows <- function(mat){
+  mat[rowSums(as.matrix(mat))>0,]
+}
 
 rm_duplicates <- function(mat){
   dupl <- duplicated(rownames(mat))
@@ -121,9 +119,4 @@ rm_duplicates <- function(mat){
     }
   }
   return(mat)
-}
-
-
-rm_zeroRows <- function(mat){
-  mat[rowSums(as.matrix(mat))>0,]
 }

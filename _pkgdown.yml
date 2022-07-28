@@ -8,9 +8,9 @@ navbar:
       href: index.html
     - text: Tutorials
       menu:
-      - text: Cell type deconvolution and interaction analysis
+      - text: Cell type deconvolution and interaction analysis without reference
         href: articles/visium_BC.html
-      - text: Deconvolution with matched scRNA-seq data
+      - text: Deconvolution with a matched scRNA-seq data set
         href: articles/oldST_PDAC.html
     - text: News
       href: news/index.html

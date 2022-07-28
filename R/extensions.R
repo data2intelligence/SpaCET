@@ -2,13 +2,12 @@
 #' @description Explore different cancer cell state in tumor ST dataset.
 #' @param SpaCE_obj An SpaCE object.
 #' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells.
-#' @param coreNo Core number.
+#' @param coreNo Core number in parallel.
 #' @return An SpaCE object
 #' @examples
 #' SpaCE_obj <- SpaCE.deconvolution.malignant(SpaCE_obj)
 #' @rdname SpaCE.deconvolution.malignant
 #' @export
-#'
 SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo=8)
 {
   st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
@@ -17,7 +16,6 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
   st.matrix.data.mal <- st.matrix.data[,res_deconv["Malignant",]>=malignantCutoff]
   st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e6/colSums(st.matrix.data.mal) )
   st.matrix.data.mal.log <- log2(st.matrix.data.mal.CPM+1)
-
 
   # clustering
   set.seed(123)
@@ -60,6 +58,8 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
   names(Content) <- colnames(clustering)
 
   states <- sort(unique(Content))
+
+  print(paste0("Identify ",length(states)," cancer cell states"))
 
   refProfiles <- data.frame()
   sigGenes <- list()
@@ -113,22 +113,18 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
 }
 
 
-
-#' Deconvolve tumor ST data set
-#'
 #' @title Deconvolve tumor ST data set
 #' @description Estimate the fraction of cell lineage and sub lineage.
-#' @param sc_counts Count matrix with gene name (row) x cell ID (column).
-#' @param sc_annotation This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
-#' @param sc_lineageTree This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param SpaCE_obj An SpaCE object.
+#' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
+#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
+#' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param coreNo Core number.
 #' @return An SpaCE object
 #' @examples
-#' SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(SpaCE_obj)
+#' SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(SpaCE_obj, sc_counts, sc_annotation, sc_lineageTree)
 #' @rdname SpaCE.deconvolution.matched.scRNAseq
 #' @export
-#'
 SpaCE.deconvolution.matched.scRNAseq <- function(SpaCE_obj, sc_counts, sc_annotation, sc_lineageTree, coreNo=8)
 {
   st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
@@ -152,6 +148,7 @@ SpaCE.deconvolution.matched.scRNAseq <- function(SpaCE_obj, sc_counts, sc_annota
     coreNo=coreNo
   )
 
+  SpaCE_obj@results$Ref <- Ref
   SpaCE_obj@results$deconvolution <- propMat
   SpaCE_obj
 

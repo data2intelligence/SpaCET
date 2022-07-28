@@ -1,3 +1,40 @@
+#' @title Deconvolve tumor ST data set
+#' @description Estimate the fraction of cell lineages and sub lineages.
+#' @param SpaCE_obj An SpaCE object.
+#' @param cancerType Cancer type of this tumor ST dataset.
+#' @param coreNo Core number in parallel.
+#' @return An SpaCE object
+#' @examples
+#' SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
+#' @rdname SpaCE.deconvolution
+#' @export
+#'
+SpaCE.deconvolution <- function(SpaCE_obj,cancerType,coreNo=8)
+{
+  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
+
+  print("Stage 1. Infer malignant cell fraction.")
+  malRes <- inferMal_cor(st.matrix.data,cancerType)
+
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCE') )
+
+  print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
+
+  propMat <- SpatialDeconv(
+    ST=st.matrix.data,
+    Ref=Ref,
+    malProp=malRes$malProp,
+    malRef=malRes$malRef,
+    mode="standard",
+    coreNo=coreNo
+  )
+
+  SpaCE_obj@results$Ref <- Ref
+  SpaCE_obj@results$deconvolution <- propMat
+  SpaCE_obj
+}
+
+
 corMat <- function(X,Y,method="pearson")
 {
   olp <- intersect(rownames(X),rownames(Y))
@@ -112,7 +149,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     {
       if(sum(cancerTypeExists) > 0)
       {
-        print(paste0("                  > Use cancer-type specific ",CNA_expr," signature."))
+        print(paste0("                  > Use cancer-type specific ",CNA_expr," signature: ",cancerType))
       }else{
         print(paste0("                  > Use pan-cancer expr signature."))
       }
@@ -218,13 +255,14 @@ SpatialDeconv <- function(
   tempReference <- Reference
   tempSignature <- Signature
 
-  print("Stage 2 - Level 1. Estimate the major lineage.")
 
   ###### level 1 deconv ######
   Level1 <- names(Tree)[names(Tree)%in%colnames(tempReference)]
 
   if(mode!="deconvMal")
   {
+    print("Stage 2 - Level 1. Estimate the major lineage.")
+
     mixture <- mixtureMinusMal
     Reference <- tempReference[,Level1]
     Signature <- tempSignature[c(Level1,"T cell")]
@@ -410,41 +448,4 @@ SpatialDeconv <- function(
     propMat[propMat>1] <- 1
 
     propMat
-}
-
-
-#' @title Deconvolve tumor ST data set
-#' @description Estimate the fraction of cell lineage and sub lineage.
-#' @param SpaCE_obj An SpaCE object.
-#' @param cancerType Cancer type of this tumor ST dataset.
-#' @param coreNo Core number.
-#' @return An SpaCE object
-#' @examples
-#' SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
-#' @rdname SpaCE.deconvolution
-#' @export
-#'
-SpaCE.deconvolution <- function(SpaCE_obj,cancerType,coreNo=8)
-{
-  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
-
-  print("Stage 1. Infer malignant cell fraction.")
-  malRes <- inferMal_cor(st.matrix.data,cancerType)
-
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCE') )
-
-  print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
-
-  propMat <- SpatialDeconv(
-    ST=st.matrix.data,
-    Ref=Ref,
-    malProp=malRes$malProp,
-    malRef=malRes$malRef,
-    mode="standard",
-    coreNo=coreNo
-  )
-
-  SpaCE_obj@results$Ref <- Ref
-  SpaCE_obj@results$deconvolution <- propMat
-  SpaCE_obj
 }

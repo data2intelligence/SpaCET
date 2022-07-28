@@ -14,7 +14,7 @@ SpaCE.visualize.metrics(
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{itemQC}{Item for quality control metrics.i.e., "UMI" or "gene".}
+\item{itemQC}{Item for quality control metrics. i.e., "UMI" or "gene".}
 
 \item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
 }
@@ -25,5 +25,5 @@ A ggplot2 object
 Visualize quality control metrics in ST dataset.
 }
 \examples{
-SpaCE.visualize.metrics(SpaCE_obj,"EPCAM",imageBg = FALSE)
+SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
 }
