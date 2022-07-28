@@ -165,7 +165,6 @@ SpaCE.CCI.cellTypePair(SpaCE_obj, cellTypePair=c("CAF","Macrophage M2"))
 
 <img src="img/CAF-M2.png" width="100%" style="border:none" />
 
-
 ## Explore cancer cell states
 The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCE can automatically explore the spatial distribution of different cancer cell states.
 

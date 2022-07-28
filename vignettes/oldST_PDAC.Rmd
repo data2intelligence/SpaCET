@@ -70,7 +70,7 @@ SpaCE_obj <- create.SpaCE.object(
 str(SpaCE_obj)
 
 ```
-## Deconvolve cell lineages
+## Deconvolve cell lineage
 We provide `SpaCE.deconvolution.matched.scRNAseq` to deconvolve an SpaCE object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
 
 1) single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data must be in the format of matrix with gene name (row) x cell ID (column).
