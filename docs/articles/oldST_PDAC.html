@@ -84,16 +84,15 @@
     
     
 <p>Since most tumor spatial transcriptomics (ST) data do not have
-matched scRNA-seq data from the same sample, SpaCE does not require a
-malignant reference and has a built-in immune and stromal cell
-reference. However, SpaCE can accept a customized reference to carry out
-cell type deconvolution. This tutorial demonstrates how to run SpaCE
-with matched scRNA-seq dataset by using a pancreatic ductal
-adenocarcinoma (PDAC) ST data set <a href="https://www.nature.com/articles/s41587-019-0392-8" target="_blank" class="external-link">Moncada et al, 2020</a>.</p>
+matched scRNA-seq data from the same sample, SpaCE does not require
+malignant, stromal and immune cell reference. However, SpaCE can still
+accept a customized reference to carry out cell type deconvolution. This
+tutorial demonstrates how to run SpaCE with a matched scRNA-seq dataset
+by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from <a href="https://www.nature.com/articles/s41587-019-0392-8" target="_blank" class="external-link">Moncada et al, 2020</a>.</p>
 <div class="section level2">
 <h2 id="create-space-object">Create SpaCE object<a class="anchor" aria-label="anchor" href="#create-space-object"></a>
 </h2>
-<p>To create an SpaCE object, user need to prepare three types of input
+<p>To create an SpaCE object, user need to prepare four types of input
 data referring to a tumor ST dataset.</p>
 <ol style="list-style-type: decimal">
 <li>spatial transcriptomics count data. The spatial transcriptomics
@@ -104,48 +103,52 @@ format of matrix with spot ID (row) x coordinates (column). This 1st and
 2nd columns represent X and Y coordinates, respectively.</li>
 <li>path to the H&amp;E image file. The image path can be NA if
 unavailable.</li>
+<li>platform</li>
 </ol>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SpaCE)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>PDAC_Path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, <span class="at">package =</span> <span class="st">'SpaCE'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">paste0</span>(PDAC_Path,<span class="st">"/st_PDAC.rda"</span>))</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># show count matrix</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>counts[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>       10x10 10x13 10x14 10x15 10x16</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>A1CF       <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>A2M       <span class="dv">13</span>     <span class="dv">0</span>     <span class="dv">4</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>A4GALT     <span class="dv">1</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>A4GNT      <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">1</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>AAAS       <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>AACS       <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span>     <span class="dv">0</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># show coordinate matrix</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>spotCoordinates[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,]</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>       X  Y</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>10x10 <span class="dv">10</span> <span class="dv">10</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>10x13 <span class="dv">10</span> <span class="dv">13</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>10x14 <span class="dv">10</span> <span class="dv">14</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>10x15 <span class="dv">10</span> <span class="dv">15</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>10x16 <span class="dv">10</span> <span class="dv">16</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># load ST data to create an SpaCE object.</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>SpaCE_obj <span class="ot">&lt;-</span> <span class="fu">create.SpaCE.object</span>(</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">counts=</span>counts,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">spotCoordinates=</span>spotCoordinates,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">imageFile=</span><span class="cn">NA</span>,</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">platform =</span> <span class="st">"oldST"</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># show this object.</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(SpaCE_obj)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCE" class="external-link">SpaCE</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">PDAC_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCE'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">PDAC_Path</span>,<span class="st">"/st_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show count matrix</span></span>
+<span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">##        10x10 10x13 10x14 10x15 10x16</span></span>
+<span><span class="co">## A1CF       0     0     0     0     0</span></span>
+<span><span class="co">## A2M       13     0     4     0     0</span></span>
+<span><span class="co">## A4GALT     1     0     0     0     0</span></span>
+<span><span class="co">## A4GNT      0     0     1     0     0</span></span>
+<span><span class="co">## AAAS       0     0     0     0     0</span></span>
+<span><span class="co">## AACS       0     0     0     0     0</span></span>
+<span></span>
+<span><span class="co"># show coordinate matrix</span></span>
+<span><span class="va">spotCoordinates</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span></span>
+<span></span>
+<span><span class="co">##        X  Y</span></span>
+<span><span class="co">## 10x10 10 10</span></span>
+<span><span class="co">## 10x13 10 13</span></span>
+<span><span class="co">## 10x14 10 14</span></span>
+<span><span class="co">## 10x15 10 15</span></span>
+<span><span class="co">## 10x16 10 16</span></span>
+<span></span>
+<span><span class="co"># load ST data to create an SpaCE object.</span></span>
+<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCE.object.html">create.SpaCE.object</a></span><span class="op">(</span></span>
+<span>  counts<span class="op">=</span><span class="va">counts</span>,</span>
+<span>  spotCoordinates<span class="op">=</span><span class="va">spotCoordinates</span>,</span>
+<span>  imageFile<span class="op">=</span><span class="cn">NA</span>,</span>
+<span>  platform <span class="op">=</span> <span class="st">"oldST"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show this object.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="deconvolve-cell-type-identities">Deconvolve cell type identities<a class="anchor" aria-label="anchor" href="#deconvolve-cell-type-identities"></a>
+<h2 id="deconvolve-cell-lineages">Deconvolve cell lineages<a class="anchor" aria-label="anchor" href="#deconvolve-cell-lineages"></a>
 </h2>
 <p>We provide <code>SpaCE.deconvolution.matched.scRNAseq</code> to
 deconvolve an SpaCE object with a customized scRNA-seq data. User need
-to prepare three types of input data referring to the scRNA-seq
+to prepare three types of input data referring to the matched scRNA-seq
 dataset.</p>
 <ol style="list-style-type: decimal">
 <li>single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data
@@ -159,50 +162,54 @@ elements are the corresponding sublineages. If a major lineage does not
 have any sublineages, the value of this major lineage should be
 itself.</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load sc data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>PDAC_Path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, <span class="at">package =</span> <span class="st">'SpaCE'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">paste0</span>(PDAC_Path,<span class="st">"/sc_PDAC.rda"</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># show count matrix</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>sc_counts[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        c1 c2 c3 c4 c5</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>A1BG     <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>A1CF     <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">1</span>  <span class="dv">0</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>A2M      <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>A2ML1    <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>A3GALT2  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>A4GALT   <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span>  <span class="dv">0</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># show cell annotation matrix</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>sc_annotation[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>   cellID bio_celltype                            </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>c1 <span class="st">"c1"</span>   <span class="st">"Acinar cells"</span>                          </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>c2 <span class="st">"c2"</span>   <span class="st">"Ductal - terminal ductal like"</span>         </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>c3 <span class="st">"c3"</span>   <span class="st">"Ductal - terminal ductal like"</span>         </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>c4 <span class="st">"c4"</span>   <span class="st">"Ductal - CRISP3 high/centroacinar like"</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>c5 <span class="st">"c5"</span>   <span class="st">"Cancer clone A"</span>                        </span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>c6 <span class="st">"c6"</span>   <span class="st">"Cancer clone A"</span> </span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># show cell type lineage tree</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sc_lineageTree)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span>Cancer</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Cancer clone A"</span> <span class="st">"Cancer clone B"</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span>Ductal</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Ductal - APOL1 high/hypoxic"</span>            <span class="st">"Ductal - CRISP3 high/centroacinar like"</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>[<span class="dv">3</span>] <span class="st">"Ductal - MHC Class II"</span>                  <span class="st">"Ductal - terminal ductal like"</span>         </span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span>Macrophage</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Macrophages A"</span> <span class="st">"Macrophages B"</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span>mDC</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"mDCs A"</span> <span class="st">"mDCs B"</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span><span class="st">`</span><span class="at">Acinar cells</span><span class="st">`</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Acinar cells"</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="sc">$</span><span class="st">`</span><span class="at">Endocrine cells</span><span class="st">`</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Endocrine cells"</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># load sc data</span></span>
+<span><span class="va">PDAC_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCE'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">PDAC_Path</span>,<span class="st">"/sc_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show count matrix</span></span>
+<span><span class="va">sc_counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">##         c1 c2 c3 c4 c5</span></span>
+<span><span class="co">## A1BG     0  0  0  0  0</span></span>
+<span><span class="co">## A1CF     0  0  0  1  0</span></span>
+<span><span class="co">## A2M      0  0  0  0  0</span></span>
+<span><span class="co">## A2ML1    0  0  0  0  0</span></span>
+<span><span class="co">## A3GALT2  0  0  0  0  0</span></span>
+<span><span class="co">## A4GALT   0  0  0  0  0</span></span>
+<span></span>
+<span><span class="co"># show cell annotation matrix</span></span>
+<span><span class="va">sc_annotation</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">##    cellID bio_celltype                            </span></span>
+<span><span class="co">## c1 "c1"   "Acinar cells"                          </span></span>
+<span><span class="co">## c2 "c2"   "Ductal - terminal ductal like"         </span></span>
+<span><span class="co">## c3 "c3"   "Ductal - terminal ductal like"         </span></span>
+<span><span class="co">## c4 "c4"   "Ductal - CRISP3 high/centroacinar like"</span></span>
+<span><span class="co">## c5 "c5"   "Cancer clone A"                        </span></span>
+<span><span class="co">## c6 "c6"   "Cancer clone A" </span></span>
+<span></span>
+<span><span class="co"># show cell type lineage tree</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sc_lineageTree</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## $Cancer</span></span>
+<span><span class="co">## [1] "Cancer clone A" "Cancer clone B"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $Ductal</span></span>
+<span><span class="co">## [1] "Ductal - APOL1 high/hypoxic"            "Ductal - CRISP3 high/centroacinar like"</span></span>
+<span><span class="co">## [3] "Ductal - MHC Class II"                  "Ductal - terminal ductal like"         </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $Macrophage</span></span>
+<span><span class="co">## [1] "Macrophages A" "Macrophages B"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $mDC</span></span>
+<span><span class="co">## [1] "mDCs A" "mDCs B"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`Acinar cells`</span></span>
+<span><span class="co">## [1] "Acinar cells"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`Endocrine cells`</span></span>
+<span><span class="co">## [1] "Endocrine cells"</span></span></code></pre></div>
 <p>Then, user can run <code>SpaCE.deconvolution.matched.scRNAseq</code>
 to carry out cell type deconvolution.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -220,7 +227,32 @@ to carry out cell type deconvolution.</p>
 <span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Acinar cells"</span><span class="op">)</span></span>
 <span><span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">p3</span><span class="op">+</span><span class="va">p4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="img/PDAC.png" width="100%" style="border:none"></p>
+<p><img src="img/PDAC_prop.png" width="100%" style="border:none"></p>
+<p>User can use the following code to visualize the marker gene
+expression level and verify the cell type deconvolution.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"TM4SF1"</span><span class="op">)</span> <span class="co"># marker for cancer cell state A</span></span>
+<span><span class="va">p6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"S100A4"</span><span class="op">)</span> <span class="co"># marker for cancer cell state B</span></span>
+<span><span class="va">p7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"PRSS1"</span><span class="op">)</span> <span class="co"># marker for acinar cell</span></span>
+<span><span class="va">p8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"CRISP3"</span><span class="op">)</span> <span class="co"># marker for centroacinar like ductal cell</span></span>
+<span><span class="op">(</span><span class="va">p5</span><span class="op">+</span><span class="va">p6</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">p7</span><span class="op">+</span><span class="va">p8</span><span class="op">)</span></span></code></pre></div>
+<p><img src="img/PDAC_expr.png" width="100%" style="border:none"></p>
+</div>
+<div class="section level2">
+<h2 id="identify-cell-cell-interaction">Identify cell-cell interaction<a class="anchor" aria-label="anchor" href="#identify-cell-cell-interaction"></a>
+</h2>
+<p>After decomposing cell fractions, SpaCE can infer intercellular
+interactions based on cell colocalization and ligand-receptor
+coexpression. Linear correlations of cell fraction between cell types
+are computed across all ST spots to evaluate cell-type colocalization.
+High positive correlations indicate that cell-type pairs tend to
+colocalize together. To infer physical interactions, SpaCE tests the
+co-expression of ligand and receptor genes within the same ST spot for
+the co-localized cell-type pairs. SpaCE provides
+<code>SpaCE.CCI.colocalization</code> and
+<code>SpaCE.visualize.colocalization</code> to compute and visualize the
+co-localized cell-type pairs.</p>
+<p><img src="img/PDAC_CCC.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="extand-this-function-module">Extand this function module<a class="anchor" aria-label="anchor" href="#extand-this-function-module"></a>

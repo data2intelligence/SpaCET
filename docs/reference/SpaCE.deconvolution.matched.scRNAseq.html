@@ -74,15 +74,15 @@
 
 
 <dt>sc_counts</dt>
-<dd><p>Count matrix with gene name (row) x cell ID (column).</p></dd>
+<dd><p>Single cell count matrix with gene name (row) x cell ID (column).</p></dd>
 
 
 <dt>sc_annotation</dt>
-<dd><p>This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.</p></dd>
+<dd><p>Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.</p></dd>
 
 
 <dt>sc_lineageTree</dt>
-<dd><p>This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.</p></dd>
+<dd><p>Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.</p></dd>
 
 
 <dt>coreNo</dt>
@@ -95,14 +95,10 @@
 
 <p>An SpaCE object</p>
     </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Deconvolve tumor ST data set</p>
-    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu">SpaCE.deconvolution.matched.scRNAseq</span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu">SpaCE.deconvolution.matched.scRNAseq</span><span class="op">(</span><span class="va">SpaCE_obj</span>, <span class="va">sc_counts</span>, <span class="va">sc_annotation</span>, <span class="va">sc_lineageTree</span><span class="op">)</span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

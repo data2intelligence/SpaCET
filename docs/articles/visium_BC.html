@@ -90,11 +90,11 @@ that the SpaCE package and its dependencies have been installed.</p>
 <div class="section level2">
 <h2 id="create-space-object">Create SpaCE object<a class="anchor" aria-label="anchor" href="#create-space-object"></a>
 </h2>
-<p>To read your ST data into R, user can create an SpaCE object by
-<code>create.SpaCE.object</code>. Specifical, if user are analyzing a
+<p>To read your ST data into R, user can create an SpaCE object by using
+<code>create.SpaCE.object</code>. Specifically, if user are analyzing a
 Visium dataset, they only need to input “visiumPath”. Please make sure
-that “visiumPath” point the standard output folders of 10x Visium, which
-has both “filtered_feature_bc_matrix” and “spatial” folders.</p>
+that “visiumPath” points to the standard output folders of 10x Visium,
+which has both “filtered_feature_bc_matrix” and “spatial” folders.</p>
 <p>The “filtered_feature_bc_matrix”`” folder includes<br>
 “barcodes.tsv.gz”: spot level barcodes<br>
 “features.tsv.gz”: list of genes<br>
@@ -145,22 +145,23 @@ types, a constrained regression model is used to determine immune and
 stromal cell fraction, and also include an unidentifiable component to
 calibrate cellular density variations across tissue regions.</p>
 <p>Specifically, user need to specify the cancer type of this tumor ST
-data set by using <code>cancerType</code> parameter, which aim to select
-cancer type-specific CNA or expression signature to infer malignant cell
-fraction. When correlating expression profiles of ST spots to the cancer
-type-specific signature, we set the cancer type-specific CNA signature
-as the first option because chromosomal instability is widely considered
-one consistent feature of human tumors. Alternatively, if no spots
-strongly correlate with the CNA signature, the cancer type-specific
-expression signature would be activated. This situation might result
-from chromosomally stable cancer cells with low CNA. For cancer types
-not included in our dictionary, we created a pan-cancer expression
-signature by averaging all cancer type-specific expression
-signatures.</p>
+data set by using <code>cancerType</code> parameter, which is utilized
+to select cancer type-specific CNA or expression signature to infer
+malignant cell fraction. The code of cancer types can be found in the
+following dropdown content. When correlating expression profiles of ST
+spots to the cancer type-specific signature, we set the cancer
+type-specific CNA signature as the first option because chromosomal
+instability is widely considered one consistent feature of human tumors.
+Alternatively, if no spots strongly correlate with the CNA signature,
+the cancer type-specific expression signature would be activated. This
+situation might result from chromosomally stable cancer cells with low
+CNA. For cancer types not included in our dictionary, we created a
+pan-cancer expression signature by averaging all cancer type-specific
+expression signatures.</p>
 <details><summary><strong>How many caner types are in the gene pattern
 dictionary?</strong>
-</summary><p>We built a gene pattern dictionary of copy number alterations (CNA)
-and expression changes for 30 solid tumor types. The cancer
+</summary><p>SpaCE includes a gene pattern dictionary of copy number alterations
+(CNA) and expression changes for 30 solid tumor types. The cancer
 type-specific CNA signature of a cancer type was computed by averaging
 bulk tumor CNA values on gene levels across patients. For each cancer
 type, the lower quartile of patients sorted by total CNA burdens was
@@ -171,32 +172,34 @@ cancer types do not have expression signatures due to a lack of adequate
 normal samples (n &lt; 10 patients). The pan-cancer expression signature
 was created by averaging all cancer type-specific expression
 signatures.</p>
-<img src="img/cancerDictionary.png" width="100%" style="border:none"></details><div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># deconvolve ST data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>SpaCE_obj <span class="ot">&lt;-</span> <span class="fu">SpaCE.deconvolution</span>(SpaCE_obj, <span class="at">cancerType=</span><span class="st">"BRCA"</span>, <span class="at">coreNo=</span><span class="dv">8</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># show the ST deconvolution results</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>SpaCE_obj<span class="sc">@</span>results<span class="sc">$</span>deconvolution[<span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                  50x102 59x19        14x94        47x13        73x43</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>Malignant   <span class="fl">2.860636e-01</span>     <span class="dv">1</span> <span class="fl">6.845966e-02</span> <span class="fl">3.899756e-01</span> <span class="fl">9.608802e-01</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>CAF         <span class="fl">3.118545e-01</span>     <span class="dv">0</span> <span class="fl">3.397067e-01</span> <span class="fl">1.111980e-01</span> <span class="fl">3.372692e-02</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>Endothelial <span class="fl">5.510895e-02</span>     <span class="dv">0</span> <span class="fl">1.427060e-01</span> <span class="fl">3.080531e-02</span> <span class="fl">5.263544e-03</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>Plasma      <span class="fl">2.213392e-02</span>     <span class="dv">0</span> <span class="fl">1.507382e-02</span> <span class="fl">1.183170e-02</span> <span class="fl">9.071809e-06</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>B cell      <span class="fl">3.885793e-03</span>     <span class="dv">0</span> <span class="fl">9.271616e-02</span> <span class="fl">1.406470e-01</span> <span class="fl">1.329085e-06</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>T CD4       <span class="fl">1.344389e-01</span>     <span class="dv">0</span> <span class="fl">1.554305e-02</span> <span class="fl">1.249414e-01</span> <span class="fl">1.112392e-05</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>T CD8       <span class="fl">7.578696e-03</span>     <span class="dv">0</span> <span class="fl">2.514558e-07</span> <span class="fl">1.379856e-03</span> <span class="fl">1.123043e-06</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>NK          <span class="fl">7.104005e-04</span>     <span class="dv">0</span> <span class="fl">1.670019e-06</span> <span class="fl">4.890387e-08</span> <span class="fl">3.562557e-07</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>cDC         <span class="fl">1.421632e-07</span>     <span class="dv">0</span> <span class="fl">8.278023e-02</span> <span class="fl">7.584295e-02</span> <span class="fl">2.851146e-07</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>pDC         <span class="fl">1.606443e-06</span>     <span class="dv">0</span> <span class="fl">2.283754e-02</span> <span class="fl">1.805671e-02</span> <span class="fl">3.878344e-07</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>Macrophage  <span class="fl">1.703304e-01</span>     <span class="dv">0</span> <span class="fl">5.021248e-02</span> <span class="fl">9.531511e-02</span> <span class="fl">9.253645e-07</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>Mast        <span class="fl">7.905067e-08</span>     <span class="dv">0</span> <span class="fl">1.621498e-05</span> <span class="fl">1.333430e-07</span> <span class="fl">1.162099e-07</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>Neutrophil  <span class="fl">1.380073e-05</span>     <span class="dv">0</span> <span class="fl">9.528996e-07</span> <span class="fl">1.167503e-08</span> <span class="fl">9.908635e-05</span></span></code></pre></div>
+<p><img src="img/cancerDictionary.png" width="100%" style="border:none"></p>
+</details><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># deconvolve ST data</span></span>
+<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.html">SpaCE.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show the ST deconvolution results</span></span>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">##                   50x102 59x19        14x94        47x13        73x43</span></span>
+<span><span class="co">## Malignant   2.860636e-01     1 6.845966e-02 3.899756e-01 9.608802e-01</span></span>
+<span><span class="co">## CAF         3.118545e-01     0 3.397067e-01 1.111980e-01 3.372692e-02</span></span>
+<span><span class="co">## Endothelial 5.510895e-02     0 1.427060e-01 3.080531e-02 5.263544e-03</span></span>
+<span><span class="co">## Plasma      2.213392e-02     0 1.507382e-02 1.183170e-02 9.071809e-06</span></span>
+<span><span class="co">## B cell      3.885793e-03     0 9.271616e-02 1.406470e-01 1.329085e-06</span></span>
+<span><span class="co">## T CD4       1.344389e-01     0 1.554305e-02 1.249414e-01 1.112392e-05</span></span>
+<span><span class="co">## T CD8       7.578696e-03     0 2.514558e-07 1.379856e-03 1.123043e-06</span></span>
+<span><span class="co">## NK          7.104005e-04     0 1.670019e-06 4.890387e-08 3.562557e-07</span></span>
+<span><span class="co">## cDC         1.421632e-07     0 8.278023e-02 7.584295e-02 2.851146e-07</span></span>
+<span><span class="co">## pDC         1.606443e-06     0 2.283754e-02 1.805671e-02 3.878344e-07</span></span>
+<span><span class="co">## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07</span></span>
+<span><span class="co">## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07</span></span>
+<span><span class="co">## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="visualize-the-cell-type-proportion">Visualize the cell type proportion<a class="anchor" aria-label="anchor" href="#visualize-the-cell-type-proportion"></a>
 </h2>
-<p>We provide <code>SpaCE.visualize.deconvolution</code> to show the
-spatial distribution of cell type by setting the parameter
+<p>We provide <code>SpaCE.visualize.deconvolution</code> to present the
+spatial distribution of cell types by setting the parameter
 <code>cellType</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
@@ -214,7 +217,7 @@ spots.</p>
 <p><img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
-<h2 id="find-cell-cell-interaction">Find cell-cell interaction<a class="anchor" aria-label="anchor" href="#find-cell-cell-interaction"></a>
+<h2 id="identify-cell-cell-interaction">Identify cell-cell interaction<a class="anchor" aria-label="anchor" href="#identify-cell-cell-interaction"></a>
 </h2>
 <p>After decomposing cell fractions, SpaCE can infer intercellular
 interactions based on cell colocalization and ligand-receptor
@@ -225,18 +228,11 @@ colocalize together. To infer physical interactions, SpaCE tests the
 co-expression of ligand and receptor genes within the same ST spot for
 the co-localized cell-type pairs.</p>
 <div class="section level3">
-<h3 id="identify-the-co-localized-cell-type-pairs">Identify the co-localized cell-type pairs<a class="anchor" aria-label="anchor" href="#identify-the-co-localized-cell-type-pairs"></a>
+<h3 id="find-the-co-localized-cell-type-pairs">Find the co-localized cell-type pairs<a class="anchor" aria-label="anchor" href="#find-the-co-localized-cell-type-pairs"></a>
 </h3>
-<p>In this breast tumor tissue, we identified several potential
-colocalized cell-type pairs (see the left panel in the following
-figure), such as CAFs with endothelial cells and M2 macrophages. To rule
-out a high cell fraction correlation caused by similar reference
-profiles, we compared the correlations between cell-type fractions and
-between cell-type reference profiles (see the right panel). Although the
-correlation of CAF and endothelial cell fractions is high, their profile
-similarity is also proportionally high. However, the similarity between
-CAF and M2 macrophage references was extremely low, indicating that the
-CAF-M2 colocalization is not simply due to profile similarity.</p>
+<p>SpaCE provides <code>SpaCE.CCI.colocalization</code> and
+<code>SpaCE.visualize.colocalization</code> to compute and visualize the
+co-localized cell-type pairs.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the cell-cell colocalization.</span></span>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span>
@@ -244,6 +240,16 @@ CAF-M2 colocalization is not simply due to profile similarity.</p>
 <span><span class="co"># visualize the cell-cell colocalization.</span></span>
 <span><span class="fu"><a href="../reference/SpaCE.visualize.colocalization.html">SpaCE.visualize.colocalization</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/CCC.png" width="100%" style="border:none"></p>
+<p>In this breast tumor tissue, we identified several potential
+colocalized cell-type pairs (see red dots in the left panel), such as
+CAFs with endothelial cells and M2 macrophages. To rule out a high cell
+fraction correlation caused by similar reference profiles, we compared
+the correlations between cell-type fractions and between cell-type
+reference profiles (see the right panel). Although the correlation of
+CAF and endothelial cell fractions is high, their profile similarity is
+also proportionally high. However, the similarity between CAF and M2
+macrophage references was extremely low, indicating that the CAF-M2
+colocalization is not simply due to profile similarity.</p>
 </div>
 <div class="section level3">
 <h3 id="analyze-the-l-r-network-enrichment-within-st-spots">Analyze the L-R network enrichment within ST spots<a class="anchor" aria-label="anchor" href="#analyze-the-l-r-network-enrichment-within-st-spots"></a>
@@ -259,7 +265,7 @@ all L-R pairs, divided by the average random value from 1,000 randomized
 networks.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span>
+<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize the cell-cell colocalization.</span></span>
 <span><span class="fu"><a href="../reference/SpaCE.visualize.LRNetworkScore.html">SpaCE.visualize.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
@@ -273,12 +279,10 @@ cells in the breast tumor tissue, SpaCE grouped all ST spots into four
 categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the
 left and middle panels in the following figure). We found that CAF-M2
 colocalized spots have more substantial L-R interaction network scores
-than CAF/M2-dominated spots (right panel). These results lead to the
-prediction of CAF-M2 interactions, but not CAF-Endothelial
-interactions.</p>
+than CAF/M2-dominated spots (right panel).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
-<span><span class="fu"><a href="../reference/SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/CAF-M2.png" width="100%" style="border:none"></p>
 </div>
 </div>
@@ -298,7 +302,16 @@ similarity among the ST spots within each cluster compared to other
 clusters, was used to select the optimal cluster number.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># further deconvolve malignant cell states</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span>
+<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show cancer cell state fraction of the first five spots</span></span>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Cancer cell state"</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">##                         50x102        59x19        14x94     47x13        73x43</span></span>
+<span><span class="co">## Cancer cell state A 0.21735562 9.999900e-01 6.845963e-02 0.2135212 9.608802e-01</span></span>
+<span><span class="co">## Cancer cell state B 0.06870794 1.239573e-11 2.906452e-08 0.1764543 2.402767e-10</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Cancer cell state A"</span><span class="op">)</span></span>
