@@ -33,6 +33,16 @@ To install `SpaCE`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCE")
 ```
 
+Or user can install from the local source code:
+
+``` r
+# download in the shell.
+git clone https://github.com/data2intelligence/SpaCE.git
+
+# install SpaCE in R environment.
+install.packages(“location_to_SpaCE_gitclone", repos = NULL, type="source”)
+``` 
+
 ## Dependencies
 
 * R version >= 4.2.0. 
