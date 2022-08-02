@@ -195,7 +195,7 @@ generateRef <- function(
     }
     temp <- table(markers)
 
-    sigGenes[[cellType]] <- names(temp)[temp>=13]
+    sigGenes[[cellType]] <- names(temp)[temp>=length(cellTypes_level_1)-1]
 
 
     if(cellType%in%cellTypes_level_1_toBeSplit)
