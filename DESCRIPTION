@@ -10,6 +10,6 @@ Encoding: UTF-8
 RoxygenNote: 7.2.0
 Imports: 
     Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
-    factoextra, NbClust, cluster, parallel, psych, limma
+    factoextra, NbClust, cluster, parallel, psych, SummarizedExperiment
 Remotes:
-    bioc::release/limma
+    bioc::3.3/SummarizedExperiment#117513
