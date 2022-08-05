@@ -12,7 +12,5 @@ Imports:
     Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny, 
     factoextra, NbClust, cluster, parallel, psych
 Remotes:
-    github::JEFworks/MUDAN,
-    bioc::BiRewire,
-    bioc::limma
+    github::JEFworks/MUDAN
     
