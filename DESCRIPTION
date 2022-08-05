@@ -9,7 +9,6 @@ BugReports: https://github.com/data2intelligence/SpaCE/issues
 Encoding: UTF-8
 RoxygenNote: 7.2.0
 Imports: 
-    Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
-    factoextra, NbClust, cluster, parallel, psych, SummarizedExperiment
-Remotes:
-    bioc::3.3/SummarizedExperiment
+    Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,MUDAN,
+    factoextra, NbClust, cluster, parallel, psych, BiRewire, limma
+    
