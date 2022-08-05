@@ -12,5 +12,5 @@ Imports:
     Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
     factoextra, NbClust, cluster, parallel, psych, limma
 Remotes:
-    bioc::limma
+    bioc::3.15/limma
     
