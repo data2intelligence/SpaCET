@@ -11,6 +11,4 @@ RoxygenNote: 7.2.0
 Imports: 
     Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
     factoextra, NbClust, cluster, parallel, psych, limma
-Remotes:
-    url::3.15/limma
-    
+  
