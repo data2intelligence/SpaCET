@@ -12,5 +12,5 @@ Imports:
     Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
     factoextra, NbClust, cluster, parallel, psych, limma
 Remotes:
-    bioc::3.15/limma
+    url::https://bioconductor.org/packages/release/bioc/src/contrib/limma_3.52.2.tar.gz
     
