@@ -8,8 +8,6 @@ URL: https://github.com/data2intelligence/SpaCE
 BugReports: https://github.com/data2intelligence/SpaCE/issues
 Encoding: UTF-8
 RoxygenNote: 7.2.0
-biocViews:
-    Spatial
 Imports: 
     Matrix,
     jsonlite,
@@ -25,5 +23,8 @@ Imports:
     parallel,
     psych,
     BiRewire,
-    limma,
-    sva
+    limma
+remotes:
+    JEFworks/MUDAN
+biocViews:
+    Spatial
