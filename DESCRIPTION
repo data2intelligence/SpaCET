@@ -16,14 +16,14 @@ Imports:
     png,
     jpeg,
     shiny,
-    MUDAN,
     factoextra,
     NbClust,
     cluster,
     parallel,
     psych,
     BiRewire,
-    limma
+    limma,
+    MUDAN
 remotes:
     JEFworks/MUDAN
 biocViews:
