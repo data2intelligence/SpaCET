@@ -24,7 +24,7 @@ Imports:
     BiRewire,
     limma,
     MUDAN
-remotes:
-    JEFworks/MUDAN
 biocViews:
     Spatial
+remotes:
+    JEFworks/MUDAN
