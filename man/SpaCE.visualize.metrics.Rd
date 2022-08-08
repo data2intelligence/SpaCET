@@ -17,6 +17,8 @@ SpaCE.visualize.metrics(
 \item{itemQC}{Item for quality control metrics. i.e., "UMI" or "gene".}
 
 \item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
+
+\item{imageBg}{logical: should the image be shown?}
 }
 \value{
 A ggplot2 object

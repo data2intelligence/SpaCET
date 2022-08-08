@@ -3,6 +3,7 @@
 #' @param SpaCE_obj An SpaCE object.
 #' @param itemQC Item for quality control metrics. i.e., "UMI" or "gene".
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
+#' @param imageBg logical: should the image be shown?
 #' @return A ggplot2 object
 #' @examples
 #' SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
@@ -18,7 +19,7 @@ SpaCE.visualize.metrics <- function(
   visiualVector <- SpaCE_obj@results$metrics[itemQC,]
   names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
-  visualSpatial(
+  p1 <- visualSpatial(
     visiualVector,
     image=SpaCE_obj@input$image,
     platform=SpaCE_obj@input$platform,
@@ -30,6 +31,24 @@ SpaCE.visualize.metrics <- function(
     titleName=itemQC,
     legendName="Count",
     imageBg=imageBg)
+
+  p2 <- ggplot(data.frame(value=visiualVector), aes(value)) +
+    geom_histogram(bins = 100,color="#ddaaff",fill="#551177")+
+    xlab(paste0(itemQC,"s each spot", "\n(", length(visiualVector)," spots)"))+
+    ylab("# Spot")+
+    ggtitle(paste0("Median = ", round(quantile(visiualVector)[3],1)))+
+    geom_vline(xintercept=quantile(visiualVector)[3], linetype="dashed", color = "black")+
+    theme_bw() +
+    theme(
+      plot.background = element_blank(),
+      panel.grid = element_blank(),
+      plot.title = element_text(hjust = 0.5,color="black"),
+      axis.text = element_text(colour = "black"),
+      axis.title = element_text(colour = "black")
+    )
+
+  library(patchwork)
+  (p1/p2)
 }
 
 #' @title Gene expression visualization

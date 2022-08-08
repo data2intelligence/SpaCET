@@ -61,7 +61,7 @@ After creating the SpaCE object, user can use `SpaCE.visualize.metrics` to show 
 library(patchwork)
 p1 <- SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
 p2 <- SpaCE.visualize.metrics(SpaCE_obj, itemQC="Gene")
-p1+p2
+p1 | p2
 ```
 <img src="img/QC.png" width="100%" style="border:none" />
 
@@ -111,7 +111,7 @@ We provide `SpaCE.visualize.deconvolution` to present the spatial distribution o
 # show the spatial distribution of malignant cells and macrophages.
 p1 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Malignant")
 p2 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Macrophage")
-p1+p2
+p1 + p2
 ```
 <img src="img/visualizeDeconvolution.png" width="100%" style="border:none" />
 

@@ -129,7 +129,7 @@ across all ST spots, respectively.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.metrics.html">SpaCE.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.metrics.html">SpaCE.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, itemQC<span class="op">=</span><span class="st">"Gene"</span><span class="op">)</span></span>
-<span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span></span></code></pre></div>
+<span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/QC.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
@@ -205,7 +205,7 @@ spatial distribution of cell types by setting the parameter
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
-<span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span></span></code></pre></div>
+<span><span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution.png" width="100%" style="border:none"></p>
 <p>By setting the parameter <code>interactive</code> as
 <code>TRUE</code>, user will open up a Shiny plot to interactively
