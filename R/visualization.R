@@ -69,7 +69,7 @@ SpaCE.visualize.gene <- function(
 )
 {
   expression <- SpaCE_obj@input$counts
-  expression <- sweep(expression,2,colSums(expression),"/")
+  expression <- sweep(expression,2,Matrix::colSums(expression),"/")
   expression_gene <- expression[gene,]
 
   visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
