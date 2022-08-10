@@ -13,6 +13,7 @@ Imports:
     jsonlite,
     ggplot2,
     reshape2,
+    patchwork,
     png,
     jpeg,
     shiny,

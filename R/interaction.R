@@ -29,7 +29,8 @@ SpaCE.CCI.colocalization <- function(SpaCE_obj)
     fraction_pv = cc_corr_p.m[,3]
     )
   rownames(summary_df) <- paste0(summary_df[,1],"_",summary_df[,2])
-
+  summary_df[is.na(summary_df[,"fraction_rho"] ),"fraction_rho"] <- 0
+  summary_df[is.na(summary_df[,"fraction_pv"] ),"fraction_pv"] <- 1
 
   Ref <- SpaCE_obj@results$Ref
   reff <- Ref$refProfiles[unique(unlist(Ref$sigGenes[names(Ref$sigGenes)%in%c(names(Ref$lineageTree),"T cell")])),]

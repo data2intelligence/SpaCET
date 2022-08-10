@@ -3,9 +3,6 @@
 
 # SpaCE (Spatial Cellular Estimator)
 
-<!-- badges: start -->
-<!-- badges: end -->
-
 SpaCE is a reference-free method for analyzing cancer spatial
 transcriptomics (ST) datasets to estimate cell lineage and cell-cell
 interactions in tumor microenvironment. Briefly, SpaCE first estimates
@@ -42,9 +39,9 @@ install.packages(“location_to_SpaCE_gitclone", repos = NULL, type="source”)
 ## Dependencies
 
 -   R version \>= 4.2.0.
--   R packages: Matrix, jsonlite, ggplot2, reshape2, png, jpeg, shiny,
-    MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire,
-    limma.
+-   R packages: Matrix, jsonlite, ggplot2, reshape2, patchwork, png,
+    jpeg, shiny, MUDAN, factoextra, NbClust, cluster, parallel, psych,
+    BiRewire, limma.
 
 ## Example
 
