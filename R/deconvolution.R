@@ -117,7 +117,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     }else if(CNA_expr=="CNA" & sum(cancerTypeExists)==0 ){
       next
     }else{
-      sig <- as.matrix(cancerDictionary[[CNA_expr]]["TCGA_PANCAN"],ncol=1)
+      sig <- as.matrix(cancerDictionary[[CNA_expr]]["TCGA_PANCAN"][[1]],ncol=1)
     }
 
     cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
