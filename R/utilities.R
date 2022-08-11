@@ -89,7 +89,7 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
   SpaCE_obj <- methods::new("SpaCE",
     input=list(
       counts=st.matrix.data,
-      spotCoordinates=spotCoordinates,
+      spotCoordinates=spotCoordinates[colnames(st.matrix.data),],
       imageFile=imageFile,
       platform=platform
     ),
