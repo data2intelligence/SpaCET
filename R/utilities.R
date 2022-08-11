@@ -79,6 +79,7 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
   }
 
   st.matrix.data <- rm_zeroRows(st.matrix.data)
+  st.matrix.data <- rm_zeroCols(st.matrix.data)
   st.matrix.data <- rm_duplicates(st.matrix.data)
 
   UMI <- colSums(as.matrix(st.matrix.data))
@@ -101,6 +102,10 @@ create.SpaCE.object <- function(counts,spotCoordinates,imageFile,platform=c("Vis
 
 rm_zeroRows <- function(mat){
   mat[rowSums(as.matrix(mat))>0,]
+}
+
+rm_zeroCols <- function(mat){
+  mat[,colSums(as.matrix(mat))>0]
 }
 
 rm_duplicates <- function(mat){
