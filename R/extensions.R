@@ -113,7 +113,7 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
 }
 
 
-#' @title Deconvolve tumor ST data set
+#' @title Deconvolve ST data set with matched scRNAseq
 #' @description Estimate the fraction of cell lineage and sub lineage.
 #' @param SpaCE_obj An SpaCE object.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).

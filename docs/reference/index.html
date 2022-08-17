@@ -19,7 +19,10 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item">
-  <a class="nav-link" href="../index.html">Overview</a>
+  <a class="nav-link" href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
 </li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
@@ -27,6 +30,9 @@
     <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
   </div>
+</li>
+<li class="active nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -51,7 +57,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="space-object">SpaCE object<a class="anchor" aria-label="anchor" href="#space-object"></a></h2>
       
       
 
@@ -68,20 +74,21 @@
         <dd>Define the SpaCE object</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore()</a></code> 
+          <code><a href="create.SpaCE.object.html">create.SpaCE.object()</a></code> 
         </dt>
-        <dd>Ligand-Receptor interaction enrichment analysis</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair()</a></code> 
-        </dt>
-        <dd>Ligand-Receptor analysis for a co-localized cell-type pair</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization()</a></code> 
-        </dt>
-        <dd>Cell-cell colocalization analysis</dd>
-      </dl><dl><dt>
+        <dd>Create an SpaCE object</dd>
+      </dl></div><div class="section level2">
+      <h2 id="deconvolution-of-st-data">Deconvolution of ST data<a class="anchor" aria-label="anchor" href="#deconvolution-of-st-data"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="SpaCE.deconvolution.html">SpaCE.deconvolution()</a></code> 
         </dt>
@@ -96,22 +103,44 @@
           <code><a href="SpaCE.deconvolution.matched.scRNAseq.html">SpaCE.deconvolution.matched.scRNAseq()</a></code> 
         </dt>
         <dd>Deconvolve tumor ST data set</dd>
+      </dl></div><div class="section level2">
+      <h2 id="cell-cell-interaction-analysis">Cell-cell interaction analysis<a class="anchor" aria-label="anchor" href="#cell-cell-interaction-analysis"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization()</a></code> 
+        </dt>
+        <dd>Cell-cell colocalization analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCE.visualize.LRNetworkScore.html">SpaCE.visualize.LRNetworkScore()</a></code> 
+          <code><a href="SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore()</a></code> 
         </dt>
-        <dd>Ligand-Receptor network score visualization</dd>
+        <dd>Ligand-Receptor interaction enrichment analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCE.visualize.colocalization.html">SpaCE.visualize.colocalization()</a></code> 
+          <code><a href="SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair()</a></code> 
         </dt>
-        <dd>Cell-cell colocalization visualization</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution()</a></code> 
-        </dt>
-        <dd>Cell type fraction visualization</dd>
-      </dl><dl><dt>
+        <dd>Ligand-Receptor analysis for a co-localized cell-type pair</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="SpaCE.visualize.gene.html">SpaCE.visualize.gene()</a></code> 
         </dt>
@@ -123,11 +152,22 @@
         <dd>Quality control metrics visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="create.SpaCE.object.html">create.SpaCE.object()</a></code> 
+          <code><a href="SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution()</a></code> 
         </dt>
-        <dd>Create an SpaCE object</dd>
+        <dd>Cell type fraction visualization</dd>
+      </dl><dl><dt>
+          
+          <code><a href="SpaCE.visualize.colocalization.html">SpaCE.visualize.colocalization()</a></code> 
+        </dt>
+        <dd>Cell-cell colocalization visualization</dd>
+      </dl><dl><dt>
+          
+          <code><a href="SpaCE.visualize.LRNetworkScore.html">SpaCE.visualize.LRNetworkScore()</a></code> 
+        </dt>
+        <dd>Ligand-Receptor network score visualization</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

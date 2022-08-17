@@ -4,7 +4,7 @@ template:
 
 navbar:
   left:
-    - text: Overview
+    - icon: fas fa-home fa-lg
       href: index.html
     - text: Tutorials
       menu:
@@ -12,6 +12,33 @@ navbar:
         href: articles/visium_BC.html
       - text: Deconvolution with a matched scRNA-seq data set
         href: articles/oldST_PDAC.html
+    - text: Reference
+      href: reference/index.html
     - text: News
       href: news/index.html
 
+reference:
+  - title: SpaCE object
+    contents:
+    - SpaCE-class
+    - create.SpaCE.object
+
+  - title: Deconvolution of ST data
+    contents:
+    - SpaCE.deconvolution
+    - SpaCE.deconvolution.malignant
+    - SpaCE.deconvolution.matched.scRNAseq
+
+  - title: Cell-cell interaction analysis
+    contents:
+    - SpaCE.CCI.colocalization
+    - SpaCE.CCI.LRNetworkScore
+    - SpaCE.CCI.cellTypePair
+
+  - title: Visualization
+    contents:
+    - SpaCE.visualize.gene
+    - SpaCE.visualize.metrics
+    - SpaCE.visualize.deconvolution
+    - SpaCE.visualize.colocalization
+    - SpaCE.visualize.LRNetworkScore

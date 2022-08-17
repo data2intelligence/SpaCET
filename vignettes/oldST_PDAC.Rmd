@@ -94,7 +94,7 @@ sc_counts[1:6,1:5]
 ## A4GALT   0  0  0  0  0
 
 # show cell annotation matrix
-sc_annotation[1:6,1:5]
+sc_annotation[1:6,]
 
 ##    cellID bio_celltype                            
 ## c1 "c1"   "Acinar cells"                          

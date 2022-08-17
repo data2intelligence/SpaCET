@@ -38,7 +38,10 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
-  <a class="nav-link" href="../index.html">Overview</a>
+  <a class="nav-link" href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
 </li>
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
@@ -46,6 +49,9 @@
     <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">News</a>
@@ -105,7 +111,10 @@ which has both “filtered_feature_bc_matrix” and “spatial” folders.</p>
 “scalefactors_json.json” : scaling factors for adjusting the
 coordinates</p>
 <p>Here, we create an SpaCE object for this breast cancer visium
-dataset.</p>
+dataset. In this step, the genes exhibiting zero UMI counts across spots
+will be removed. Also, if there are duplicated gene symbols, the gene
+with the highest total counts remains and all other duplicated genes are
+removed.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCE" class="external-link">SpaCE</a></span><span class="op">)</span></span>
 <span></span>
@@ -117,14 +126,35 @@ dataset.</p>
 <span></span>
 <span><span class="co"># show this object.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
+<p>The UMI count matrix is stored in <code>SpaCE_obj@input$counts</code>
+as a sparse matrix. Each row represents a gene whereas each column is a
+spot. Of note, the column name is the ID of spots with a format “AxB”,
+which means the horizontal (A) and vertical (B) order of each spot,
+respectively.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># show this object.</span></span>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span></span>
+<span><span class="co">## 8 x 8 sparse Matrix of class "dgCMatrix"</span></span>
+<span><span class="co">##            50x102 59x19 14x94 47x13 73x43 61x97 45x115 42x28</span></span>
+<span><span class="co">## AL627309.1      .     .     .     .     .     1      .     .</span></span>
+<span><span class="co">## AL669831.2      .     .     .     .     .     .      .     .</span></span>
+<span><span class="co">## AL669831.5      .     2     .     .     .     .      .     .</span></span>
+<span><span class="co">## FAM87B          .     .     .     .     .     .      .     .</span></span>
+<span><span class="co">## LINC00115       .     .     .     .     .     .      .     .</span></span>
+<span><span class="co">## FAM41C          .     .     .     .     .     .      .     .</span></span>
+<span><span class="co">## AL645608.7      .     .     .     .     .     .      .     .</span></span>
+<span><span class="co">## AL645608.3      .     .     .     .     .     .      .     .</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="show-key-quality-control-metrics">Show key quality control metrics<a class="anchor" aria-label="anchor" href="#show-key-quality-control-metrics"></a>
 </h2>
 <p>After creating the SpaCE object, user can use
 <code>SpaCE.visualize.metrics</code> to show both UMI and gene counts
-across all ST spots, respectively.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+across all ST spots, respectively. Specifically, the “UMI” option
+presents the overall UMI counts within a spot while the “Gene” option
+represents the number of expressed genes (i.e., genes with at least one
+UMI count) in a particular spot.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plot the QC metrics.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.metrics.html">SpaCE.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
@@ -137,7 +167,7 @@ across all ST spots, respectively.</p>
 </h2>
 <p>By two stages, <code>SpaCE.deconvolution</code> would deconvolve all
 mixtures of ST spots into malignant, immune, and stromal cells. SpaCE
-first estimates malignant cell faction by a gene pattern dictionary of
+first estimates malignant cell fraction by a gene pattern dictionary of
 copy number alterations (CNA) and expression changes in common
 malignancies. Subsequently, based on an in-house hierarchical cell
 lineage derived from single-cell RNA-seq data sets from diverse cancer
@@ -173,7 +203,7 @@ normal samples (n &lt; 10 patients). The pan-cancer expression signature
 was created by averaging all cancer type-specific expression
 signatures.</p>
 <p><img src="img/cancerDictionary.png" width="100%" style="border:none"></p>
-</details><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+</details><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># deconvolve ST data</span></span>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.html">SpaCE.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
@@ -194,6 +224,11 @@ signatures.</p>
 <span><span class="co">## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07</span></span>
 <span><span class="co">## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07</span></span>
 <span><span class="co">## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05</span></span></code></pre></div>
+<p>Of note, the value from deconvolution results represents the fraction
+of cell types. User may find that the fraction sum of all cell types in
+a spot (column) is beyond 1. This is because SpaCE outputs the cell
+fractions for both major lineages and their corresponding sublineages,
+e.g., T CD4 as well as Th1, Th2… .</p>
 </div>
 <div class="section level2">
 <h2 id="visualize-the-cell-type-proportion">Visualize the cell type proportion<a class="anchor" aria-label="anchor" href="#visualize-the-cell-type-proportion"></a>
@@ -201,7 +236,7 @@ signatures.</p>
 <p>We provide <code>SpaCE.visualize.deconvolution</code> to present the
 spatial distribution of cell types by setting the parameter
 <code>cellType</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
@@ -209,9 +244,9 @@ spatial distribution of cell types by setting the parameter
 <p><img src="img/visualizeDeconvolution.png" width="100%" style="border:none"></p>
 <p>By setting the parameter <code>interactive</code> as
 <code>TRUE</code>, user will open up a Shiny plot to interactively
-visualize each cell type and adjust the size and alpha intensity of
-spots.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+visualize each cell type. Of note, each dot represents an ST spot and
+user can adjust the size and opacity of spots.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
 <span><span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span>, interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none"></p>
@@ -233,7 +268,7 @@ the co-localized cell-type pairs.</p>
 <p>SpaCE provides <code>SpaCE.CCI.colocalization</code> and
 <code>SpaCE.visualize.colocalization</code> to compute and visualize the
 co-localized cell-type pairs.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the cell-cell colocalization.</span></span>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span>
 <span></span>
@@ -263,7 +298,7 @@ networks while preserving directed degree distributions. For a spot, an
 L-R network score is defined as the sum of expression products between
 all L-R pairs, divided by the average random value from 1,000 randomized
 networks.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
@@ -280,7 +315,7 @@ categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the
 left and middle panels in the following figure). We found that CAF-M2
 colocalized spots have more substantial L-R interaction network scores
 than CAF/M2-dominated spots (right panel).</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
 <span><span class="fu"><a href="../reference/SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/CAF-M2.png" width="100%" style="border:none"></p>
@@ -299,8 +334,15 @@ selected the ST spots with high fractions (&gt; 0.7) of malignant cells
 as tumor spots. Then, SpaCE hierarchically clustered these malignant
 spots to infer different states. The Silhouette value, measuring the
 similarity among the ST spots within each cluster compared to other
-clusters, was used to select the optimal cluster number.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+clusters, was used to select the optimal cluster number. In this way,
+the reference profile of different cancer cell states can be computed by
+averaging the expression profile of all spots in a cluster, i.e., a
+cancer cell state.</p>
+<p>Similar to the deconvolution of immune major lineages into
+sublineages, the overall malignant cell fraction would be decomposed to
+multiple cancer cell states. Thus, the sum fraction of cancer cell
+states equals to the malignant cell fraction for each spot.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># further deconvolve malignant cell states</span></span>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>

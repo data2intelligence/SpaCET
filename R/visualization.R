@@ -54,7 +54,7 @@ SpaCE.visualize.metrics <- function(
 #' @title Gene expression visualization
 #' @description Visualize gene expression level in ST dataset.
 #' @param SpaCE_obj An SpaCE object.
-#' @param geneSymbol Gene symbol.
+#' @param genes Gene symbol.
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @return A ggplot2 object
 #' @examples
@@ -63,30 +63,49 @@ SpaCE.visualize.metrics <- function(
 #' @export
 SpaCE.visualize.gene <- function(
     SpaCE_obj,
-    gene,
+    genes,
+    ncol=1,
     colors = c("blue", "yellow", "red"),
     imageBg = TRUE
 )
 {
   expression <- SpaCE_obj@input$counts
   expression <- sweep(expression,2,Matrix::colSums(expression),"/")
-  expression_gene <- expression[gene,]
 
-  visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
-  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+  for(gene in genes)
+  {
+    expression_gene <- expression[gene,]
+    visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
+    names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
-  visualSpatial(
-    visiualVector,
-    SpaCE_obj@input$image,
-    SpaCE_obj@input$platform,
-    scaleType="color-continuous",
-    colors=colors,
-    pointSize=1,
-    pointAlpha=1,
-    limits=NULL,
-    titleName=gene,
-    legendName="Expr",
-    imageBg=imageBg)
+    p <- visualSpatial(
+      visiualVector,
+      SpaCE_obj@input$image,
+      SpaCE_obj@input$platform,
+      scaleType="color-continuous",
+      colors=colors,
+      pointSize=1,
+      pointAlpha=1,
+      limits=NULL,
+      titleName=gene,
+      legendName="Expr",
+      imageBg=imageBg)
+
+    if(gene!=genes[length(genes)])
+    {
+    	p <- p + theme(legend.position="none")
+    }
+
+    if(exists("pp"))
+    {
+    	pp <- pp + p
+    }else{
+    	pp <- p
+    }
+
+  }
+
+  pp + plot_layout(ncol = ncol)
 }
 
 #' @title Cell type fraction visualization
@@ -102,7 +121,8 @@ SpaCE.visualize.gene <- function(
 #' @export
 SpaCE.visualize.deconvolution <- function(
     SpaCE_obj,
-    cellType,
+    cellTypes,
+    ncol=1,
     colors = c("blue", "yellow", "red"),
     limits = c(0,1),
     interactive = FALSE,
@@ -113,22 +133,41 @@ SpaCE.visualize.deconvolution <- function(
   {
     visualSpatialInteractive(SpaCE_obj,cellType)
   }else{
-    visiualVector <- SpaCE_obj@results$deconvolution[cellType,]
-    names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+    for(cellType in cellTypes)
+    {
+      visiualVector <- SpaCE_obj@results$deconvolution[cellType,]
+      names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
 
-    visualSpatial(
-      visiualVector,
-      SpaCE_obj@input$image,
-      SpaCE_obj@input$platform,
-      scaleType="color-continuous",
-      colors=colors,
-      pointSize=1,
-      pointAlpha=1,
-      limits=limits,
-      titleName=cellType,
-      legendName="Prop",
-      imageBg=imageBg)
+      p <- visualSpatial(
+        visiualVector,
+        SpaCE_obj@input$image,
+        SpaCE_obj@input$platform,
+        scaleType="color-continuous",
+        colors=colors,
+        pointSize=1,
+        pointAlpha=1,
+        limits=limits,
+        titleName=cellType,
+        legendName="Prop",
+        imageBg=imageBg)
+
+      if(cellType!=cellTypes[length(cellTypes)])
+      {
+        p <- p + theme(legend.position="none")
+      }
+
+      if(exists("pp"))
+      {
+        pp <- pp + p
+      }else{
+        pp <- p
+      }
+
     }
+
+    pp + plot_layout(ncol = ncol)
+
+  }
 }
 
 #' @title Ligand-Receptor network score visualization
@@ -308,7 +347,7 @@ visualSpatialInteractive <- function(SpaCE_obj,gene)
           br(),
           sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.2),
           br(),
-          sliderInput("pointAlpha", "Spot alpha", min=0, max=1, value=1, step=0.1),
+          sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
           br(),
           style="background-color:papayawhip;border-left:8px solid orange"
         ),
