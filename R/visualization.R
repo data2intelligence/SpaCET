@@ -105,7 +105,7 @@ SpaCE.visualize.gene <- function(
 
   }
 
-  pp + plot_layout(ncol = ncol)
+  pp + patchwork::plot_layout(ncol = ncol)
 }
 
 #' @title Cell type fraction visualization
@@ -165,7 +165,7 @@ SpaCE.visualize.deconvolution <- function(
 
     }
 
-    pp + plot_layout(ncol = ncol)
+    pp + patchwork::plot_layout(ncol = ncol)
 
   }
 }

@@ -173,7 +173,7 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
   st.matrix.data <- log2(st.matrix.data+1)
   spotNum <- ncol(st.matrix.data)
 
-  ###### permute L-R network ######
+  ###### preprocess L-R network ######
   LRdb <- read.csv(system.file("extdata",'LR.txt',package = 'SpaCE'),as.is=T,sep="\t")
   LRdb <- data.frame(L=LRdb[,2],R=LRdb[,4],stringsAsFactors=FALSE)
 
@@ -201,7 +201,7 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
     LRdb_mat[LRdb[i,1],LRdb[i,2]] <- 1
   }
 
-  ###### permute
+  ###### permute L-R network
   print("Permute Ligand-Receptor network.")
   LRdb_string <- c()
 
@@ -221,11 +221,20 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
   ###### permute L-R network ######
 
 
+  ###### Calculate L-R NS
+  print("Calculate L-R network score.")
   LRcoexpr <- function(LRdb,spot)
   {
     Ls <- LRdb[,1]
     Rs <- LRdb[,2]
     mean( spot[Ls] * spot[Rs] )
+  }
+
+  LRcoexpr1000 <- function(LRdb,spot)
+  {
+    Ls <- LRdb[,1]
+    Rs <- LRdb[,2]
+    colMeans(matrix(spot[Ls] * spot[Rs], ncol=1000))
   }
 
   LRNetworkScore <- function(i)
@@ -234,23 +243,22 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
 
     LR_raw <- LRcoexpr(LRdb,spot=spot)
 
-    LR1000 <- LRcoexpr(LRdb_rand_comb,spot=spot)
+    LR1000 <- LRcoexpr1000(LRdb_rand_comb,spot=spot)
 
-    score <- LR_raw/LR1000
+    score <- LR_raw/mean(LR1000)
+    pv <- (sum(LR1000>LR_raw)+1)/1001
 
-    list(LR_raw,score)
+    list(LR_raw,score,pv)
   }
 
-  print("Calculate L-R network score.")
   LRNetworkScoreList <- parallel::mclapply(1:spotNum,LRNetworkScore,mc.cores=coreNo)
 
   LRNetworkScoreMat <- matrix(unlist(LRNetworkScoreList),ncol=ncol(st.matrix.data))
   colnames(LRNetworkScoreMat) <- colnames(st.matrix.data)
-  rownames(LRNetworkScoreMat) <- c("Raw_expr","Network_Score")
-
+  rownames(LRNetworkScoreMat) <- c("Raw_expr","Network_Score","Network_Score_pv")
+  ###### Calculate L-R network score ######
 
   SpaCE_obj@results$LRNetworkScore <- LRNetworkScoreMat
-
   SpaCE_obj
 }
 
