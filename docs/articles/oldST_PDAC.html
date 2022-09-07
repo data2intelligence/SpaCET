@@ -142,7 +142,7 @@ unavailable.</li>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCE.object.html">create.SpaCE.object</a></span><span class="op">(</span></span>
 <span>  counts<span class="op">=</span><span class="va">counts</span>,</span>
 <span>  spotCoordinates<span class="op">=</span><span class="va">spotCoordinates</span>,</span>
-<span>  imageFile<span class="op">=</span><span class="cn">NA</span>,</span>
+<span>  imagePath<span class="op">=</span><span class="cn">NA</span>,</span>
 <span>  platform <span class="op">=</span> <span class="st">"oldST"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -227,21 +227,17 @@ to carry out cell type deconvolution.</p>
 <span>  coreNo<span class="op">=</span><span class="fl">8</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Cancer clone A"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Cancer clone B"</span><span class="op">)</span></span>
-<span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Acinar cells"</span><span class="op">)</span></span>
-<span><span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span></span>
-<span><span class="op">(</span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">p3</span><span class="op">+</span><span class="va">p4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span></span>
+<span>  <span class="va">SpaCE_obj</span>, </span>
+<span>  cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer clone A"</span>,<span class="st">"Cancer clone B"</span>,<span class="st">"Acinar cells"</span>,<span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span>,</span>
+<span>  ncol<span class="op">=</span><span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/PDAC_prop.png" width="100%" style="border:none"></p>
 <p>User can use the following code to visualize the marker gene
 expression level and verify the cell type deconvolution.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"TM4SF1"</span><span class="op">)</span> <span class="co"># marker for cancer cell state A</span></span>
-<span><span class="va">p6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"S100A4"</span><span class="op">)</span> <span class="co"># marker for cancer cell state B</span></span>
-<span><span class="va">p7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"PRSS1"</span><span class="op">)</span> <span class="co"># marker for acinar cell</span></span>
-<span><span class="va">p8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,<span class="st">"CRISP3"</span><span class="op">)</span> <span class="co"># marker for centroacinar like ductal cell</span></span>
-<span><span class="op">(</span><span class="va">p5</span><span class="op">+</span><span class="va">p6</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">p7</span><span class="op">+</span><span class="va">p8</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Markers for cancer clone A and B, acinar cell, and centroacinar like ductal cell</span></span>
+<span><span class="fu"><a href="../reference/SpaCE.visualize.gene.html">SpaCE.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TM4SF1"</span>,<span class="st">"S100A4"</span>,<span class="st">"PRSS1"</span>,<span class="st">"CRISP3"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/PDAC_expr.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">

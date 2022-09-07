@@ -6,7 +6,8 @@
 \usage{
 SpaCE.visualize.deconvolution(
   SpaCE_obj,
-  cellType,
+  cellTypes,
+  ncol = 1,
   colors = c("blue", "yellow", "red"),
   limits = c(0, 1),
   interactive = FALSE,
@@ -16,11 +17,11 @@ SpaCE.visualize.deconvolution(
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{cellType}{Cell type name.}
-
 \item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
 
 \item{limits}{Value range, Default: c(0,1). Also can be set as NULL.}
+
+\item{cellType}{Cell type name.}
 }
 \value{
 A ggplot2 object

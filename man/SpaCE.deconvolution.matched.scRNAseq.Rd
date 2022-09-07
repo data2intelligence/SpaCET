@@ -2,7 +2,7 @@
 % Please edit documentation in R/extensions.R
 \name{SpaCE.deconvolution.matched.scRNAseq}
 \alias{SpaCE.deconvolution.matched.scRNAseq}
-\title{Deconvolve tumor ST data set}
+\title{Deconvolve ST data set with matched scRNAseq}
 \usage{
 SpaCE.deconvolution.matched.scRNAseq(
   SpaCE_obj,

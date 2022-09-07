@@ -62,7 +62,7 @@ spotCoordinates[1:5,]
 SpaCE_obj <- create.SpaCE.object(
   counts=counts,
   spotCoordinates=spotCoordinates,
-  imageFile=NA,
+  imagePath=NA,
   platform = "oldST"
 )
 
@@ -138,12 +138,11 @@ SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(
   coreNo=8
 )
 
-library(patchwork)
-p1 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Cancer clone A")
-p2 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Cancer clone B")
-p3 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Acinar cells")
-p4 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Ductal - CRISP3 high/centroacinar like")
-(p1+p2) / (p3+p4)
+SpaCE.visualize.deconvolution(
+  SpaCE_obj, 
+  cellTypes=c("Cancer clone A","Cancer clone B","Acinar cells","Ductal - CRISP3 high/centroacinar like"),
+  ncol=2
+)
 
 ``` 
 
@@ -152,11 +151,8 @@ p4 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Ductal - CRISP3 high/ce
 User can use the following code to visualize the marker gene expression level and verify the cell type deconvolution.
 
 ``` r
-p5 <- SpaCE.visualize.gene(SpaCE_obj,"TM4SF1") # marker for cancer cell state A
-p6 <- SpaCE.visualize.gene(SpaCE_obj,"S100A4") # marker for cancer cell state B
-p7 <- SpaCE.visualize.gene(SpaCE_obj,"PRSS1") # marker for acinar cell
-p8 <- SpaCE.visualize.gene(SpaCE_obj,"CRISP3") # marker for centroacinar like ductal cell
-(p5+p6) / (p7+p8)
+# Markers for cancer clone A and B, acinar cell, and centroacinar like ductal cell
+SpaCE.visualize.gene(SpaCE_obj,genes=c("TM4SF1","S100A4","PRSS1","CRISP3"),ncol=2)
 ``` 
 
 <img src="img/PDAC_expr.png" width="100%" style="border:none" />

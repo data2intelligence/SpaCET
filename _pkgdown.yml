@@ -22,6 +22,7 @@ reference:
     contents:
     - SpaCE-class
     - create.SpaCE.object
+    - create.SpaCE.object.10X
 
   - title: Deconvolution of ST data
     contents:

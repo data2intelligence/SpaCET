@@ -9,11 +9,11 @@ interactions in tumor microenvironment. Briefly, SpaCE first estimates
 cancer cell abundance by integrating a gene pattern dictionary of common
 malignancies. SpaCE then uses a constrained regression model to
 calibrate local tissue densities and determine stromal and immune cell
-lineage hierarchies. Further, SpaCE can reveal putative cell-cell
+lineage fraction. Further, SpaCE can reveal putative cell-cell
 interactions in the tumor microenvironment. What’s more, although SpaCE
-does not require an input cell reference profile to process tumor ST
+does not require any input cell reference profile to process tumor ST
 data, SpaCE can still accept a matched scRNA-seq data as customized
-reference to carry out cell type deconvolution.
+references to carry out cell type deconvolution.
 
 <img src="man/figures/workflow.png" width="100%" />
 
@@ -48,26 +48,26 @@ install.packages(“location_to_SpaCE_gitclone", repos = NULL, type="source”)
 ``` r
 library(SpaCE)
 
-visiumPath <- system.file("extdata",'Visium_BC',package = 'SpaCE')
-SpaCE_obj <- create.SpaCE.object(visiumPath = visiumPath)
+visiumPath <- file.path(system.file(package = "SpaCE"), "extdata/Visium_BC")
+SpaCE_obj <- create.SpaCE.object.10X(visiumPath = visiumPath)
 SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
 
-SpaCE_obj@results$deconvolution[1:13,1:5]
+SpaCE_obj@results$deconvolution[1:13,1:3]
 
-##                   50x102 59x19        14x94        47x13        73x43
-## Malignant   2.860636e-01     1 6.845966e-02 3.899756e-01 9.608802e-01
-## CAF         3.118545e-01     0 3.397067e-01 1.111980e-01 3.372692e-02
-## Endothelial 5.510895e-02     0 1.427060e-01 3.080531e-02 5.263544e-03
-## Plasma      2.213392e-02     0 1.507382e-02 1.183170e-02 9.071809e-06
-## B cell      3.885793e-03     0 9.271616e-02 1.406470e-01 1.329085e-06
-## T CD4       1.344389e-01     0 1.554305e-02 1.249414e-01 1.112392e-05
-## T CD8       7.578696e-03     0 2.514558e-07 1.379856e-03 1.123043e-06
-## NK          7.104005e-04     0 1.670019e-06 4.890387e-08 3.562557e-07
-## cDC         1.421632e-07     0 8.278023e-02 7.584295e-02 2.851146e-07
-## pDC         1.606443e-06     0 2.283754e-02 1.805671e-02 3.878344e-07
-## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07
-## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07
-## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05
+##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
+## Malignant         2.860636e-01                  1       6.845966e-02
+## CAF               3.118545e-01                  0       3.397067e-01
+## Endothelial       5.510895e-02                  0       1.427060e-01
+## Plasma            2.213392e-02                  0       1.507382e-02
+## B cell            3.885793e-03                  0       9.271616e-02
+## T CD4             1.344389e-01                  0       1.554305e-02
+## T CD8             7.578696e-03                  0       2.514558e-07
+## NK                7.104005e-04                  0       1.670019e-06
+## cDC               1.421632e-07                  0       8.278023e-02
+## pDC               1.606443e-06                  0       2.283754e-02
+## Macrophage        1.703304e-01                  0       5.021248e-02
+## Mast              7.905067e-08                  0       1.621498e-05
+## Neutrophil        1.380073e-05                  0       9.528996e-07
 ```
 
 ## Tutorial

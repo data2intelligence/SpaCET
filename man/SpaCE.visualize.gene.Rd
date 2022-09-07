@@ -6,7 +6,8 @@
 \usage{
 SpaCE.visualize.gene(
   SpaCE_obj,
-  gene,
+  genes,
+  ncol = 1,
   colors = c("blue", "yellow", "red"),
   imageBg = TRUE
 )
@@ -14,9 +15,9 @@ SpaCE.visualize.gene(
 \arguments{
 \item{SpaCE_obj}{An SpaCE object.}
 
-\item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
+\item{genes}{Gene symbol.}
 
-\item{geneSymbol}{Gene symbol.}
+\item{colors}{Legend color scale, Default: c("blue", "yellow", "red").}
 }
 \value{
 A ggplot2 object

@@ -80,8 +80,8 @@ SpaCE.visualize.gene <- function(
 
     p <- visualSpatial(
       visiualVector,
-      SpaCE_obj@input$image,
-      SpaCE_obj@input$platform,
+      image=SpaCE_obj@input$image,
+      platform=SpaCE_obj@input$platform,
       scaleType="color-continuous",
       colors=colors,
       pointSize=1,
@@ -140,8 +140,8 @@ SpaCE.visualize.deconvolution <- function(
 
       p <- visualSpatial(
         visiualVector,
-        SpaCE_obj@input$image,
-        SpaCE_obj@input$platform,
+        image=SpaCE_obj@input$image,
+        platform=SpaCE_obj@input$platform,
         scaleType="color-continuous",
         colors=colors,
         pointSize=1,
@@ -224,12 +224,10 @@ visualSpatial <- function(
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
 
-    if(imageBg& !is.na(image))
+    if(imageBg& !is.na(image$path))
     {
-      r <- png::readPNG(image)
-      rg <- grid::rasterGrob(r, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
-      xDiml <- dim(r)[1] # dim pixel
-      yDiml <- dim(r)[2] # dim pixel
+      xDiml <- dim(image$grob$raster)[1] # dim pixel
+      yDiml <- dim(image$grob$raster)[2] # dim pixel
     }else{
       xDiml <- max(coordi[,1])
       yDiml <- max(coordi[,2])
@@ -244,9 +242,9 @@ visualSpatial <- function(
 
     p <- ggplot(fig.df,aes(x=x,y=y))
 
-    if(imageBg& !is.na(image))
+    if(imageBg& !is.na(image$path))
     {
-      p <- p+annotation_custom(rg)+# add background image
+      p <- p+annotation_custom(image$grob)+# add background image
         scale_x_continuous(limits = c(0, xDiml), expand = c(0, 0)) +
         scale_y_continuous(limits = c(0, yDiml), expand = c(0, 0))
     }
@@ -272,7 +270,7 @@ visualSpatial <- function(
 
   }else{
 
-    if(imageBg& !is.na(image))
+    if(imageBg& !is.na(image$path))
     {
       r <- jpeg::readJPEG(image)
       rg <- grid::rasterGrob(r, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))

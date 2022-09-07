@@ -24,53 +24,43 @@ This tutorial demonstrates how to run SpaCE to estimate cell identities and cell
 
 ## Create SpaCE object
 
-To read your ST data into R, user can create an SpaCE object by using `create.SpaCE.object`. Specifically, if user are analyzing a Visium dataset, they only need to input "visiumPath". Please make sure that "visiumPath" points to the standard output folders of 10x Visium, which has both "filtered_feature_bc_matrix" and "spatial" folders.
+To read your ST data into R, user can create an SpaCE object by using `create.SpaCE.object` or `create.SpaCE.object.10X`. Specifically, if users are analyzing a ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCE.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x Space Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
-The "filtered_feature_bc_matrix"`" folder includes\
-"barcodes.tsv.gz": spot level barcodes\
-"features.tsv.gz": list of genes\
-"matrix.mtx.gz": (sparse) matrix of counts
-
-The "spatial" folder includes\
-“tissue_positions_list.csv” : barcodes and spatial information\
-“tissue_lowres_image.png” : hematoxylin and eosin (H&E) image\
-“scalefactors_json.json” : scaling factors for adjusting the coordinates 
-
-Here, we create an SpaCE object for this breast cancer visium dataset. In this step, the genes exhibiting zero UMI counts across spots will be removed. Also, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
+Here, we create an SpaCE object for the current breast cancer visium dataset. In this step, the genes exhibiting zero UMI counts across spots will be removed. Also, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
 
 ``` r
 library(SpaCE)
 
 # set the path to the in-house breast cancer ST data. User can set the paths to their own data.
-visiumPath <- system.file("extdata", 'Visium_BC', package = 'SpaCE')
+visiumPath <- file.path(system.file(package = "SpaCE"), "extdata/Visium_BC")
 
 # load ST data to create an SpaCE object.
-SpaCE_obj <- create.SpaCE.object(visiumPath = visiumPath)
+SpaCE_obj <- create.SpaCE.object.10X(visiumPath = visiumPath)
 
 # show this object.
 str(SpaCE_obj)
 ```
 
-The UMI count matrix is stored in `SpaCE_obj@input$counts` as a sparse matrix. Each row represents a gene whereas each column is a spot. Of note, the column name is the ID of spots with a format "AxB", which means the horizontal (A) and vertical (B) order of each spot, respectively.
+The UMI count matrix is stored in `SpaCE_obj@input$counts` as a sparse matrix. Each row represents a gene whereas each column is a spot.
 
 ``` r
 # show this object.
-SpaCE_obj@input$counts[1:8,1:8]
-## 8 x 8 sparse Matrix of class "dgCMatrix"
-##            50x102 59x19 14x94 47x13 73x43 61x97 45x115 42x28
-## AL627309.1      .     .     .     .     .     1      .     .
-## AL669831.2      .     .     .     .     .     .      .     .
-## AL669831.5      .     2     .     .     .     .      .     .
-## FAM87B          .     .     .     .     .     .      .     .
-## LINC00115       .     .     .     .     .     .      .     .
-## FAM41C          .     .     .     .     .     .      .     .
-## AL645608.7      .     .     .     .     .     .      .     .
-## AL645608.3      .     .     .     .     .     .      .     .
+SpaCE_obj@input$counts[1:8,1:3]
+## 8 x 3 sparse Matrix of class "dgCMatrix"
+##            AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
+## AL627309.1                  .                  .                  .
+## AL669831.2                  .                  .                  .
+## AL669831.5                  .                  2                  .
+## FAM87B                      .                  .                  .
+## LINC00115                   .                  .                  .
+## FAM41C                      .                  .                  .
+## AL645608.7                  .                  .                  .
+## AL645608.3                  .                  .                  .
 ```
 
 ## Show key quality control metrics
 
-After creating the SpaCE object, user can use `SpaCE.visualize.metrics` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
+After creating the SpaCE object, users can use `SpaCE.visualize.metrics` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
 
 ``` r
 # plot the QC metrics.
@@ -101,22 +91,22 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
 
 # show the ST deconvolution results
-SpaCE_obj@results$deconvolution[1:13,1:5]
+SpaCE_obj@results$deconvolution[1:13,1:3]
 
-##                   50x102 59x19        14x94        47x13        73x43
-## Malignant   2.860636e-01     1 6.845966e-02 3.899756e-01 9.608802e-01
-## CAF         3.118545e-01     0 3.397067e-01 1.111980e-01 3.372692e-02
-## Endothelial 5.510895e-02     0 1.427060e-01 3.080531e-02 5.263544e-03
-## Plasma      2.213392e-02     0 1.507382e-02 1.183170e-02 9.071809e-06
-## B cell      3.885793e-03     0 9.271616e-02 1.406470e-01 1.329085e-06
-## T CD4       1.344389e-01     0 1.554305e-02 1.249414e-01 1.112392e-05
-## T CD8       7.578696e-03     0 2.514558e-07 1.379856e-03 1.123043e-06
-## NK          7.104005e-04     0 1.670019e-06 4.890387e-08 3.562557e-07
-## cDC         1.421632e-07     0 8.278023e-02 7.584295e-02 2.851146e-07
-## pDC         1.606443e-06     0 2.283754e-02 1.805671e-02 3.878344e-07
-## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07
-## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07
-## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05
+##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
+## Malignant         2.860636e-01                  1       6.845966e-02
+## CAF               3.118545e-01                  0       3.397067e-01
+## Endothelial       5.510895e-02                  0       1.427060e-01
+## Plasma            2.213392e-02                  0       1.507382e-02
+## B cell            3.885793e-03                  0       9.271616e-02
+## T CD4             1.344389e-01                  0       1.554305e-02
+## T CD8             7.578696e-03                  0       2.514558e-07
+## NK                7.104005e-04                  0       1.670019e-06
+## cDC               1.421632e-07                  0       8.278023e-02
+## pDC               1.606443e-06                  0       2.283754e-02
+## Macrophage        1.703304e-01                  0       5.021248e-02
+## Mast              7.905067e-08                  0       1.621498e-05
+## Neutrophil        1.380073e-05                  0       9.528996e-07
 ```
 
 Of note, the value from deconvolution results represents the fraction of cell types. User may find that the fraction sum of all cell types in a spot (column) is beyond 1. This is because SpaCE outputs the cell fractions for both major lineages and their corresponding sublineages, e.g., T CD4 as well as Th1, Th2... .
@@ -129,7 +119,7 @@ We provide `SpaCE.visualize.deconvolution` to present the spatial distribution o
 # show the spatial distribution of malignant cells and macrophages.
 p1 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Malignant")
 p2 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Macrophage")
-p1 + p2
+p1 | p2
 ```
 <img src="img/visualizeDeconvolution.png" width="100%" style="border:none" />
 
@@ -195,17 +185,15 @@ Similar to the deconvolution of immune major lineages into sublineages, the over
 SpaCE_obj <- SpaCE.deconvolution.malignant(SpaCE_obj, malignantCutoff = 0.7, coreNo = 8)
 
 # show cancer cell state fraction of the first five spots
-SpaCE_obj@results$deconvolution[
-  grepl("Cancer cell state",rownames(SpaCE_obj@results$deconvolution)),
-  1:5]
+SpaCE_obj@results$deconvolution[c("Cancer cell state A","Cancer cell state B"),1:3]
 
-##                         50x102        59x19        14x94     47x13        73x43
-## Cancer cell state A 0.21735562 9.999900e-01 6.845963e-02 0.2135212 9.608802e-01
-## Cancer cell state B 0.06870794 1.239573e-11 2.906452e-08 0.1764543 2.402767e-10
+##                     AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
+## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02
+## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08
 
-p1 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Malignant")
-p2 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Cancer cell state A")
-p3 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Cancer cell state B")
-p1+p2+p3
+SpaCE.visualize.deconvolution(SpaCE_obj, cellTypes=c("Malignant","Cancer cell state A","Cancer cell state B"),ncol=3)
 ``` 
 <img src="img/cancerCellState.png" width="100%" style="border:none" />
+
+
+

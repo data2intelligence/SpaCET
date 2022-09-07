@@ -64,13 +64,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create.SpaCE.object</span><span class="op">(</span></span>
-<span>  <span class="va">counts</span>,</span>
-<span>  <span class="va">spotCoordinates</span>,</span>
-<span>  <span class="va">imageFile</span>,</span>
-<span>  platform <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Visium"</span>, <span class="st">"oldST"</span>, <span class="st">"Slide-Seq"</span><span class="op">)</span>,</span>
-<span>  visiumPath <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create.SpaCE.object</span><span class="op">(</span><span class="va">counts</span>, <span class="va">spotCoordinates</span>, <span class="va">imagePath</span>, <span class="va">platform</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,16 +77,12 @@
 <dd><p>Spot coordinate matrix with spot ID (column) x coordinates (row). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&amp;E image.</p></dd>
 
 
-<dt>imageFile</dt>
+<dt>imagePath</dt>
 <dd><p>Path to the H&amp;E image file. Can be NA if it is not available.</p></dd>
 
 
 <dt>platform</dt>
 <dd><p>A character string indicating the platform, i.e., "Visium", "oldST", or "Slide-Seq".</p></dd>
-
-
-<dt>visiumPath</dt>
-<dd><p>Path to the visium output folder. See ‘Details’ for more information.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -103,22 +93,13 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>To create an SpaCE object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".</p>
-<p>However, if user are analyzing Visium data, they only need to input "visiumPath". Please make sure that "visiumPath" points to the standard output folder of 10x Visium, which have both `filtered_feature_bc_matrix` and `spatial` folders.</p>
-<p>The "filtered_feature_bc_matrix" folder includes <br>
-"barcodes.tsv.gz": spot level barcodes; <br>
-"features.tsv.gz": list of genes; <br>
-"matrix.mtx.gz": (sparse) matrix of counts.</p>
-<p>The "spatial" folder includes <br>
-“tissue_positions_list.csv” : barcodes and spatial information; <br>
-“tissue_lowres_image.png” : hematoxylin and eosin (H&amp;E) image; <br>
-“scalefactors_json.json” : scaling factors for adjusting the coordinates.</p>
+    <p>To create an SpaCE object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
+However, if analyzing Visium data, please use create.SpaCE.object.10X to read data.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,<span class="st">'Visium_BC'</span>,package <span class="op">=</span> <span class="st">'SpaCE'</span><span class="op">)</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu">create.SpaCE.object</span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu">create.SpaCE.object</span><span class="op">(</span><span class="va">counts</span>,<span class="va">spotCoordinates</span>,<span class="va">imagePath</span>,<span class="va">platform</span><span class="op">)</span></span>
 <span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

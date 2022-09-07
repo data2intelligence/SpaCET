@@ -97,20 +97,14 @@ that the SpaCE package and its dependencies have been installed.</p>
 <h2 id="create-space-object">Create SpaCE object<a class="anchor" aria-label="anchor" href="#create-space-object"></a>
 </h2>
 <p>To read your ST data into R, user can create an SpaCE object by using
-<code>create.SpaCE.object</code>. Specifically, if user are analyzing a
-Visium dataset, they only need to input “visiumPath”. Please make sure
-that “visiumPath” points to the standard output folders of 10x Visium,
-which has both “filtered_feature_bc_matrix” and “spatial” folders.</p>
-<p>The “filtered_feature_bc_matrix”`” folder includes<br>
-“barcodes.tsv.gz”: spot level barcodes<br>
-“features.tsv.gz”: list of genes<br>
-“matrix.mtx.gz”: (sparse) matrix of counts</p>
-<p>The “spatial” folder includes<br>
-“tissue_positions_list.csv” : barcodes and spatial information<br>
-“tissue_lowres_image.png” : hematoxylin and eosin (H&amp;E) image<br>
-“scalefactors_json.json” : scaling factors for adjusting the
-coordinates</p>
-<p>Here, we create an SpaCE object for this breast cancer visium
+<code>create.SpaCE.object</code> or
+<code>create.SpaCE.object.10X</code>. Specifically, if users are
+analyzing a ST dataset from 10x Visium, they only need to input
+“visiumPath” by using <code>create.SpaCE.object.10X</code>. Please make
+sure that “visiumPath” points to the standard output folders of 10x
+Space Ranger, which has both “filtered_feature_bc_matrix” and “spatial”
+folders.</p>
+<p>Here, we create an SpaCE object for the current breast cancer visium
 dataset. In this step, the genes exhibiting zero UMI counts across spots
 will be removed. Also, if there are duplicated gene symbols, the gene
 with the highest total counts remains and all other duplicated genes are
@@ -119,36 +113,34 @@ removed.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCE" class="external-link">SpaCE</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># set the path to the in-house breast cancer ST data. User can set the paths to their own data.</span></span>
-<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'Visium_BC'</span>, package <span class="op">=</span> <span class="st">'SpaCE'</span><span class="op">)</span></span>
+<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCE"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># load ST data to create an SpaCE object.</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCE.object.html">create.SpaCE.object</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
+<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCE.object.10X.html">create.SpaCE.object.10X</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show this object.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
 <p>The UMI count matrix is stored in <code>SpaCE_obj@input$counts</code>
 as a sparse matrix. Each row represents a gene whereas each column is a
-spot. Of note, the column name is the ID of spots with a format “AxB”,
-which means the horizontal (A) and vertical (B) order of each spot,
-respectively.</p>
+spot.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show this object.</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span></span>
-<span><span class="co">## 8 x 8 sparse Matrix of class "dgCMatrix"</span></span>
-<span><span class="co">##            50x102 59x19 14x94 47x13 73x43 61x97 45x115 42x28</span></span>
-<span><span class="co">## AL627309.1      .     .     .     .     .     1      .     .</span></span>
-<span><span class="co">## AL669831.2      .     .     .     .     .     .      .     .</span></span>
-<span><span class="co">## AL669831.5      .     2     .     .     .     .      .     .</span></span>
-<span><span class="co">## FAM87B          .     .     .     .     .     .      .     .</span></span>
-<span><span class="co">## LINC00115       .     .     .     .     .     .      .     .</span></span>
-<span><span class="co">## FAM41C          .     .     .     .     .     .      .     .</span></span>
-<span><span class="co">## AL645608.7      .     .     .     .     .     .      .     .</span></span>
-<span><span class="co">## AL645608.3      .     .     .     .     .     .      .     .</span></span></code></pre></div>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="co">## 8 x 3 sparse Matrix of class "dgCMatrix"</span></span>
+<span><span class="co">##            AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
+<span><span class="co">## AL627309.1                  .                  .                  .</span></span>
+<span><span class="co">## AL669831.2                  .                  .                  .</span></span>
+<span><span class="co">## AL669831.5                  .                  2                  .</span></span>
+<span><span class="co">## FAM87B                      .                  .                  .</span></span>
+<span><span class="co">## LINC00115                   .                  .                  .</span></span>
+<span><span class="co">## FAM41C                      .                  .                  .</span></span>
+<span><span class="co">## AL645608.7                  .                  .                  .</span></span>
+<span><span class="co">## AL645608.3                  .                  .                  .</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="show-key-quality-control-metrics">Show key quality control metrics<a class="anchor" aria-label="anchor" href="#show-key-quality-control-metrics"></a>
 </h2>
-<p>After creating the SpaCE object, user can use
+<p>After creating the SpaCE object, users can use
 <code>SpaCE.visualize.metrics</code> to show both UMI and gene counts
 across all ST spots, respectively. Specifically, the “UMI” option
 presents the overall UMI counts within a spot while the “Gene” option
@@ -208,22 +200,22 @@ signatures.</p>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.html">SpaCE.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show the ST deconvolution results</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span></span>
-<span><span class="co">##                   50x102 59x19        14x94        47x13        73x43</span></span>
-<span><span class="co">## Malignant   2.860636e-01     1 6.845966e-02 3.899756e-01 9.608802e-01</span></span>
-<span><span class="co">## CAF         3.118545e-01     0 3.397067e-01 1.111980e-01 3.372692e-02</span></span>
-<span><span class="co">## Endothelial 5.510895e-02     0 1.427060e-01 3.080531e-02 5.263544e-03</span></span>
-<span><span class="co">## Plasma      2.213392e-02     0 1.507382e-02 1.183170e-02 9.071809e-06</span></span>
-<span><span class="co">## B cell      3.885793e-03     0 9.271616e-02 1.406470e-01 1.329085e-06</span></span>
-<span><span class="co">## T CD4       1.344389e-01     0 1.554305e-02 1.249414e-01 1.112392e-05</span></span>
-<span><span class="co">## T CD8       7.578696e-03     0 2.514558e-07 1.379856e-03 1.123043e-06</span></span>
-<span><span class="co">## NK          7.104005e-04     0 1.670019e-06 4.890387e-08 3.562557e-07</span></span>
-<span><span class="co">## cDC         1.421632e-07     0 8.278023e-02 7.584295e-02 2.851146e-07</span></span>
-<span><span class="co">## pDC         1.606443e-06     0 2.283754e-02 1.805671e-02 3.878344e-07</span></span>
-<span><span class="co">## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07</span></span>
-<span><span class="co">## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07</span></span>
-<span><span class="co">## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05</span></span></code></pre></div>
+<span><span class="co">##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
+<span><span class="co">## Malignant         2.860636e-01                  1       6.845966e-02</span></span>
+<span><span class="co">## CAF               3.118545e-01                  0       3.397067e-01</span></span>
+<span><span class="co">## Endothelial       5.510895e-02                  0       1.427060e-01</span></span>
+<span><span class="co">## Plasma            2.213392e-02                  0       1.507382e-02</span></span>
+<span><span class="co">## B cell            3.885793e-03                  0       9.271616e-02</span></span>
+<span><span class="co">## T CD4             1.344389e-01                  0       1.554305e-02</span></span>
+<span><span class="co">## T CD8             7.578696e-03                  0       2.514558e-07</span></span>
+<span><span class="co">## NK                7.104005e-04                  0       1.670019e-06</span></span>
+<span><span class="co">## cDC               1.421632e-07                  0       8.278023e-02</span></span>
+<span><span class="co">## pDC               1.606443e-06                  0       2.283754e-02</span></span>
+<span><span class="co">## Macrophage        1.703304e-01                  0       5.021248e-02</span></span>
+<span><span class="co">## Mast              7.905067e-08                  0       1.621498e-05</span></span>
+<span><span class="co">## Neutrophil        1.380073e-05                  0       9.528996e-07</span></span></code></pre></div>
 <p>Of note, the value from deconvolution results represents the fraction
 of cell types. User may find that the fraction sum of all cell types in
 a spot (column) is beyond 1. This is because SpaCE outputs the cell
@@ -240,7 +232,7 @@ spatial distribution of cell types by setting the parameter
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
 <span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
-<span><span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span></span></code></pre></div>
+<span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution.png" width="100%" style="border:none"></p>
 <p>By setting the parameter <code>interactive</code> as
 <code>TRUE</code>, user will open up a Shiny plot to interactively
@@ -347,18 +339,13 @@ states equals to the malignant cell fraction for each spot.</p>
 <span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show cancer cell state fraction of the first five spots</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Cancer cell state"</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span></span>
-<span><span class="co">##                         50x102        59x19        14x94     47x13        73x43</span></span>
-<span><span class="co">## Cancer cell state A 0.21735562 9.999900e-01 6.845963e-02 0.2135212 9.608802e-01</span></span>
-<span><span class="co">## Cancer cell state B 0.06870794 1.239573e-11 2.906452e-08 0.1764543 2.402767e-10</span></span>
+<span><span class="co">##                     AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
+<span><span class="co">## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02</span></span>
+<span><span class="co">## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08</span></span>
 <span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Cancer cell state A"</span><span class="op">)</span></span>
-<span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Cancer cell state B"</span><span class="op">)</span></span>
-<span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="va">p3</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/cancerCellState.png" width="100%" style="border:none"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
