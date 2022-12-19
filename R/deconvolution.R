@@ -1,22 +1,22 @@
 #' @title Deconvolve tumor ST data set
 #' @description Estimate the fraction of cell lineages and sub lineages.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param cancerType Cancer type of this tumor ST dataset.
 #' @param coreNo Core number in parallel.
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @examples
-#' SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
-#' @rdname SpaCE.deconvolution
+#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+#' @rdname SpaCET.deconvolution
 #' @export
 #'
-SpaCE.deconvolution <- function(SpaCE_obj,cancerType,coreNo=8)
+SpaCET.deconvolution <- function(SpaCET_obj,cancerType,coreNo=8)
 {
-  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
 
   print("Stage 1. Infer malignant cell fraction.")
   malRes <- inferMal_cor(st.matrix.data,cancerType)
 
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCE') )
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
 
   print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
 
@@ -29,9 +29,9 @@ SpaCE.deconvolution <- function(SpaCE_obj,cancerType,coreNo=8)
     coreNo=coreNo
   )
 
-  SpaCE_obj@results$Ref <- Ref
-  SpaCE_obj@results$deconvolution <- propMat
-  SpaCE_obj
+  SpaCET_obj@results$Ref <- Ref
+  SpaCET_obj@results$deconvolution <- propMat
+  SpaCET_obj
 }
 
 
@@ -102,10 +102,10 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   st.matrix.data <- as.matrix(st.matrix.data)
   st.matrix.data.diff <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
   st.matrix.data.diff <- log2(st.matrix.data.diff+1)
-  st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
+  #st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
 
   malFlag <- TRUE
-  load( system.file("extdata",'cancerDictionary.rda',package = 'SpaCE') )
+  load( system.file("extdata",'cancerDictionary.rda',package = 'SpaCET') )
 
   for(CNA_expr in c("CNA","expr"))
   {

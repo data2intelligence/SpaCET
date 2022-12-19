@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.">
-<title>Spatial Cellular Estimator • SpaCE</title>
+<meta name="description" content="Estimation of cell lineages in tumors from spatial transcriptomics data.">
+<title>Spatial Cellular Estimator for Tumors • SpaCET</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Spatial Cellular Estimator">
-<meta property="og:description" content="Estimation of cell lineage and cell-cell interactions in tumors from spatial transcriptomics data.">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Spatial Cellular Estimator for Tumors">
+<meta property="og:description" content="Estimation of cell lineages in tumors from spatial transcriptomics data.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -24,7 +24,7 @@
 
     <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
     
-    <a class="navbar-brand me-2" href="index.html">SpaCE</a>
+    <a class="navbar-brand me-2" href="index.html">SpaCET</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
@@ -61,7 +61,7 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/data2intelligence/SpaCE/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/data2intelligence/SpaCET/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -74,23 +74,23 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="space-spatial-cellular-estimator">SpaCE (Spatial Cellular Estimator)<a class="anchor" aria-label="anchor" href="#space-spatial-cellular-estimator"></a>
+<div class="page-header"><h1 id="spacet-spatial-cellular-estimator-for-tumors">SpaCET (Spatial Cellular Estimator for Tumors)<a class="anchor" aria-label="anchor" href="#spacet-spatial-cellular-estimator-for-tumors"></a>
 </h1></div>
-<p>SpaCE is a reference-free method for analyzing cancer spatial transcriptomics (ST) datasets to estimate cell lineage and cell-cell interactions in tumor microenvironment. Briefly, SpaCE first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCE then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage fraction. Further, SpaCE can reveal putative cell-cell interactions in the tumor microenvironment. What’s more, although SpaCE does not require any input cell reference profile to process tumor ST data, SpaCE can still accept a matched scRNA-seq data as customized references to carry out cell type deconvolution.</p>
+<p>SpaCET is a reference-free method for analyzing cancer spatial transcriptomics (ST) datasets to estimate cell lineage and cell-cell interactions in tumor microenvironment. Briefly, SpaCET first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCET then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage fraction. Further, SpaCET can reveal putative cell-cell interactions in the tumor microenvironment. What’s more, although SpaCET does not require any input cell reference profile to process tumor ST data, SpaCET can still accept a matched scRNA-seq data as customized references to carry out cell type deconvolution.</p>
 <p><img src="reference/figures/workflow.png" width="100%"></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>To install <code>SpaCE</code>, we recommend using <code>devtools</code>:</p>
+<p>To install <code>SpaCET</code>, we recommend using <code>devtools</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"data2intelligence/SpaCE"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"data2intelligence/SpaCET"</span><span class="op">)</span></span></code></pre></div>
 <p>Or user can install from the local source code:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download in the shell.</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>git clone https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>data2intelligence<span class="sc">/</span>SpaCE.git</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>git clone https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>data2intelligence<span class="sc">/</span>SpaCET.git</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># install SpaCE in R environment.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(“location_to_SpaCE_gitclone<span class="st">", repos = NULL, type="</span>source”)</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># install SpaCET in R environment.</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(“location_to_SpaCET_gitclone<span class="st">", repos = NULL, type="</span>source”)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
@@ -104,13 +104,13 @@
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCE" class="external-link">SpaCE</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCE"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create.SpaCE.object.10X.html">create.SpaCE.object.10X</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SpaCE.deconvolution.html">SpaCE.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create.SpaCET.object.10X.html">create.SpaCET.object.10X</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SpaCET.deconvolution.html">SpaCET.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co">##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
 <span><span class="co">## Malignant         2.860636e-01                  1       6.845966e-02</span></span>
@@ -132,17 +132,17 @@
 </h2>
 <ul>
 <li>
-<a href="https://data2intelligence.github.io/SpaCE/articles/visium_BC.html" class="external-link">Cell type deconvolution and interaction analysis without reference</a><br>
+<a href="https://data2intelligence.github.io/SpaCET/articles/visium_BC.html" class="external-link">Cell type deconvolution and interaction analysis without reference</a><br>
 </li>
-<li><a href="https://data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html" class="external-link">Deconvolution with a matched scRNA-seq data set</a></li>
+<li><a href="https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html" class="external-link">Deconvolution with a matched scRNA-seq data set</a></li>
 </ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/data2intelligence/SpaCE/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/data2intelligence/SpaCE/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/data2intelligence/SpaCET/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/data2intelligence/SpaCET/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -158,7 +158,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing SpaCE</a></li>
+<li><a href="authors.html#citation">Citing SpaCET</a></li>
 </ul>
 </div>
 

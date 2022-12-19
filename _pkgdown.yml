@@ -18,28 +18,28 @@ navbar:
       href: news/index.html
 
 reference:
-  - title: SpaCE object
+  - title: SpaCET object
     contents:
-    - SpaCE-class
-    - create.SpaCE.object
-    - create.SpaCE.object.10X
+    - SpaCET-class
+    - create.SpaCET.object
+    - create.SpaCET.object.10X
 
   - title: Deconvolution of ST data
     contents:
-    - SpaCE.deconvolution
-    - SpaCE.deconvolution.malignant
-    - SpaCE.deconvolution.matched.scRNAseq
+    - SpaCET.deconvolution
+    - SpaCET.deconvolution.malignant
+    - SpaCET.deconvolution.matched.scRNAseq
 
   - title: Cell-cell interaction analysis
     contents:
-    - SpaCE.CCI.colocalization
-    - SpaCE.CCI.LRNetworkScore
-    - SpaCE.CCI.cellTypePair
+    - SpaCET.CCI.colocalization
+    - SpaCET.CCI.LRNetworkScore
+    - SpaCET.CCI.cellTypePair
 
   - title: Visualization
     contents:
-    - SpaCE.visualize.gene
-    - SpaCE.visualize.metrics
-    - SpaCE.visualize.deconvolution
-    - SpaCE.visualize.colocalization
-    - SpaCE.visualize.LRNetworkScore
+    - SpaCET.visualize.gene
+    - SpaCET.visualize.metrics
+    - SpaCET.visualize.deconvolution
+    - SpaCET.visualize.colocalization
+    - SpaCET.visualize.LRNetworkScore

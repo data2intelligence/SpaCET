@@ -1,17 +1,17 @@
 #' @title Deconvolve malignant cell fraction
 #' @description Explore different cancer cell state in tumor ST dataset.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells.
 #' @param coreNo Core number in parallel.
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @examples
-#' SpaCE_obj <- SpaCE.deconvolution.malignant(SpaCE_obj)
-#' @rdname SpaCE.deconvolution.malignant
+#' SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)
+#' @rdname SpaCET.deconvolution.malignant
 #' @export
-SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo=8)
+SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, coreNo=8)
 {
-  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
-  res_deconv <- SpaCE_obj@results$deconvolution
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  res_deconv <- SpaCET_obj@results$deconvolution
 
   st.matrix.data.mal <- st.matrix.data[,res_deconv["Malignant",]>=malignantCutoff]
   st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e6/colSums(st.matrix.data.mal) )
@@ -95,7 +95,7 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
   lineageTree <- list("Malignant"=paste0("Cancer cell state ",states))
   Refnew <- list(refProfiles=refProfiles, sigGenes=sigGenes, lineageTree=lineageTree)
 
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCE') )
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
 
   propMat <- SpatialDeconv(
     ST=st.matrix.data,
@@ -107,27 +107,27 @@ SpaCE.deconvolution.malignant <- function(SpaCE_obj, malignantCutoff=0.7, coreNo
   )
 
   propMat<- rbind(res_deconv,propMat[!rownames(propMat)%in%"Malignant",])
-  SpaCE_obj@results$deconvolution <- propMat
+  SpaCET_obj@results$deconvolution <- propMat
 
-  SpaCE_obj
+  SpaCET_obj
 }
 
 
 #' @title Deconvolve ST data set with matched scRNAseq
 #' @description Estimate the fraction of cell lineage and sub lineage.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
 #' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param coreNo Core number.
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @examples
-#' SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(SpaCE_obj, sc_counts, sc_annotation, sc_lineageTree)
-#' @rdname SpaCE.deconvolution.matched.scRNAseq
+#' SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree)
+#' @rdname SpaCET.deconvolution.matched.scRNAseq
 #' @export
-SpaCE.deconvolution.matched.scRNAseq <- function(SpaCE_obj, sc_counts, sc_annotation, sc_lineageTree, coreNo=8)
+SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree, coreNo=8)
 {
-  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
 
   print("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
@@ -148,9 +148,9 @@ SpaCE.deconvolution.matched.scRNAseq <- function(SpaCE_obj, sc_counts, sc_annota
     coreNo=coreNo
   )
 
-  SpaCE_obj@results$Ref <- Ref
-  SpaCE_obj@results$deconvolution <- propMat
-  SpaCE_obj
+  SpaCET_obj@results$Ref <- Ref
+  SpaCET_obj@results$deconvolution <- propMat
+  SpaCET_obj
 
 }
 

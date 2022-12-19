@@ -1,28 +1,29 @@
 #' @title Quality control metrics visualization
 #' @description Visualize quality control metrics in ST dataset.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param itemQC Item for quality control metrics. i.e., "UMI" or "gene".
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @param imageBg logical: should the image be shown?
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
-#' @rdname SpaCE.visualize.metrics
+#' SpaCET.visualize.metrics(SpaCET_obj, itemQC="UMI")
+#' @rdname SpaCET.visualize.metrics
 #' @export
-SpaCE.visualize.metrics <- function(
-    SpaCE_obj,
+SpaCET.visualize.metrics <- function(
+    SpaCET_obj,
     itemQC = c("UMI","Gene"),
     colors = c("lightblue", "blue", "darkblue"),
-    imageBg = TRUE
+    imageBg = TRUE,
+    imageCut = c("complete","cut_capture_area","cut_tissue_region")
 )
 {
-  visiualVector <- SpaCE_obj@results$metrics[itemQC,]
-  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+  visiualVector <- SpaCET_obj@results$metrics[itemQC,]
+  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
   p1 <- visualSpatial(
     visiualVector,
-    image=SpaCE_obj@input$image,
-    platform=SpaCE_obj@input$platform,
+    image=SpaCET_obj@input$image,
+    platform=SpaCET_obj@input$platform,
     scaleType="color-continuous",
     colors=colors,
     pointSize=1,
@@ -30,7 +31,8 @@ SpaCE.visualize.metrics <- function(
     limits=NULL,
     titleName=itemQC,
     legendName="Count",
-    imageBg=imageBg)
+    imageBg=imageBg,
+    imageCut=imageCut)
 
   p2 <- ggplot(data.frame(value=visiualVector), aes(value)) +
     geom_histogram(bins = 100,color="#ddaaff",fill="#551177")+
@@ -53,35 +55,35 @@ SpaCE.visualize.metrics <- function(
 
 #' @title Gene expression visualization
 #' @description Visualize gene expression level in ST dataset.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param genes Gene symbol.
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.gene(SpaCE_obj,"EPCAM")
-#' @rdname SpaCE.visualize.gene
+#' SpaCET.visualize.gene(SpaCET_obj,"EPCAM")
+#' @rdname SpaCET.visualize.gene
 #' @export
-SpaCE.visualize.gene <- function(
-    SpaCE_obj,
+SpaCET.visualize.gene <- function(
+    SpaCET_obj,
     genes,
     ncol=1,
     colors = c("blue", "yellow", "red"),
     imageBg = TRUE
 )
 {
-  expression <- SpaCE_obj@input$counts
+  expression <- SpaCET_obj@input$counts
   expression <- sweep(expression,2,Matrix::colSums(expression),"/")
 
   for(gene in genes)
   {
     expression_gene <- expression[gene,]
     visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
-    names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+    names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
     p <- visualSpatial(
       visiualVector,
-      image=SpaCE_obj@input$image,
-      platform=SpaCE_obj@input$platform,
+      image=SpaCET_obj@input$image,
+      platform=SpaCET_obj@input$platform,
       scaleType="color-continuous",
       colors=colors,
       pointSize=1,
@@ -110,17 +112,17 @@ SpaCE.visualize.gene <- function(
 
 #' @title Cell type fraction visualization
 #' @description Visualize cell type fraction in ST dataset.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param cellType Cell type name.
 #' @param colors Legend color scale, Default: c("blue", "yellow", "red").
 #' @param limits Value range, Default: c(0,1). Also can be set as NULL.
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.deconvolution(SpaCE_obj,"Malignant")
-#' @rdname SpaCE.visualize.deconvolution
+#' SpaCET.visualize.deconvolution(SpaCET_obj,"Malignant")
+#' @rdname SpaCET.visualize.deconvolution
 #' @export
-SpaCE.visualize.deconvolution <- function(
-    SpaCE_obj,
+SpaCET.visualize.deconvolution <- function(
+    SpaCET_obj,
     cellTypes,
     ncol=1,
     colors = c("blue", "yellow", "red"),
@@ -131,17 +133,17 @@ SpaCE.visualize.deconvolution <- function(
 {
   if(interactive)
   {
-    visualSpatialInteractive(SpaCE_obj,cellType)
+    visualSpatialInteractive(SpaCET_obj,cellType)
   }else{
     for(cellType in cellTypes)
     {
-      visiualVector <- SpaCE_obj@results$deconvolution[cellType,]
-      names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+      visiualVector <- SpaCET_obj@results$deconvolution[cellType,]
+      names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
       p <- visualSpatial(
         visiualVector,
-        image=SpaCE_obj@input$image,
-        platform=SpaCE_obj@input$platform,
+        image=SpaCET_obj@input$image,
+        platform=SpaCET_obj@input$platform,
         scaleType="color-continuous",
         colors=colors,
         pointSize=1,
@@ -172,27 +174,27 @@ SpaCE.visualize.deconvolution <- function(
 
 #' @title Ligand-Receptor network score visualization
 #' @description Visualize L-R network score in ST dataset.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param colors Legend color scale, Default: c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow").
 #' @return A ggplot2 object
 #' @examples
-#' SpaCE.visualize.LRNetworkScore(SpaCE_obj)
-#' @rdname SpaCE.visualize.LRNetworkScore
+#' SpaCET.visualize.LRNetworkScore(SpaCET_obj)
+#' @rdname SpaCET.visualize.LRNetworkScore
 #' @export
-SpaCE.visualize.LRNetworkScore <- function(
-    SpaCE_obj,
+SpaCET.visualize.LRNetworkScore <- function(
+    SpaCET_obj,
     colors = c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow"),
     imageBg = TRUE
 )
 {
-  visiualVector <- SpaCE_obj@results$LRNetworkScore["Network_Score",]
-  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+  visiualVector <- SpaCET_obj@results$LRNetworkScore["Network_Score",]
+  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
   visiualVector[visiualVector>1.5] <- 1.5
 
   visualSpatial(
     visiualVector,
-    SpaCE_obj@input$image,
-    SpaCE_obj@input$platform,
+    SpaCET_obj@input$image,
+    SpaCET_obj@input$platform,
     scaleType="color-continuous",
     colors=colors,
     pointSize=1,
@@ -215,7 +217,8 @@ visualSpatial <- function(
     pointAlpha,
     titleName,
     legendName,
-    imageBg
+    imageBg,
+    imageCut
 )
 {
   library(ggplot2)
@@ -223,6 +226,16 @@ visualSpatial <- function(
   if(tolower(platform)=="visium")
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+
+    if(imageCut!="complete")
+    {
+      image$grob$raster <- image$grob$raster[
+        image$edgeMat["left",imageCut]:image$edgeMat["right",imageCut],
+        image$edgeMat["bottom",imageCut]:image$edgeMat["top",imageCut]]
+
+      coordi[,1] <- coordi[,1]-image$edgeMat["left",imageCut]
+      coordi[,2] <- coordi[,2]-image$edgeMat["bottom",imageCut]
+    }
 
     if(imageBg& !is.na(image$path))
     {
@@ -328,7 +341,7 @@ visualSpatial <- function(
 }
 
 
-visualSpatialInteractive <- function(SpaCE_obj,gene)
+visualSpatialInteractive <- function(SpaCET_obj,gene)
 {
   library(shiny)
 
@@ -341,7 +354,7 @@ visualSpatialInteractive <- function(SpaCE_obj,gene)
 
         sidebarPanel(
           p("Select a cell type",style="color:black; font-weight: bold; margin-bottom:33px"),
-          selectInput("cellType", p("Cell type:",style="color:black; text-align:center"), choices = rownames(SpaCE_obj@results$deconvolution)),
+          selectInput("cellType", p("Cell type:",style="color:black; text-align:center"), choices = rownames(SpaCET_obj@results$deconvolution)),
           br(),
           sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.2),
           br(),
@@ -361,13 +374,13 @@ visualSpatialInteractive <- function(SpaCE_obj,gene)
         pointSize <- input$pointSize
         pointAlpha <- input$pointAlpha
 
-        visiualVector <- SpaCE_obj@results$deconvolution[cellType,]
-        names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+        visiualVector <- SpaCET_obj@results$deconvolution[cellType,]
+        names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
         visualSpatial(
           visiualVector,
-          SpaCE_obj@input$image,
-          SpaCE_obj@input$platform,
+          SpaCET_obj@input$image,
+          SpaCET_obj@input$platform,
           scaleType="color-continuous",
           colors=c("blue", "yellow", "red"),
           pointSize=pointSize,

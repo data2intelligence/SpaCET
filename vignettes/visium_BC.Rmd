@@ -20,32 +20,32 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial demonstrates how to run SpaCE to estimate cell identities and cell-cell interactions by using a breast cancer spatial transcriptomics (ST) data set from [10x Visium](https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0){target="_blank"}. Before running the tutorial, make sure that the SpaCE package and its dependencies have been installed.
+This tutorial demonstrates how to run SpaCET to estimate cell identities and cell-cell interactions by using a breast cancer spatial transcriptomics (ST) data set from [10x Visium](https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0){target="_blank"}. Before running the tutorial, make sure that the SpaCET package and its dependencies have been installed.
 
-## Create SpaCE object
+## Create SpaCET object
 
-To read your ST data into R, user can create an SpaCE object by using `create.SpaCE.object` or `create.SpaCE.object.10X`. Specifically, if users are analyzing a ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCE.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x Space Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
+To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing a ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
-Here, we create an SpaCE object for the current breast cancer visium dataset. In this step, the genes exhibiting zero UMI counts across spots will be removed. Also, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
+Here, we create an SpaCET object for the current breast cancer visium dataset. In this step, the genes exhibiting zero UMI counts across spots will be removed. Also, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
 
 ``` r
-library(SpaCE)
+library(SpaCET)
 
 # set the path to the in-house breast cancer ST data. User can set the paths to their own data.
-visiumPath <- file.path(system.file(package = "SpaCE"), "extdata/Visium_BC")
+visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 
-# load ST data to create an SpaCE object.
-SpaCE_obj <- create.SpaCE.object.10X(visiumPath = visiumPath)
+# load ST data to create an SpaCET object.
+SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
 
 # show this object.
-str(SpaCE_obj)
+str(SpaCET_obj)
 ```
 
-The UMI count matrix is stored in `SpaCE_obj@input$counts` as a sparse matrix. Each row represents a gene whereas each column is a spot.
+The UMI count matrix is stored in `SpaCET_obj@input$counts` as a sparse matrix. Each row represents a gene whereas each column is a spot.
 
 ``` r
 # show this object.
-SpaCE_obj@input$counts[1:8,1:3]
+SpaCET_obj@input$counts[1:8,1:3]
 ## 8 x 3 sparse Matrix of class "dgCMatrix"
 ##            AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
 ## AL627309.1                  .                  .                  .
@@ -60,27 +60,27 @@ SpaCE_obj@input$counts[1:8,1:3]
 
 ## Show key quality control metrics
 
-After creating the SpaCE object, users can use `SpaCE.visualize.metrics` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
+After creating the SpaCET object, users can use `SpaCET.visualize.metrics` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
 
 ``` r
 # plot the QC metrics.
 library(patchwork)
-p1 <- SpaCE.visualize.metrics(SpaCE_obj, itemQC="UMI")
-p2 <- SpaCE.visualize.metrics(SpaCE_obj, itemQC="Gene")
+p1 <- SpaCET.visualize.metrics(SpaCET_obj, itemQC="UMI")
+p2 <- SpaCET.visualize.metrics(SpaCET_obj, itemQC="Gene")
 p1 | p2
 ```
 <img src="img/QC.png" width="100%" style="border:none" />
 
 ## Deconvolve ST data
 
-By two stages, `SpaCE.deconvolution` would deconvolve all mixtures of ST spots into malignant, immune, and stromal cells. SpaCE first estimates malignant cell fraction by a gene pattern dictionary of copy number alterations (CNA) and expression changes in common malignancies. Subsequently, based on an in-house hierarchical cell lineage derived from single-cell RNA-seq data sets from diverse cancer types, a constrained regression model is used to determine immune and stromal cell fraction, and also include an unidentifiable component to calibrate cellular density variations across tissue regions.
+By two stages, `SpaCET.deconvolution` would deconvolve all mixtures of ST spots into malignant, immune, and stromal cells. SpaCET first estimates malignant cell fraction by a gene pattern dictionary of copy number alterations (CNA) and expression changes in common malignancies. Subsequently, based on an in-house hierarchical cell lineage derived from single-cell RNA-seq data sets from diverse cancer types, a constrained regression model is used to determine immune and stromal cell fraction, and also include an unidentifiable component to calibrate cellular density variations across tissue regions.
 
 Specifically, user need to specify the cancer type of this tumor ST data set by using `cancerType` parameter, which is utilized to select cancer type-specific CNA or expression signature to infer malignant cell fraction. The code of cancer types can be found in the following dropdown content. When correlating expression profiles of ST spots to the cancer type-specific signature, we set the cancer type-specific CNA signature as the first option because chromosomal instability is widely considered one consistent feature of human tumors. Alternatively, if no spots strongly correlate with the CNA signature, the cancer type-specific expression signature would be activated. This situation might result from chromosomally stable cancer cells with low CNA. For cancer types not included in our dictionary, we created a pan-cancer expression signature by averaging all cancer type-specific expression signatures.  
 
 <details>
   <summary>**How many caner types are in the gene pattern dictionary?**</summary>
   
-  SpaCE includes a gene pattern dictionary of copy number alterations (CNA) and expression changes for 30 solid tumor types. The cancer type-specific CNA signature of a cancer type was computed by averaging bulk tumor CNA values on gene levels across patients. For each cancer type, the lower quartile of patients sorted by total CNA burdens was excluded before calculating the CNA signature. The cancer type-specific expression signature of a cancer type was generated as log2 Fold Change of differential expression between tumor and normal samples. Several cancer types do not have expression signatures due to a lack of adequate normal samples (n < 10 patients). The pan-cancer expression signature was created by averaging all cancer type-specific expression signatures.
+  SpaCET includes a gene pattern dictionary of copy number alterations (CNA) and expression changes for 30 solid tumor types. The cancer type-specific CNA signature of a cancer type was computed by averaging bulk tumor CNA values on gene levels across patients. For each cancer type, the lower quartile of patients sorted by total CNA burdens was excluded before calculating the CNA signature. The cancer type-specific expression signature of a cancer type was generated as log2 Fold Change of differential expression between tumor and normal samples. Several cancer types do not have expression signatures due to a lack of adequate normal samples (n < 10 patients). The pan-cancer expression signature was created by averaging all cancer type-specific expression signatures.
   
   <img src="img/cancerDictionary.png" width="100%" style="border:none" />
   
@@ -88,10 +88,10 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 
 ``` r
 # deconvolve ST data
-SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 
 # show the ST deconvolution results
-SpaCE_obj@results$deconvolution[1:13,1:3]
+SpaCET_obj@results$deconvolution[1:13,1:3]
 
 ##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
 ## Malignant         2.860636e-01                  1       6.845966e-02
@@ -109,16 +109,16 @@ SpaCE_obj@results$deconvolution[1:13,1:3]
 ## Neutrophil        1.380073e-05                  0       9.528996e-07
 ```
 
-Of note, the value from deconvolution results represents the fraction of cell types. User may find that the fraction sum of all cell types in a spot (column) is beyond 1. This is because SpaCE outputs the cell fractions for both major lineages and their corresponding sublineages, e.g., T CD4 as well as Th1, Th2... .
+Of note, the value from deconvolution results represents the fraction of cell types. User may find that the fraction sum of all cell types in a spot (column) is beyond 1. This is because SpaCET outputs the cell fractions for both major lineages and their corresponding sublineages, e.g., T CD4 as well as Th1, Th2... .
 
 ## Visualize the cell type proportion
 
-We provide `SpaCE.visualize.deconvolution` to present the spatial distribution of cell types by setting the parameter `cellType`.
+We provide `SpaCET.visualize.deconvolution` to present the spatial distribution of cell types by setting the parameter `cellType`.
 
 ``` r
 # show the spatial distribution of malignant cells and macrophages.
-p1 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Malignant")
-p2 <- SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Macrophage")
+p1 <- SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Malignant")
+p2 <- SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Macrophage")
 p1 | p2
 ```
 <img src="img/visualizeDeconvolution.png" width="100%" style="border:none" />
@@ -127,23 +127,23 @@ By setting the parameter `interactive` as `TRUE`, user will open up a Shiny plot
 
 ``` r
 # show the spatial distribution of malignant cells and macrophages.
-SpaCE.visualize.deconvolution(SpaCE_obj, cellType="Malignant", interactive=TRUE)
+SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Malignant", interactive=TRUE)
 ```
 <img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none" />
 
 ## Identify cell-cell interaction
-After decomposing cell fractions, SpaCE can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCE tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.
+After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.
 
 ### Find the co-localized cell-type pairs
 
-SpaCE provides `SpaCE.CCI.colocalization` and `SpaCE.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
+SpaCET provides `SpaCET.CCI.colocalization` and `SpaCET.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
 
 ``` r
 # calculate the cell-cell colocalization.
-SpaCE_obj <- SpaCE.CCI.colocalization(SpaCE_obj)
+SpaCET_obj <- SpaCET.CCI.colocalization(SpaCET_obj)
 
 # visualize the cell-cell colocalization.
-SpaCE.visualize.colocalization(SpaCE_obj)
+SpaCET.visualize.colocalization(SpaCET_obj)
 ```
 
 <img src="img/CCC.png" width="100%" style="border:none" />
@@ -152,46 +152,46 @@ In this breast tumor tissue, we identified several potential colocalized cell-ty
 
 ### Analyze the L-R network enrichment within ST spots
 
-Cell colocalization does not directly indicate physical interaction. Thus, we sought further evidence for cell-cell interactions by analyzing ligand-receptor (L-R) interactions within ST spots. From a previous [study](https://www.nature.com/articles/ncomms8866){target="_blank"}, we collected approximately 2,500 L-R pairs as an in-house L-R network. For each ST data set, SpaCE shuffled the L-R interaction network by using [BiRewire](https://bioconductor.org/packages/release/bioc/html/BiRewire.html){target="_blank"} package to generate 1,000 randomized networks while preserving directed degree distributions. For a spot, an L-R network score is defined as the sum of expression products between all L-R pairs, divided by the average random value from 1,000 randomized networks. 
+Cell colocalization does not directly indicate physical interaction. Thus, we sought further evidence for cell-cell interactions by analyzing ligand-receptor (L-R) interactions within ST spots. From a previous [study](https://www.nature.com/articles/ncomms8866){target="_blank"}, we collected approximately 2,500 L-R pairs as an in-house L-R network. For each ST data set, SpaCET shuffled the L-R interaction network by using [BiRewire](https://bioconductor.org/packages/release/bioc/html/BiRewire.html){target="_blank"} package to generate 1,000 randomized networks while preserving directed degree distributions. For a spot, an L-R network score is defined as the sum of expression products between all L-R pairs, divided by the average random value from 1,000 randomized networks. 
 
 ``` r
 # calculate the L-R network score across ST spots.
-SpaCE_obj <- SpaCE.CCI.LRNetworkScore(SpaCE_obj,coreNo=8)
+SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj,coreNo=8)
 
 # visualize the cell-cell colocalization.
-SpaCE.visualize.LRNetworkScore(SpaCE_obj)
+SpaCET.visualize.LRNetworkScore(SpaCET_obj)
 ```
 
 <img src="img/LRNetworkScore.png" width="50%" style="border:none" />
 
-The L-R network score at each ST spot indicates the overall intensities of ligand-receptor interactions at each location, but not the specific interactions between two cell types. Thus, SpaCE further performed an enrichment analysis of L-R network scores for each cell-type pair. For example, for the colocalization between CAF and M2 cells in the breast tumor tissue, SpaCE grouped all ST spots into four categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the left and middle panels in the following figure). We found that CAF-M2 colocalized spots have more substantial L-R interaction network scores than CAF/M2-dominated spots (right panel).
+The L-R network score at each ST spot indicates the overall intensities of ligand-receptor interactions at each location, but not the specific interactions between two cell types. Thus, SpaCET further performed an enrichment analysis of L-R network scores for each cell-type pair. For example, for the colocalization between CAF and M2 cells in the breast tumor tissue, SpaCET grouped all ST spots into four categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the left and middle panels in the following figure). We found that CAF-M2 colocalized spots have more substantial L-R interaction network scores than CAF/M2-dominated spots (right panel).
 
 ``` r
 # calculate the L-R network score across ST spots.
-SpaCE.CCI.cellTypePair(SpaCE_obj, cellTypePair=c("CAF","Macrophage M2"))
+SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
 ``` 
 
 <img src="img/CAF-M2.png" width="100%" style="border:none" />
 
 ## Explore cancer cell states
-The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCE can automatically explore the spatial distribution of different cancer cell states.
+The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCET can automatically explore the spatial distribution of different cancer cell states.
 
-Based on the deconvolution results of the breast cancer dataset, we selected the ST spots with high fractions (> 0.7) of malignant cells as tumor spots. Then, SpaCE hierarchically clustered these malignant spots to infer different states. The Silhouette value, measuring the similarity among the ST spots within each cluster compared to other clusters, was used to select the optimal cluster number. In this way, the reference profile of different cancer cell states can be computed by averaging the expression profile of all spots in a cluster, i.e., a cancer cell state.
+Based on the deconvolution results of the breast cancer dataset, we selected the ST spots with high fractions (> 0.7) of malignant cells as tumor spots. Then, SpaCET hierarchically clustered these malignant spots to infer different states. The Silhouette value, measuring the similarity among the ST spots within each cluster compared to other clusters, was used to select the optimal cluster number. In this way, the reference profile of different cancer cell states can be computed by averaging the expression profile of all spots in a cluster, i.e., a cancer cell state.
 
 Similar to the deconvolution of immune major lineages into sublineages, the overall malignant cell fraction would be decomposed to multiple cancer cell states. Thus, the sum fraction of cancer cell states equals to the malignant cell fraction for each spot.
 
 ``` r
 # further deconvolve malignant cell states
-SpaCE_obj <- SpaCE.deconvolution.malignant(SpaCE_obj, malignantCutoff = 0.7, coreNo = 8)
+SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
 
 # show cancer cell state fraction of the first five spots
-SpaCE_obj@results$deconvolution[c("Cancer cell state A","Cancer cell state B"),1:3]
+SpaCET_obj@results$deconvolution[c("Cancer cell state A","Cancer cell state B"),1:3]
 
 ##                     AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
 ## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02
 ## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08
 
-SpaCE.visualize.deconvolution(SpaCE_obj, cellTypes=c("Malignant","Cancer cell state A","Cancer cell state B"),ncol=3)
+SpaCET.visualize.deconvolution(SpaCET_obj, cellTypes=c("Malignant","Cancer cell state A","Cancer cell state B"),ncol=3)
 ``` 
 <img src="img/cancerCellState.png" width="100%" style="border:none" />
 

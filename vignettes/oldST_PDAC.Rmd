@@ -20,11 +20,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCE does not require malignant, stromal and immune cell reference. However, SpaCE can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCE with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}.
+Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCET does not require malignant, stromal and immune cell reference. However, SpaCET can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCET with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}.
 
-## Create SpaCE object
+## Create SpaCET object
 
-To create an SpaCE object, user need to prepare four types of input data referring to a tumor ST dataset. 
+To create an SpaCET object, user need to prepare four types of input data referring to a tumor ST dataset. 
 
 1) spatial transcriptomics count data. The spatial transcriptomics count data must be in the format of matrix with gene name (row) x spot ID (column).
 2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
@@ -32,9 +32,9 @@ To create an SpaCE object, user need to prepare four types of input data referri
 4) platform
 
 ``` r
-library(SpaCE)
+library(SpaCET)
 
-PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCE')
+PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
 load(paste0(PDAC_Path,"/st_PDAC.rda"))
 
 # show count matrix
@@ -58,8 +58,8 @@ spotCoordinates[1:5,]
 ## 10x15 10 15
 ## 10x16 10 16
 
-# load ST data to create an SpaCE object.
-SpaCE_obj <- create.SpaCE.object(
+# load ST data to create an SpaCET object.
+SpaCET_obj <- create.SpaCET.object(
   counts=counts,
   spotCoordinates=spotCoordinates,
   imagePath=NA,
@@ -67,11 +67,11 @@ SpaCE_obj <- create.SpaCE.object(
 )
 
 # show this object.
-str(SpaCE_obj)
+str(SpaCET_obj)
 
 ```
 ## Deconvolve cell lineage
-We provide `SpaCE.deconvolution.matched.scRNAseq` to deconvolve an SpaCE object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
+We provide `SpaCET.deconvolution.matched.scRNAseq` to deconvolve an SpaCET object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
 
 1) single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data must be in the format of matrix with gene name (row) x cell ID (column).
 2) cell annotation information. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
@@ -79,7 +79,7 @@ We provide `SpaCE.deconvolution.matched.scRNAseq` to deconvolve an SpaCE object 
 
 ``` r
 # load sc data
-PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCE')
+PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
 load(paste0(PDAC_Path,"/sc_PDAC.rda"))
 
 # show count matrix
@@ -127,19 +127,19 @@ head(sc_lineageTree)
 ## [1] "Endocrine cells"
 ```
 
-Then, user can run `SpaCE.deconvolution.matched.scRNAseq` to carry out cell type deconvolution.
+Then, user can run `SpaCET.deconvolution.matched.scRNAseq` to carry out cell type deconvolution.
 
 ``` r
-SpaCE_obj <- SpaCE.deconvolution.matched.scRNAseq(
-  SpaCE_obj, 
+SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
+  SpaCET_obj, 
   sc_counts=sc_counts, 
   sc_annotation=sc_annotation, 
   sc_lineageTree=sc_lineageTree, 
   coreNo=8
 )
 
-SpaCE.visualize.deconvolution(
-  SpaCE_obj, 
+SpaCET.visualize.deconvolution(
+  SpaCET_obj, 
   cellTypes=c("Cancer clone A","Cancer clone B","Acinar cells","Ductal - CRISP3 high/centroacinar like"),
   ncol=2
 )
@@ -152,15 +152,15 @@ User can use the following code to visualize the marker gene expression level an
 
 ``` r
 # Markers for cancer clone A and B, acinar cell, and centroacinar like ductal cell
-SpaCE.visualize.gene(SpaCE_obj,genes=c("TM4SF1","S100A4","PRSS1","CRISP3"),ncol=2)
+SpaCET.visualize.gene(SpaCET_obj,genes=c("TM4SF1","S100A4","PRSS1","CRISP3"),ncol=2)
 ``` 
 
 <img src="img/PDAC_expr.png" width="100%" style="border:none" />
 
 ## Identify cell-cell interaction
-After decomposing cell fractions, SpaCE can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCE tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs. SpaCE provides `SpaCE.CCI.colocalization` and `SpaCE.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
+After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs. SpaCET provides `SpaCET.CCI.colocalization` and `SpaCET.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
 
 <img src="img/PDAC_CCC.png" width="100%" style="border:none" />
 
 ## Extand this function module
-Although our tutorials focus on analyzing ST data from tumor samples, in principle, SpaCE can be applied to any ST datasets with matched scRNA-seq data.
+Although our tutorials focus on analyzing ST data from tumor samples, in principle, SpaCET can be applied to any ST datasets with matched scRNA-seq data.

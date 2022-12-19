@@ -1,8 +1,8 @@
-#' @title Define the SpaCE object
+#' @title Define the SpaCET object
 #' @slot input The input data
 #' @slot results The results
 #'
-setClass("SpaCE",
+setClass("SpaCET",
   slots = c(
     input = "list",
     results = "list"
@@ -10,24 +10,24 @@ setClass("SpaCE",
 )
 
 
-#' @title Create an SpaCE object
-#' @description Read an ST dataset to create an SpaCE object.
+#' @title Create an SpaCET object
+#' @description Read an ST dataset to create an SpaCET object.
 #' @param counts Count matrix with gene name (row) x spot ID (column)
 #' @param spotCoordinates Spot coordinate matrix with spot ID (column) x coordinates (row). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
 #' @param imagePath Path to the H&E image file. Can be NA if it is not available.
 #' @param platform A character string indicating the platform, i.e., "Visium", "oldST", or "Slide-Seq".
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @details
-#' To create an SpaCE object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
-#' However, if analyzing Visium data, please use create.SpaCE.object.10X to read data.
+#' To create an SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
+#' However, if analyzing Visium data, please use create.SpaCET.object.10X to read data.
 #'
 #' @examples
-#' SpaCE_obj <- create.SpaCE.object(counts,spotCoordinates,imagePath,platform)
+#' SpaCET_obj <- create.SpaCET.object(counts, spotCoordinates, imagePath, platform)
 #'
-#' @rdname create.SpaCE.object
+#' @rdname create.SpaCET.object
 #' @export
 #'
-create.SpaCE.object <- function(counts,spotCoordinates,imagePath,platform)
+create.SpaCET.object <- function(counts,spotCoordinates,imagePath,platform)
 {
   library(Matrix)
 
@@ -37,9 +37,25 @@ create.SpaCE.object <- function(counts,spotCoordinates,imagePath,platform)
   st.matrix.data <- rm_zeroCols(st.matrix.data)
   st.matrix.data <- rm_duplicates(st.matrix.data)
 
+  edgeMat <- matrix(0,ncol=2,nrow=4)
+  rownames(edgeMat) <- c("top","bottom","left","right")
+  colnames(edgeMat) <- c("cut_capture_area","cut_tissue_region")
+
+  edgeMat["left","cut_capture_area"]   <- floor( min(spotCoordinates[,1]) )
+  edgeMat["right","cut_capture_area"]  <- ceiling( max(spotCoordinates[,1]) )
+  edgeMat["bottom","cut_capture_area"] <- floor( min(spotCoordinates[,2]) )
+  edgeMat["top","cut_capture_area"]    <- ceiling( max(spotCoordinates[,2]) )
+
+
   olp <- intersect(colnames(st.matrix.data),rownames(spotCoordinates))
   spotCoordinates <- spotCoordinates[olp,]
   st.matrix.data <- st.matrix.data[,olp]
+
+  edgeMat["left","cut_tissue_region"]   <- floor( min(spotCoordinates[,1]) )
+  edgeMat["right","cut_tissue_region"]  <- ceiling( max(spotCoordinates[,1]) )
+  edgeMat["bottom","cut_tissue_region"] <- floor( min(spotCoordinates[,2]) )
+  edgeMat["top","cut_tissue_region"]    <- ceiling( max(spotCoordinates[,2]) )
+
 
   if(!is.na(imagePath))
   {
@@ -57,11 +73,11 @@ create.SpaCE.object <- function(counts,spotCoordinates,imagePath,platform)
     Gene=colSums(as.matrix(st.matrix.data)>0)
   )
 
-  SpaCE_obj <- methods::new("SpaCE",
+  SpaCET_obj <- methods::new("SpaCET",
     input=list(
       counts=st.matrix.data,
       spotCoordinates=spotCoordinates,
-      image=list(path=imagePath,grob=rg),
+      image=list(path=imagePath,grob=rg,edgeMat=edgeMat),
       platform=platform
     ),
     results=list(
@@ -69,18 +85,18 @@ create.SpaCE.object <- function(counts,spotCoordinates,imagePath,platform)
     )
   )
 
-  SpaCE_obj
+  SpaCET_obj
 }
 
 
-#' @title Create an SpaCE object from 10X Visium
-#' @description Read an ST dataset to create an SpaCE object.
-#' @param visiumPath Path to the Space Ranger output folder. See ‘Details’ for more information.
+#' @title Create an SpaCET object from 10X Visium
+#' @description Read an ST dataset to create an SpaCET object.
+#' @param visiumPath Path to the SpaCET Ranger output folder. See ‘Details’ for more information.
 #' @param resolution A character string indicating the resolution of the H&E image to be used, i.e., "low" or "high".
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @details
 #' If user are analyzing an ST data set from 10X Visium, they only need to input "visiumPath".
-#' Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
+#' Please make sure that "visiumPath" points to the standard output folder of 10X SpaCET Ranger,
 #' which have both `filtered_feature_bc_matrix` and `spatial` folders.
 #'
 #' The "filtered_feature_bc_matrix" folder includes \cr
@@ -95,15 +111,15 @@ create.SpaCE.object <- function(counts,spotCoordinates,imagePath,platform)
 #' “scalefactors_json.json” : scaling factors for adjusting the coordinates.
 #'
 #' @examples
-#' visiumPath <- file.path(system.file(package = "SpaCE"), "extdata/Visium_BC")
-#' SpaCE_obj <- create.SpaCE.object.10X(visiumPath = visiumPath)
+#' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
+#' SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
 #'
-#' @rdname create.SpaCE.object.10X
+#' @rdname create.SpaCET.object.10X
 #' @export
 #' @importFrom Matrix readMM
 #' @importFrom jsonlite fromJSON
 #'
-create.SpaCE.object.10X <- function(visiumPath, resolution="low")
+create.SpaCET.object.10X <- function(visiumPath, resolution="low")
 {
   platform <- "Visium"
 
@@ -141,14 +157,14 @@ create.SpaCE.object.10X <- function(visiumPath, resolution="low")
 
   spotCoordinates <- barcode[,imageRes]
 
-  SpaCE_obj <- create.SpaCE.object(
+  SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
     spotCoordinates=spotCoordinates,
     imagePath=imagePath,
     platform=platform
   )
 
-  SpaCE_obj
+  SpaCET_obj
 }
 
 

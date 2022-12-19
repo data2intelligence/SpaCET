@@ -1,39 +1,39 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaCE (Spatial Cellular Estimator)
+# SpaCET (Spatial Cellular Estimator for Tumors)
 
-SpaCE is a reference-free method for analyzing cancer spatial
+SpaCET is a reference-free method for analyzing cancer spatial
 transcriptomics (ST) datasets to estimate cell lineage and cell-cell
-interactions in tumor microenvironment. Briefly, SpaCE first estimates
+interactions in tumor microenvironment. Briefly, SpaCET first estimates
 cancer cell abundance by integrating a gene pattern dictionary of common
-malignancies. SpaCE then uses a constrained regression model to
+malignancies. SpaCET then uses a constrained regression model to
 calibrate local tissue densities and determine stromal and immune cell
-lineage fraction. Further, SpaCE can reveal putative cell-cell
-interactions in the tumor microenvironment. What’s more, although SpaCE
+lineage fraction. Further, SpaCET can reveal putative cell-cell
+interactions in the tumor microenvironment. What’s more, although SpaCET
 does not require any input cell reference profile to process tumor ST
-data, SpaCE can still accept a matched scRNA-seq data as customized
+data, SpaCET can still accept a matched scRNA-seq data as customized
 references to carry out cell type deconvolution.
 
 <img src="man/figures/workflow.png" width="100%" />
 
 ## Installation
 
-To install `SpaCE`, we recommend using `devtools`:
+To install `SpaCET`, we recommend using `devtools`:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("data2intelligence/SpaCE")
+devtools::install_github("data2intelligence/SpaCET")
 ```
 
 Or user can install from the local source code:
 
 ``` r
 # download in the shell.
-git clone https://github.com/data2intelligence/SpaCE.git
+git clone https://github.com/data2intelligence/SpaCET.git
 
-# install SpaCE in R environment.
-install.packages(“location_to_SpaCE_gitclone", repos = NULL, type="source”)
+# install SpaCET in R environment.
+install.packages(“location_to_SpaCET_gitclone", repos = NULL, type="source”)
 ```
 
 ## Dependencies
@@ -46,13 +46,13 @@ install.packages(“location_to_SpaCE_gitclone", repos = NULL, type="source”)
 ## Example
 
 ``` r
-library(SpaCE)
+library(SpaCET)
 
-visiumPath <- file.path(system.file(package = "SpaCE"), "extdata/Visium_BC")
-SpaCE_obj <- create.SpaCE.object.10X(visiumPath = visiumPath)
-SpaCE_obj <- SpaCE.deconvolution(SpaCE_obj, cancerType="BRCA", coreNo=8)
+visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
+SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 
-SpaCE_obj@results$deconvolution[1:13,1:3]
+SpaCET_obj@results$deconvolution[1:13,1:3]
 
 ##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
 ## Malignant         2.860636e-01                  1       6.845966e-02
@@ -73,6 +73,6 @@ SpaCE_obj@results$deconvolution[1:13,1:3]
 ## Tutorial
 
 -   [Cell type deconvolution and interaction analysis without
-    reference](https://data2intelligence.github.io/SpaCE/articles/visium_BC.html)  
+    reference](https://data2intelligence.github.io/SpaCET/articles/visium_BC.html)  
 -   [Deconvolution with a matched scRNA-seq data
-    set](https://data2intelligence.github.io/SpaCE/articles/oldST_PDAC.html)
+    set](https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html)

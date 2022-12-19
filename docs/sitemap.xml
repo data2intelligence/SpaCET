@@ -79,10 +79,52 @@
     <loc>/reference/SpaCE.visualize.metrics.html</loc>
   </url>
   <url>
+    <loc>/reference/SpaCET-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.CCI.LRNetworkScore.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.CCI.cellTypePair.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.CCI.colocalization.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.deconvolution.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.deconvolution.malignant.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.deconvolution.matched.scRNAseq.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.LRNetworkScore.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.colocalization.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.deconvolution.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.gene.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.metrics.html</loc>
+  </url>
+  <url>
     <loc>/reference/create.SpaCE.object.10X.html</loc>
   </url>
   <url>
     <loc>/reference/create.SpaCE.object.html</loc>
+  </url>
+  <url>
+    <loc>/reference/create.SpaCET.object.10X.html</loc>
+  </url>
+  <url>
+    <loc>/reference/create.SpaCET.object.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>

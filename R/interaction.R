@@ -1,14 +1,14 @@
 #' @title Cell-cell colocalization analysis
 #' @description Calculate the cell-type pair colocalization by using Spearman correlation analysis.
-#' @param SpaCE_obj An SpaCE object.
-#' @return An SpaCE object
+#' @param SpaCET_obj An SpaCET object.
+#' @return An SpaCET object
 #' @examples
-#' SpaCE_obj <- SpaCE.CCI.colocalization(SpaCE_obj)
-#' @rdname SpaCE.CCI.colocalization
+#' SpaCET_obj <- SpaCET.CCI.colocalization(SpaCET_obj)
+#' @rdname SpaCET.CCI.colocalization
 #' @export
-SpaCE.CCI.colocalization <- function(SpaCE_obj)
+SpaCET.CCI.colocalization <- function(SpaCET_obj)
 {
-  res_deconv <- SpaCE_obj@results$deconvolution
+  res_deconv <- SpaCET_obj@results$deconvolution
   res_deconv <- res_deconv[!rownames(res_deconv)%in%c("Unidentifiable","Macrophage other"),]
   res_deconv <- round(res_deconv,2)
   overallFraction <- rowMeans(res_deconv)
@@ -32,7 +32,7 @@ SpaCE.CCI.colocalization <- function(SpaCE_obj)
   summary_df[is.na(summary_df[,"fraction_rho"] ),"fraction_rho"] <- 0
   summary_df[is.na(summary_df[,"fraction_pv"] ),"fraction_pv"] <- 1
 
-  Ref <- SpaCE_obj@results$Ref
+  Ref <- SpaCET_obj@results$Ref
   reff <- Ref$refProfiles[unique(unlist(Ref$sigGenes[names(Ref$sigGenes)%in%c(names(Ref$lineageTree),"T cell")])),]
   reff <- reff-rowMeans(reff)
 
@@ -57,33 +57,33 @@ SpaCE.CCI.colocalization <- function(SpaCE_obj)
 
   summary_df <- summary_df[ summary_df[,1] != summary_df[,2], ] #remove same cell type
 
-  SpaCE_obj@results$CCI.colocalization <- summary_df
+  SpaCET_obj@results$CCI.colocalization <- summary_df
 
-  SpaCE_obj
+  SpaCET_obj
 }
 
 
 #' @title Cell-cell colocalization visualization
 #' @description Visualize the cell-type pair colocalization.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @return An ggplot object
 #' @examples
-#' SpaCE.visualize.colocalization(SpaCE_obj)
-#' @rdname SpaCE.visualize.colocalization
+#' SpaCET.visualize.colocalization(SpaCET_obj)
+#' @rdname SpaCET.visualize.colocalization
 #' @export
 #'
-SpaCE.visualize.colocalization <- function(SpaCE_obj)
+SpaCET.visualize.colocalization <- function(SpaCET_obj)
 {
-  summary_df <- SpaCE_obj@results$CCI.colocalization
+  summary_df <- SpaCET_obj@results$CCI.colocalization
 
   summary_df[summary_df[,"fraction_product"]>0.02,"fraction_product"] <- 0.02
 
-  if("Cancer cell state A"%in%rownames(SpaCE_obj@results$deconvolution))
+  if("Cancer cell state A"%in%rownames(SpaCET_obj@results$deconvolution))
   {
-    states <- rownames(SpaCE_obj@results$deconvolution)[grepl("Cancer cell state",rownames(SpaCE_obj@results$deconvolution))]
-    ctOrder <- c(states,unlist(SpaCE_obj@results$Ref$lineageTree))
+    states <- rownames(SpaCET_obj@results$deconvolution)[grepl("Cancer cell state",rownames(SpaCET_obj@results$deconvolution))]
+    ctOrder <- c(states,unlist(SpaCET_obj@results$Ref$lineageTree))
   }else{
-    ctOrder <- c("Malignant",unlist(SpaCE_obj@results$Ref$lineageTree))
+    ctOrder <- c("Malignant",unlist(SpaCET_obj@results$Ref$lineageTree))
   }
 
   summary_df <- summary_df[summary_df[,1]%in%ctOrder,]
@@ -95,7 +95,7 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
   p1 <- ggplot(summary_df, aes( cell_type_2, cell_type_1)) +
     geom_point(aes(colour = fraction_rho, size=fraction_product), na.rm = TRUE) +
     scale_colour_gradient2(low = "blue", high = "red", mid = "white", na.value = NA,
-                           midpoint = 0, limit = c(-0.6,0.6), space = "Lab",
+                           midpoint = 0, limit = c(-0.6,0.6), SpaCET = "Lab",
                            name="Rho",oob = scales::squish)+
     scale_size(range = c(0, 6))+
     ggtitle(" ")+
@@ -113,8 +113,8 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
   summary_df <- summary_df[as.character(summary_df[,1])<as.character(summary_df[,2]),]
 
-  summary_df <- summary_df[as.character(summary_df[,1])%in%unlist(SpaCE_obj@results$Ref$lineageTree),]
-  summary_df <- summary_df[as.character(summary_df[,2])%in%unlist(SpaCE_obj@results$Ref$lineageTree),]
+  summary_df <- summary_df[as.character(summary_df[,1])%in%unlist(SpaCET_obj@results$Ref$lineageTree),]
+  summary_df <- summary_df[as.character(summary_df[,2])%in%unlist(SpaCET_obj@results$Ref$lineageTree),]
 
   summary_df <- cbind(summary_df,label=paste0(summary_df[,1],"_",summary_df[,2]))
   summary_df[summary_df[,"fraction_product"]<0.0005 ,"label"] <- ""
@@ -157,24 +157,24 @@ SpaCE.visualize.colocalization <- function(SpaCE_obj)
 
 #' @title Ligand-Receptor interaction enrichment analysis
 #' @description Calculate the overall intensity of L-R interactions within ST spots.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param coreNo Core number in parallel.
-#' @return An SpaCE object
+#' @return An SpaCET object
 #' @examples
-#' SpaCE_obj <- SpaCE.CCI.LRNetworkScore(SpaCE_obj)
-#' @rdname SpaCE.CCI.LRNetworkScore
+#' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj)
+#' @rdname SpaCET.CCI.LRNetworkScore
 #' @export
 #'
-SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
+SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj,coreNo=8)
 {
-  st.matrix.data <- as.matrix(SpaCE_obj@input$counts)
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
 
   st.matrix.data <- t(t(st.matrix.data)*1e5/colSums(st.matrix.data))
   st.matrix.data <- log2(st.matrix.data+1)
   spotNum <- ncol(st.matrix.data)
 
   ###### preprocess L-R network ######
-  LRdb <- read.csv(system.file("extdata",'LR.txt',package = 'SpaCE'),as.is=T,sep="\t")
+  LRdb <- read.csv(system.file("extdata",'LR.txt',package = 'SpaCET'),as.is=T,sep="\t")
   LRdb <- data.frame(L=LRdb[,2],R=LRdb[,4],stringsAsFactors=FALSE)
 
   Ls <- unique(LRdb[,"L"])
@@ -258,26 +258,26 @@ SpaCE.CCI.LRNetworkScore <- function(SpaCE_obj,coreNo=8)
   rownames(LRNetworkScoreMat) <- c("Raw_expr","Network_Score","Network_Score_pv")
   ###### Calculate L-R network score ######
 
-  SpaCE_obj@results$LRNetworkScore <- LRNetworkScoreMat
-  SpaCE_obj
+  SpaCET_obj@results$LRNetworkScore <- LRNetworkScoreMat
+  SpaCET_obj
 }
 
 
 #' @title Ligand-Receptor analysis for a co-localized cell-type pair
 #' @description Test the co-expression of ligands and receptors within the same ST spot for the co-localized cell-type pairs.
-#' @param SpaCE_obj An SpaCE object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param cellTypePair A pair of cell types.
 #' @return A ggplot object
 #' @examples
-#' SpaCE.CCI.cellTypePair(SpaCE_obj,cellTypePair=c("CAF","Macrophage M2"))
-#' @rdname SpaCE.CCI.cellTypePair
+#' SpaCET.CCI.cellTypePair(SpaCET_obj,cellTypePair=c("CAF","Macrophage M2"))
+#' @rdname SpaCET.CCI.cellTypePair
 #' @export
 #'
-SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
+SpaCET.CCI.cellTypePair <- function(SpaCET_obj,cellTypePair)
 {
-  res_deconv <- SpaCE_obj@results$deconvolution
+  res_deconv <- SpaCET_obj@results$deconvolution
 
-  summary_df <- SpaCE_obj@results$CCI.colocalization
+  summary_df <- SpaCET_obj@results$CCI.colocalization
   rho <- summary_df[summary_df[,1]==cellTypePair[1]&summary_df[,2]==cellTypePair[2],"fraction_rho"]
   pv <-  summary_df[summary_df[,1]==cellTypePair[1]&summary_df[,2]==cellTypePair[2],"fraction_pv"]
   pv <- signif(as.numeric(pv),3)
@@ -306,11 +306,11 @@ SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
   }
 
   visiualVector <- Content
-  names(visiualVector) <- paste0(SpaCE_obj@input$spotCoordinates[,1],"x",SpaCE_obj@input$spotCoordinates[,2])
+  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
   p2 <- visualSpatial(
     visiualVector,
-    SpaCE_obj@input$image,
-    SpaCE_obj@input$platform,
+    SpaCET_obj@input$image,
+    SpaCET_obj@input$platform,
     scaleType="color-discrete",
     c("green","red","blue"),
     pointSize=1,
@@ -355,7 +355,7 @@ SpaCE.CCI.cellTypePair <- function(SpaCE_obj,cellTypePair)
 
   # boxplot
 
-  LRNetworkScoreMat <- SpaCE_obj@results$LRNetworkScore
+  LRNetworkScoreMat <- SpaCET_obj@results$LRNetworkScore
 
   fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
   fg.df <- fg.df[!fg.df[,"group"]%in%"None",]

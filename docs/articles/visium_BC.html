@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="Cell type deconvolution and interaction analysis without reference.
 ">
-<title>Cell type deconvolution and interaction analysis without reference • SpaCE</title>
+<title>Cell type deconvolution and interaction analysis without reference • SpaCET</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -26,7 +26,7 @@
 
     <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
     
-    <a class="navbar-brand me-2" href="../index.html">SpaCE</a>
+    <a class="navbar-brand me-2" href="../index.html">SpaCET</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
@@ -63,7 +63,7 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/data2intelligence/SpaCE/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/data2intelligence/SpaCET/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -83,49 +83,49 @@
       <img src="" class="logo" alt=""><h1>Cell type deconvolution and interaction analysis without reference</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/data2intelligence/SpaCE/blob/HEAD/vignettes/visium_BC.Rmd" class="external-link"><code>vignettes/visium_BC.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data2intelligence/SpaCET/blob/HEAD/vignettes/visium_BC.Rmd" class="external-link"><code>vignettes/visium_BC.Rmd</code></a></small>
       <div class="d-none name"><code>visium_BC.Rmd</code></div>
     </div>
 
     
     
-<p>This tutorial demonstrates how to run SpaCE to estimate cell
+<p>This tutorial demonstrates how to run SpaCET to estimate cell
 identities and cell-cell interactions by using a breast cancer spatial
 transcriptomics (ST) data set from <a href="https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0" target="_blank" class="external-link">10x Visium</a>. Before running the tutorial, make sure
-that the SpaCE package and its dependencies have been installed.</p>
+that the SpaCET package and its dependencies have been installed.</p>
 <div class="section level2">
-<h2 id="create-space-object">Create SpaCE object<a class="anchor" aria-label="anchor" href="#create-space-object"></a>
+<h2 id="create-spacet-object">Create SpaCET object<a class="anchor" aria-label="anchor" href="#create-spacet-object"></a>
 </h2>
-<p>To read your ST data into R, user can create an SpaCE object by using
-<code>create.SpaCE.object</code> or
-<code>create.SpaCE.object.10X</code>. Specifically, if users are
+<p>To read your ST data into R, user can create an SpaCET object by
+using <code>create.SpaCET.object</code> or
+<code>create.SpaCET.object.10X</code>. Specifically, if users are
 analyzing a ST dataset from 10x Visium, they only need to input
-“visiumPath” by using <code>create.SpaCE.object.10X</code>. Please make
+“visiumPath” by using <code>create.SpaCET.object.10X</code>. Please make
 sure that “visiumPath” points to the standard output folders of 10x
-Space Ranger, which has both “filtered_feature_bc_matrix” and “spatial”
+SpaCET Ranger, which has both “filtered_feature_bc_matrix” and “spatial”
 folders.</p>
-<p>Here, we create an SpaCE object for the current breast cancer visium
+<p>Here, we create an SpaCET object for the current breast cancer visium
 dataset. In this step, the genes exhibiting zero UMI counts across spots
 will be removed. Also, if there are duplicated gene symbols, the gene
 with the highest total counts remains and all other duplicated genes are
 removed.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCE" class="external-link">SpaCE</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># set the path to the in-house breast cancer ST data. User can set the paths to their own data.</span></span>
-<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCE"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
+<span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># load ST data to create an SpaCE object.</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCE.object.10X.html">create.SpaCE.object.10X</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
+<span><span class="co"># load ST data to create an SpaCET object.</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCET.object.10X.html">create.SpaCET.object.10X</a></span><span class="op">(</span>visiumPath <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show this object.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
-<p>The UMI count matrix is stored in <code>SpaCE_obj@input$counts</code>
-as a sparse matrix. Each row represents a gene whereas each column is a
-spot.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span></code></pre></div>
+<p>The UMI count matrix is stored in
+<code>SpaCET_obj@input$counts</code> as a sparse matrix. Each row
+represents a gene whereas each column is a spot.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show this object.</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="co">## 8 x 3 sparse Matrix of class "dgCMatrix"</span></span>
 <span><span class="co">##            AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
 <span><span class="co">## AL627309.1                  .                  .                  .</span></span>
@@ -140,8 +140,8 @@ spot.</p>
 <div class="section level2">
 <h2 id="show-key-quality-control-metrics">Show key quality control metrics<a class="anchor" aria-label="anchor" href="#show-key-quality-control-metrics"></a>
 </h2>
-<p>After creating the SpaCE object, users can use
-<code>SpaCE.visualize.metrics</code> to show both UMI and gene counts
+<p>After creating the SpaCET object, users can use
+<code>SpaCET.visualize.metrics</code> to show both UMI and gene counts
 across all ST spots, respectively. Specifically, the “UMI” option
 presents the overall UMI counts within a spot while the “Gene” option
 represents the number of expressed genes (i.e., genes with at least one
@@ -149,16 +149,16 @@ UMI count) in a particular spot.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plot the QC metrics.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.metrics.html">SpaCE.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.metrics.html">SpaCE.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, itemQC<span class="op">=</span><span class="st">"Gene"</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.metrics.html">SpaCET.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.metrics.html">SpaCET.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"Gene"</span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/QC.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="deconvolve-st-data">Deconvolve ST data<a class="anchor" aria-label="anchor" href="#deconvolve-st-data"></a>
 </h2>
-<p>By two stages, <code>SpaCE.deconvolution</code> would deconvolve all
-mixtures of ST spots into malignant, immune, and stromal cells. SpaCE
+<p>By two stages, <code>SpaCET.deconvolution</code> would deconvolve all
+mixtures of ST spots into malignant, immune, and stromal cells. SpaCET
 first estimates malignant cell fraction by a gene pattern dictionary of
 copy number alterations (CNA) and expression changes in common
 malignancies. Subsequently, based on an in-house hierarchical cell
@@ -182,7 +182,7 @@ pan-cancer expression signature by averaging all cancer type-specific
 expression signatures.</p>
 <details><summary><strong>How many caner types are in the gene pattern
 dictionary?</strong>
-</summary><p>SpaCE includes a gene pattern dictionary of copy number alterations
+</summary><p>SpaCET includes a gene pattern dictionary of copy number alterations
 (CNA) and expression changes for 30 solid tumor types. The cancer
 type-specific CNA signature of a cancer type was computed by averaging
 bulk tumor CNA values on gene levels across patients. For each cancer
@@ -197,10 +197,10 @@ signatures.</p>
 <p><img src="img/cancerDictionary.png" width="100%" style="border:none"></p>
 </details><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># deconvolve ST data</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.html">SpaCE.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.html">SpaCET.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show the ST deconvolution results</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co">##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
 <span><span class="co">## Malignant         2.860636e-01                  1       6.845966e-02</span></span>
@@ -218,20 +218,20 @@ signatures.</p>
 <span><span class="co">## Neutrophil        1.380073e-05                  0       9.528996e-07</span></span></code></pre></div>
 <p>Of note, the value from deconvolution results represents the fraction
 of cell types. User may find that the fraction sum of all cell types in
-a spot (column) is beyond 1. This is because SpaCE outputs the cell
+a spot (column) is beyond 1. This is because SpaCET outputs the cell
 fractions for both major lineages and their corresponding sublineages,
 e.g., T CD4 as well as Th1, Th2… .</p>
 </div>
 <div class="section level2">
 <h2 id="visualize-the-cell-type-proportion">Visualize the cell type proportion<a class="anchor" aria-label="anchor" href="#visualize-the-cell-type-proportion"></a>
 </h2>
-<p>We provide <code>SpaCE.visualize.deconvolution</code> to present the
+<p>We provide <code>SpaCET.visualize.deconvolution</code> to present the
 spatial distribution of cell types by setting the parameter
 <code>cellType</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution.png" width="100%" style="border:none"></p>
 <p>By setting the parameter <code>interactive</code> as
@@ -240,32 +240,32 @@ visualize each cell type. Of note, each dot represents an ST spot and
 user can adjust the size and opacity of spots.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
-<span><span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span>, interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span>, interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="identify-cell-cell-interaction">Identify cell-cell interaction<a class="anchor" aria-label="anchor" href="#identify-cell-cell-interaction"></a>
 </h2>
-<p>After decomposing cell fractions, SpaCE can infer intercellular
+<p>After decomposing cell fractions, SpaCET can infer intercellular
 interactions based on cell colocalization and ligand-receptor
 coexpression. Linear correlations of cell fraction between cell types
 are computed across all ST spots to evaluate cell-type colocalization.
 High positive correlations indicate that cell-type pairs tend to
-colocalize together. To infer physical interactions, SpaCE tests the
+colocalize together. To infer physical interactions, SpaCET tests the
 co-expression of ligand and receptor genes within the same ST spot for
 the co-localized cell-type pairs.</p>
 <div class="section level3">
 <h3 id="find-the-co-localized-cell-type-pairs">Find the co-localized cell-type pairs<a class="anchor" aria-label="anchor" href="#find-the-co-localized-cell-type-pairs"></a>
 </h3>
-<p>SpaCE provides <code>SpaCE.CCI.colocalization</code> and
-<code>SpaCE.visualize.colocalization</code> to compute and visualize the
-co-localized cell-type pairs.</p>
+<p>SpaCET provides <code>SpaCET.CCI.colocalization</code> and
+<code>SpaCET.visualize.colocalization</code> to compute and visualize
+the co-localized cell-type pairs.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the cell-cell colocalization.</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.colocalization.html">SpaCE.CCI.colocalization</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.colocalization.html">SpaCET.CCI.colocalization</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize the cell-cell colocalization.</span></span>
-<span><span class="fu"><a href="../reference/SpaCE.visualize.colocalization.html">SpaCE.visualize.colocalization</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.colocalization.html">SpaCET.visualize.colocalization</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/CCC.png" width="100%" style="border:none"></p>
 <p>In this breast tumor tissue, we identified several potential
 colocalized cell-type pairs (see red dots in the left panel), such as
@@ -284,7 +284,7 @@ colocalization is not simply due to profile similarity.</p>
 <p>Cell colocalization does not directly indicate physical interaction.
 Thus, we sought further evidence for cell-cell interactions by analyzing
 ligand-receptor (L-R) interactions within ST spots. From a previous <a href="https://www.nature.com/articles/ncomms8866" target="_blank" class="external-link">study</a>, we collected approximately 2,500 L-R pairs as
-an in-house L-R network. For each ST data set, SpaCE shuffled the L-R
+an in-house L-R network. For each ST data set, SpaCET shuffled the L-R
 interaction network by using <a href="https://bioconductor.org/packages/release/bioc/html/BiRewire.html" target="_blank" class="external-link">BiRewire</a> package to generate 1,000 randomized
 networks while preserving directed degree distributions. For a spot, an
 L-R network score is defined as the sum of expression products between
@@ -292,24 +292,24 @@ all L-R pairs, divided by the average random value from 1,000 randomized
 networks.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.CCI.LRNetworkScore.html">SpaCE.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.LRNetworkScore.html">SpaCET.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># visualize the cell-cell colocalization.</span></span>
-<span><span class="fu"><a href="../reference/SpaCE.visualize.LRNetworkScore.html">SpaCE.visualize.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCE_obj</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.LRNetworkScore.html">SpaCET.visualize.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/LRNetworkScore.png" width="50%" style="border:none"></p>
 <p>The L-R network score at each ST spot indicates the overall
 intensities of ligand-receptor interactions at each location, but not
-the specific interactions between two cell types. Thus, SpaCE further
+the specific interactions between two cell types. Thus, SpaCET further
 performed an enrichment analysis of L-R network scores for each
 cell-type pair. For example, for the colocalization between CAF and M2
-cells in the breast tumor tissue, SpaCE grouped all ST spots into four
+cells in the breast tumor tissue, SpaCET grouped all ST spots into four
 categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the
 left and middle panels in the following figure). We found that CAF-M2
 colocalized spots have more substantial L-R interaction network scores
 than CAF/M2-dominated spots (right panel).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
-<span><span class="fu"><a href="../reference/SpaCE.CCI.cellTypePair.html">SpaCE.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.CCI.cellTypePair.html">SpaCET.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/CAF-M2.png" width="100%" style="border:none"></p>
 </div>
 </div>
@@ -319,11 +319,11 @@ than CAF/M2-dominated spots (right panel).</p>
 <p>The gene expression profiles of tumor cells (i.e., cancer cell
 states) are determined by both tumor cells’ genetic background and
 cell-cell interactions from the surrounding environment. As an
-explorative extension, SpaCE can automatically explore the spatial
+explorative extension, SpaCET can automatically explore the spatial
 distribution of different cancer cell states.</p>
 <p>Based on the deconvolution results of the breast cancer dataset, we
 selected the ST spots with high fractions (&gt; 0.7) of malignant cells
-as tumor spots. Then, SpaCE hierarchically clustered these malignant
+as tumor spots. Then, SpaCET hierarchically clustered these malignant
 spots to infer different states. The Silhouette value, measuring the
 similarity among the ST spots within each cluster compared to other
 clusters, was used to select the optimal cluster number. In this way,
@@ -336,16 +336,16 @@ multiple cancer cell states. Thus, the sum fraction of cancer cell
 states equals to the malignant cell fraction for each spot.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># further deconvolve malignant cell states</span></span>
-<span><span class="va">SpaCE_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCE.deconvolution.malignant.html">SpaCE.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.malignant.html">SpaCET.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show cancer cell state fraction of the first five spots</span></span>
-<span><span class="va">SpaCE_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">deconvolution</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co">##                     AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1</span></span>
 <span><span class="co">## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02</span></span>
 <span><span class="co">## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/SpaCE.visualize.deconvolution.html">SpaCE.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCE_obj</span>, cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/cancerCellState.png" width="100%" style="border:none"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
