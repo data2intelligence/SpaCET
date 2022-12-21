@@ -95,7 +95,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
   p1 <- ggplot(summary_df, aes( cell_type_2, cell_type_1)) +
     geom_point(aes(colour = fraction_rho, size=fraction_product), na.rm = TRUE) +
     scale_colour_gradient2(low = "blue", high = "red", mid = "white", na.value = NA,
-                           midpoint = 0, limit = c(-0.6,0.6), SpaCET = "Lab",
+                           midpoint = 0, limit = c(-0.6,0.6), space = "Lab",
                            name="Rho",oob = scales::squish)+
     scale_size(range = c(0, 6))+
     ggtitle(" ")+
