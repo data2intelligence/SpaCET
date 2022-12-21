@@ -7,28 +7,10 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/articles/SpaCE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/basic1_visium_BC.html</loc>
-  </url>
-  <url>
-    <loc>/articles/basic2_slideseq_CRC.html</loc>
-  </url>
-  <url>
-    <loc>/articles/extension1.html</loc>
-  </url>
-  <url>
-    <loc>/articles/extension2.html</loc>
-  </url>
-  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
     <loc>/articles/oldST_PDAC.html</loc>
-  </url>
-  <url>
-    <loc>/articles/tutorial.html</loc>
   </url>
   <url>
     <loc>/articles/visium_BC.html</loc>
@@ -41,42 +23,6 @@
   </url>
   <url>
     <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.CCI.LRNetworkScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.CCI.cellTypePair.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.CCI.colocalization.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.deconvolution.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.deconvolution.malignant.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.deconvolution.matched.scRNAseq.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.visualize.LRNetworkScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.visualize.colocalization.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.visualize.deconvolution.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.visualize.gene.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCE.visualize.metrics.html</loc>
   </url>
   <url>
     <loc>/reference/SpaCET-class.html</loc>
@@ -113,12 +59,6 @@
   </url>
   <url>
     <loc>/reference/SpaCET.visualize.metrics.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create.SpaCE.object.10X.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create.SpaCE.object.html</loc>
   </url>
   <url>
     <loc>/reference/create.SpaCET.object.10X.html</loc>

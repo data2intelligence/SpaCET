@@ -13,8 +13,7 @@ SpaCET.visualize.metrics <- function(
     SpaCET_obj,
     itemQC = c("UMI","Gene"),
     colors = c("lightblue", "blue", "darkblue"),
-    imageBg = TRUE,
-    imageCut = c("complete","cut_capture_area","cut_tissue_region")
+    imageBg = TRUE
 )
 {
   visiualVector <- SpaCET_obj@results$metrics[itemQC,]
@@ -31,8 +30,7 @@ SpaCET.visualize.metrics <- function(
     limits=NULL,
     titleName=itemQC,
     legendName="Count",
-    imageBg=imageBg,
-    imageCut=imageCut)
+    imageBg=imageBg)
 
   p2 <- ggplot(data.frame(value=visiualVector), aes(value)) +
     geom_histogram(bins = 100,color="#ddaaff",fill="#551177")+
@@ -218,7 +216,7 @@ visualSpatial <- function(
     titleName,
     legendName,
     imageBg,
-    imageCut
+    imageCut="complete"
 )
 {
   library(ggplot2)

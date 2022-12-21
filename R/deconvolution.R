@@ -102,7 +102,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   st.matrix.data <- as.matrix(st.matrix.data)
   st.matrix.data.diff <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
   st.matrix.data.diff <- log2(st.matrix.data.diff+1)
-  #st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
+  st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
 
   malFlag <- TRUE
   load( system.file("extdata",'cancerDictionary.rda',package = 'SpaCET') )
