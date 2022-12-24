@@ -290,7 +290,7 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj,cellTypePair)
   cutoff11 <- quantile(res_deconv[cellTypePair[1],],0.85)
   cutoff22 <- quantile(res_deconv[cellTypePair[2],],0.85)
 
-  Content <- res_deconv["Unidentifiable",]
+  Content <- res_deconv[1,]
   for(i in 1:length(Content))
   {
     if(res_deconv[cellTypePair[1],i]>cutoff11 & res_deconv[cellTypePair[2],i]>cutoff22)

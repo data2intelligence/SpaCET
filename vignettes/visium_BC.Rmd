@@ -158,7 +158,7 @@ Cell colocalization does not directly indicate physical interaction. Thus, we so
 # calculate the L-R network score across ST spots.
 SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj,coreNo=8)
 
-# visualize the cell-cell colocalization.
+# visualize the L-R network score.
 SpaCET.visualize.LRNetworkScore(SpaCET_obj)
 ```
 
