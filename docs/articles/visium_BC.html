@@ -338,13 +338,12 @@ to the tumor-immune boundaries.</p>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.identify.interface.html">SpaCET.identify.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Visualize the Interface</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"Interface"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Compute the distance of CAF-M2 to tumor border</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.distance.to.interface.html">SpaCET.distance.to.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>, <span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">p1</span><span class="op">|</span><span class="va">p2</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"Interface"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="img/cancerInterface1.png" width="50%" style="border:none"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compute the distance of CAF-M2 to tumor border</span></span>
+<span><span class="fu"><a href="../reference/SpaCET.distance.to.interface.html">SpaCET.distance.to.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>, <span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="img/cancerInterface2.png" width="60%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="explore-cancer-cell-states">Explore cancer cell states<a class="anchor" aria-label="anchor" href="#explore-cancer-cell-states"></a>
@@ -367,7 +366,7 @@ cancer cell state.</p>
 sublineages, the overall malignant cell fraction would be decomposed to
 multiple cancer cell states. Thus, the sum fraction of cancer cell
 states equals to the malignant cell fraction for each spot.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># further deconvolve malignant cell states</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.malignant.html">SpaCET.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, malignantCutoff <span class="op">=</span> <span class="fl">0.7</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
