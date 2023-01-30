@@ -2,3 +2,48 @@ url: ~
 template:
   bootstrap: 5
 
+navbar:
+  left:
+    - icon: fas fa-home fa-lg
+      href: index.html
+    - text: Tutorials
+      menu:
+      - text: Cell type deconvolution and interaction analysis
+        href: articles/visium_BC.html
+      - text: Deconvolution with a matched scRNA-seq data set
+        href: articles/oldST_PDAC.html
+    - text: Reference
+      href: reference/index.html
+    - text: News
+      href: news/index.html
+
+reference:
+  - title: SpaCET object
+    contents:
+    - SpaCET-class
+    - create.SpaCET.object
+    - create.SpaCET.object.10X
+    - SpaCET.quality.control
+
+  - title: Deconvolution of ST data
+    contents:
+    - SpaCET.deconvolution
+    - SpaCET.deconvolution.malignant
+    - SpaCET.deconvolution.matched.scRNAseq
+
+  - title: Cell-cell interaction analysis
+    contents:
+    - SpaCET.CCI.colocalization
+    - SpaCET.CCI.LRNetworkScore
+    - SpaCET.CCI.cellTypePair
+
+  - title: Tumor-Stroma Interface
+    contents:
+    - SpaCET.identify.interface
+    - SpaCET.distance.to.interface
+
+  - title: Visualization
+    contents:
+    - SpaCET.visualize.spatialFeature
+    - SpaCET.visualize.colocalization
+    - SpaCET.visualize.cellTypePair
