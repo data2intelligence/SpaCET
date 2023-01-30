@@ -35,24 +35,18 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item">
-  <a class="nav-link" href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <a class="dropdown-item" href="articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
-    <a class="dropdown-item" href="articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
-  </div>
-</li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+  </div>
+</li>
 <li class="nav-item">
-  <a class="nav-link" href="news/index.html">News</a>
+  <a class="nav-link" href="news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -76,6 +70,9 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="spacet-spatial-cellular-estimator-for-tumors">SpaCET (Spatial Cellular Estimator for Tumors)<a class="anchor" aria-label="anchor" href="#spacet-spatial-cellular-estimator-for-tumors"></a>
 </h1></div>
+<!--
+<img src="man/figures/workflow.png" height="200" align="right" />
+-->
 <p>SpaCET is a reference-free method for analyzing cancer spatial transcriptomics (ST) datasets to estimate cell lineage and cell-cell interactions in tumor microenvironment. Briefly, SpaCET first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCET then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage fraction. Further, SpaCET can reveal putative cell-cell interactions in the tumor microenvironment. What’s more, although SpaCET does not require any input cell reference profile to process tumor ST data, SpaCET can still accept a matched scRNA-seq data as customized references to carry out cell type deconvolution.</p>
 <p><img src="reference/figures/workflow.png" width="100%"></p>
 <div class="section level2">
@@ -85,12 +82,6 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"data2intelligence/SpaCET"</span><span class="op">)</span></span></code></pre></div>
-<p>Or user can install from the local source code:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download in the shell.</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>git clone https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>data2intelligence<span class="sc">/</span>SpaCET.git</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># install SpaCET in R environment.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(“location_to_SpaCET_gitclone<span class="st">", repos = NULL, type="</span>source”)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
@@ -103,7 +94,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>

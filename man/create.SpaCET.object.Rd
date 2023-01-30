@@ -7,23 +7,23 @@
 create.SpaCET.object(counts, spotCoordinates, imagePath, platform)
 }
 \arguments{
-\item{counts}{Count matrix with gene name (row) x spot ID (column)}
+\item{counts}{Count matrix with gene name (row) x spot ID (column).}
 
-\item{spotCoordinates}{Spot coordinate matrix with spot ID (column) x coordinates (row). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
+\item{spotCoordinates}{Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
 
 \item{imagePath}{Path to the H&E image file. Can be NA if it is not available.}
 
-\item{platform}{A character string indicating the platform, i.e., "Visium", "oldST", or "Slide-Seq".}
+\item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
 }
 \value{
-An SpaCET object
+An SpaCET object.
 }
 \description{
 Read an ST dataset to create an SpaCET object.
 }
 \details{
-To create an SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imageFile", and "platform".
-However, if analyzing Visium data, please use create.SpaCET.object.10X to read data.
+To create an SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
+However, if analyzing the Visium data, it is more easy to use `create.SpaCET.object.10X` to read ST data.
 }
 \examples{
 SpaCET_obj <- create.SpaCET.object(counts, spotCoordinates, imagePath, platform)

@@ -18,24 +18,18 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
-    <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
-  </div>
-</li>
-<li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+  </div>
+</li>
 <li class="nav-item">
-  <a class="nav-link" href="../news/index.html">News</a>
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -64,17 +58,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create.SpaCET.object.10X</span><span class="op">(</span><span class="va">visiumPath</span>, resolution <span class="op">=</span> <span class="st">"low"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create.SpaCET.object.10X</span><span class="op">(</span><span class="va">visiumPath</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>visiumPath</dt>
-<dd><p>Path to the SpaCET Ranger output folder. See ‘Details’ for more information.</p></dd>
-
-
-<dt>resolution</dt>
-<dd><p>A character string indicating the resolution of the H&amp;E image to be used, i.e., "low" or "high".</p></dd>
+<dd><p>Path to the Space Ranger output folder. See ‘details’ for more information.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -85,8 +75,8 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If user are analyzing an ST data set from 10X Visium, they only need to input "visiumPath".
-Please make sure that "visiumPath" points to the standard output folder of 10X SpaCET Ranger,
+    <p>If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
+Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
 which have both `filtered_feature_bc_matrix` and `spatial` folders.</p>
 <p>The "filtered_feature_bc_matrix" folder includes <br>
 "barcodes.tsv.gz": spot level barcodes; <br>
@@ -94,7 +84,6 @@ which have both `filtered_feature_bc_matrix` and `spatial` folders.</p>
 "matrix.mtx.gz": (sparse) matrix of counts.</p>
 <p>The "spatial" folder includes <br>
 “tissue_positions_list.csv” : barcodes and spatial information; <br>
-“tissue_hires_image.png” : hematoxylin and eosin (H&amp;E) image; <br>
 “tissue_lowres_image.png” : hematoxylin and eosin (H&amp;E) image; <br>
 “scalefactors_json.json” : scaling factors for adjusting the coordinates.</p>
     </div>

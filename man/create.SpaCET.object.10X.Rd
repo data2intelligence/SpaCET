@@ -4,22 +4,20 @@
 \alias{create.SpaCET.object.10X}
 \title{Create an SpaCET object from 10X Visium}
 \usage{
-create.SpaCET.object.10X(visiumPath, resolution = "low")
+create.SpaCET.object.10X(visiumPath)
 }
 \arguments{
-\item{visiumPath}{Path to the SpaCET Ranger output folder. See ‘Details’ for more information.}
-
-\item{resolution}{A character string indicating the resolution of the H&E image to be used, i.e., "low" or "high".}
+\item{visiumPath}{Path to the Space Ranger output folder. See ‘details’ for more information.}
 }
 \value{
-An SpaCET object
+An SpaCET object.
 }
 \description{
 Read an ST dataset to create an SpaCET object.
 }
 \details{
-If user are analyzing an ST data set from 10X Visium, they only need to input "visiumPath".
-Please make sure that "visiumPath" points to the standard output folder of 10X SpaCET Ranger,
+If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
+Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
 which have both `filtered_feature_bc_matrix` and `spatial` folders.
 
 The "filtered_feature_bc_matrix" folder includes \cr
@@ -29,7 +27,6 @@ The "filtered_feature_bc_matrix" folder includes \cr
 
 The "spatial" folder includes \cr
 “tissue_positions_list.csv” : barcodes and spatial information; \cr
-“tissue_hires_image.png” : hematoxylin and eosin (H&E) image; \cr
 “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
 “scalefactors_json.json” : scaling factors for adjusting the coordinates.
 }

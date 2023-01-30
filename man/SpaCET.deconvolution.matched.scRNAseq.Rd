@@ -31,4 +31,5 @@ Estimate the fraction of cell lineage and sub lineage.
 }
 \examples{
 SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree)
+
 }

@@ -9,14 +9,15 @@ SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair)
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
-\item{cellTypePair}{A pair of cell types.}
+\item{cellTypePair}{A pair of cell-types.}
 }
 \value{
-A ggplot object
+An SpaCET object.
 }
 \description{
 Test the co-expression of ligands and receptors within the same ST spot for the co-localized cell-type pairs.
 }
 \examples{
-SpaCET.CCI.cellTypePair(SpaCET_obj,cellTypePair=c("CAF","Macrophage M2"))
+SpaCET_obj <- SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
+
 }

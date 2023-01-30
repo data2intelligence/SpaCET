@@ -21,4 +21,5 @@ Explore different cancer cell state in tumor ST dataset.
 }
 \examples{
 SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)
+
 }

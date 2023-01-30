@@ -1,10 +1,10 @@
 ---
-title: "Cell type deconvolution and interaction analysis without reference"
+title: "Cell type deconvolution and interaction analysis"
 output: rmarkdown::html_vignette
 description: >
-  Cell type deconvolution and interaction analysis without reference.
+  Cell type deconvolution and interaction analysis.
 vignette: >
-  %\VignetteIndexEntry{Cell type deconvolution and interaction analysis without reference}
+  %\VignetteIndexEntry{Cell type deconvolution and interaction analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -24,9 +24,9 @@ This tutorial demonstrates how to run SpaCET to estimate cell identities and cel
 
 ## Create SpaCET object
 
-To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing a ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
+To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
-Here, we create an SpaCET object for the current breast cancer visium dataset. In this step, the genes exhibiting zero UMI counts across spots will be removed. Also, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
+Here, we create an SpaCET object for the current breast cancer visium dataset. In this step, if there are duplicated gene symbols, the gene with the highest total counts remains and all other duplicated genes are removed.
 
 ``` r
 library(SpaCET)
@@ -45,29 +45,34 @@ The UMI count matrix is stored in `SpaCET_obj@input$counts` as a sparse matrix. 
 
 ``` r
 # show this object.
-SpaCET_obj@input$counts[1:8,1:3]
-## 8 x 3 sparse Matrix of class "dgCMatrix"
-##            AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
-## AL627309.1                  .                  .                  .
-## AL669831.2                  .                  .                  .
-## AL669831.5                  .                  2                  .
-## FAM87B                      .                  .                  .
-## LINC00115                   .                  .                  .
-## FAM41C                      .                  .                  .
-## AL645608.7                  .                  .                  .
-## AL645608.3                  .                  .                  .
+SpaCET_obj@input$counts[1:8,1:6]
+## 8 x 6 sparse Matrix of class "dgCMatrix"
+##             50x102 59x19 14x94 47x13 73x43 61x97
+## MIR1302-2HG      .     .     .     .     .     .
+## FAM138A          .     .     .     .     .     .
+## OR4F5            .     .     .     .     .     .
+## AL627309.1       .     .     .     .     .     1
+## AL627309.3       .     .     .     .     .     .
+## AL627309.2       .     .     .     .     .     .
+## AL627309.4       .     .     .     .     .     .
+## AL732372.1       .     .     .     .     .     .
 ```
 
 ## Show key quality control metrics
 
-After creating the SpaCET object, users can use `SpaCET.visualize.metrics` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
+After creating the SpaCET object, you can use `SpaCET.visualize.spatialFeature` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
 
 ``` r
-# plot the QC metrics.
-library(patchwork)
-p1 <- SpaCET.visualize.metrics(SpaCET_obj, itemQC="UMI")
-p2 <- SpaCET.visualize.metrics(SpaCET_obj, itemQC="Gene")
-p1 | p2
+# calculate the QC metrics
+SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
+
+# plot the QC metrics
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "QualityControl", 
+  spatialFeatures=c("UMI","Gene")
+)
+
 ```
 <img src="img/QC.png" width="100%" style="border:none" />
 
@@ -91,45 +96,51 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 
 # show the ST deconvolution results
-SpaCET_obj@results$deconvolution[1:13,1:3]
+SpaCET_obj@results$deconvolution$propMat[1:13,1:6]
 
-##             AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
-## Malignant         2.860636e-01                  1       6.845966e-02
-## CAF               3.118545e-01                  0       3.397067e-01
-## Endothelial       5.510895e-02                  0       1.427060e-01
-## Plasma            2.213392e-02                  0       1.507382e-02
-## B cell            3.885793e-03                  0       9.271616e-02
-## T CD4             1.344389e-01                  0       1.554305e-02
-## T CD8             7.578696e-03                  0       2.514558e-07
-## NK                7.104005e-04                  0       1.670019e-06
-## cDC               1.421632e-07                  0       8.278023e-02
-## pDC               1.606443e-06                  0       2.283754e-02
-## Macrophage        1.703304e-01                  0       5.021248e-02
-## Mast              7.905067e-08                  0       1.621498e-05
-## Neutrophil        1.380073e-05                  0       9.528996e-07
+##                   50x102 59x19        14x94        47x13        73x43        61x97
+## Malignant   2.860636e-01     1 6.845966e-02 3.899756e-01 9.608802e-01 9.193154e-01
+## CAF         3.118545e-01     0 3.397067e-01 1.111980e-01 3.372692e-02 1.895191e-06
+## Endothelial 5.510895e-02     0 1.427060e-01 3.080531e-02 5.263544e-03 1.602311e-06
+## Plasma      2.213392e-02     0 1.507382e-02 1.183170e-02 9.071809e-06 8.026520e-07
+## B cell      3.885793e-03     0 9.271616e-02 1.406470e-01 1.329085e-06 6.511383e-03
+## T CD4       1.344389e-01     0 1.554305e-02 1.249414e-01 1.112392e-05 1.059720e-05
+## T CD8       7.578696e-03     0 2.514558e-07 1.379856e-03 1.123043e-06 1.689551e-05
+## NK          7.104005e-04     0 1.670019e-06 4.890387e-08 3.562557e-07 8.046565e-07
+## cDC         1.421632e-07     0 8.278023e-02 7.584295e-02 2.851146e-07 4.208924e-08
+## pDC         1.606443e-06     0 2.283754e-02 1.805671e-02 3.878344e-07 3.984322e-03
+## Macrophage  1.703304e-01     0 5.021248e-02 9.531511e-02 9.253645e-07 2.388742e-05
+## Mast        7.905067e-08     0 1.621498e-05 1.333430e-07 1.162099e-07 6.069462e-06
+## Neutrophil  1.380073e-05     0 9.528996e-07 1.167503e-08 9.908635e-05 1.154054e-05
 ```
 
 Of note, the value from deconvolution results represents the fraction of cell types. User may find that the fraction sum of all cell types in a spot (column) is beyond 1. This is because SpaCET outputs the cell fractions for both major lineages and their corresponding sublineages, e.g., T CD4 as well as Th1, Th2... .
 
 ## Visualize the cell type proportion
 
-We provide `SpaCET.visualize.deconvolution` to present the spatial distribution of cell types by setting the parameter `cellType`.
+We provide `SpaCET.visualize.spatialFeature` to present the spatial distribution of cell types.
 
 ``` r
 # show the spatial distribution of malignant cells and macrophages.
-p1 <- SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Malignant")
-p2 <- SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Macrophage")
-p1 | p2
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "CellFraction", 
+  spatialFeatures=c("Malignant","Macrophage")
+)
 ```
 <img src="img/visualizeDeconvolution.png" width="100%" style="border:none" />
 
-By setting the parameter `interactive` as `TRUE`, user will open up a Shiny plot to interactively visualize each cell type. Of note, each dot represents an ST spot and user can adjust the size and opacity of spots.
-
 ``` r
-# show the spatial distribution of malignant cells and macrophages.
-SpaCET.visualize.deconvolution(SpaCET_obj, cellType="Malignant", interactive=TRUE)
+# show the spatial distribution of all cell types.
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "CellFraction", 
+  spatialFeatures="All", 
+  pointSize = 0.1, 
+  nrow=5
+)
 ```
-<img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none" />
+<img src="img/visualizeDeconvolution2.png" width="100%" style="border:none" />
 
 ## Identify cell-cell interaction
 After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.
@@ -159,19 +170,47 @@ Cell colocalization does not directly indicate physical interaction. Thus, we so
 SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj,coreNo=8)
 
 # visualize the L-R network score.
-SpaCET.visualize.LRNetworkScore(SpaCET_obj)
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "LRNetworkScore", 
+  spatialFeatures=c("Network_Score","Network_Score_pv")
+)
+
 ```
 
-<img src="img/LRNetworkScore.png" width="50%" style="border:none" />
+<img src="img/LRNetworkScore.png" width="100%" style="border:none" />
 
 The L-R network score at each ST spot indicates the overall intensities of ligand-receptor interactions at each location, but not the specific interactions between two cell types. Thus, SpaCET further performed an enrichment analysis of L-R network scores for each cell-type pair. For example, for the colocalization between CAF and M2 cells in the breast tumor tissue, SpaCET grouped all ST spots into four categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the left and middle panels in the following figure). We found that CAF-M2 colocalized spots have more substantial L-R interaction network scores than CAF/M2-dominated spots (right panel).
 
 ``` r
-# calculate the L-R network score across ST spots.
-SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
+# Ligand-Receptor analysis for a co-localized cell-type pair
+SpaCET_obj <- SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
+## [1] "CAF and Macrophage M2 have potential intercellular interaction in the current tissue."
+
+# Visualize the interaction analysis of a co-localized cell-type pair.
+SpaCET.visualize.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
+
 ``` 
 
 <img src="img/CAF-M2.png" width="100%" style="border:none" />
+
+
+## Enrich cell-cell interactions at the tumor-immune interface
+ Interestingly, besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution. The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
+
+``` r
+# Identify the Tumor-Stroma Interface
+SpaCET_obj <- SpaCET.identify.interface(SpaCET_obj)
+
+# Visualize the Interface
+p1 <- SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface")
+
+# Compute the distance of CAF-M2 to tumor border
+p2 <- SpaCET.distance.to.interface(SpaCET_obj, cellTypePair=c("CAF", "Macrophage M2"))
+
+library(patchwork)
+p1|p2
+``` 
 
 ## Explore cancer cell states
 The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCET can automatically explore the spatial distribution of different cancer cell states.
@@ -185,15 +224,18 @@ Similar to the deconvolution of immune major lineages into sublineages, the over
 SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
 
 # show cancer cell state fraction of the first five spots
-SpaCET_obj@results$deconvolution[c("Cancer cell state A","Cancer cell state B"),1:3]
+SpaCET_obj@results$deconvolution$propMat[c("Malignant cell state A","Malignant cell state B"),1:6]
 
-##                     AAACAAGTATCTCCCA-1 AAACACCAATAACTGC-1 AAACAGAGCGACTCCT-1
-## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02
-## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08
+##                           50x102        59x19        14x94     47x13        73x43     61x97
+## Malignant cell state A 0.2295498 9.999900e-01 6.845962e-02 0.2038680 9.608802e-01 0.6517794
+## Malignant cell state B 0.0565137 1.239573e-11 3.921715e-08 0.1861075 2.340661e-09 0.2675332
 
-SpaCET.visualize.deconvolution(SpaCET_obj, cellTypes=c("Malignant","Cancer cell state A","Cancer cell state B"),ncol=3)
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "CellFraction", 
+  spatialFeatures=c("Malignant","Malignant cell state A","Malignant cell state B"), 
+  nrow=1
+)
+
 ``` 
 <img src="img/cancerCellState.png" width="100%" style="border:none" />
-
-
-

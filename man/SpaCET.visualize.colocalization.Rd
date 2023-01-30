@@ -10,11 +10,12 @@ SpaCET.visualize.colocalization(SpaCET_obj)
 \item{SpaCET_obj}{An SpaCET object.}
 }
 \value{
-An ggplot object
+A ggplot object.
 }
 \description{
 Visualize the cell-type pair colocalization.
 }
 \examples{
 SpaCET.visualize.colocalization(SpaCET_obj)
+
 }

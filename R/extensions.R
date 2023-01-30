@@ -1,25 +1,40 @@
 #' @title Deconvolve malignant cell fraction
-#' @description Explore different cancer cell state in tumor ST dataset.
+#' @description Explore different malignant cell state in tumor ST dataset.
 #' @param SpaCET_obj An SpaCET object.
 #' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells.
 #' @param coreNo Core number in parallel.
 #' @return An SpaCET object
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)
+#'
 #' @rdname SpaCET.deconvolution.malignant
 #' @export
 SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, coreNo=8)
 {
+  if(is.null(SpaCET_obj@results$deconvolution$propMat))
+  {
+    stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
+  }else{
+    res_deconv <- SpaCET_obj@results$deconvolution$propMat
+  }
+
+  if(malignantCutoff>1 | malignantCutoff<0)
+  {
+    stop("Please input a value within 0~1 for the cutoff of malignant spots.")
+  }
+
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
-  res_deconv <- SpaCET_obj@results$deconvolution
+  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
   st.matrix.data.mal <- st.matrix.data[,res_deconv["Malignant",]>=malignantCutoff]
-  st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e6/colSums(st.matrix.data.mal) )
+  st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e5/colSums(st.matrix.data.mal) )
   st.matrix.data.mal.log <- log2(st.matrix.data.mal.CPM+1)
 
   # clustering
   set.seed(123)
-  library(MUDAN)
+  suppressPackageStartupMessages(
+    library(MUDAN)
+  )
 
   matnorm.info <- normalizeVariance(methods::as(st.matrix.data.mal, "dgCMatrix"),details=TRUE,verbose=FALSE)
   matnorm <- log10(matnorm.info$mat+1)
@@ -34,9 +49,11 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
   rownames(clustering) <- paste0("c",rownames(clustering))
 
   # silhouette
-  suppressPackageStartupMessages(library(factoextra))
-  library(NbClust)
-  library(cluster)
+  suppressPackageStartupMessages({
+    library(factoextra)
+    library(NbClust)
+    library(cluster)
+  })
 
   v <- c()
   for(i in cluster_numbers)
@@ -59,7 +76,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
 
   states <- sort(unique(Content))
 
-  print(paste0("Identify ",length(states)," cancer cell states"))
+  print(paste0("Identify ",length(states)," malignant cell states"))
 
   refProfiles <- data.frame()
   sigGenes <- list()
@@ -68,7 +85,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
 
   for(i in states)
   {
-    refProfiles[rownames(st.matrix.data.mal.CPM),paste0("Cancer cell state ",i)] <- rowMeans(st.matrix.data.mal.CPM[,Content==i])
+    refProfiles[rownames(st.matrix.data.mal.CPM),paste0("Malignant cell state ",i)] <- rowMeans(st.matrix.data.mal.CPM[,Content==i])
 
     tempMarkers <- c()
     for(j in setdiff(states,i))
@@ -89,10 +106,10 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
     }
     tempMarkers <- table(tempMarkers)
 
-    sigGenes[[paste0("Cancer cell state ",i)]] <- names(tempMarkers)[tempMarkers==1]
+    sigGenes[[paste0("Malignant cell state ",i)]] <- names(tempMarkers)[tempMarkers==1]
   }
 
-  lineageTree <- list("Malignant"=paste0("Cancer cell state ",states))
+  lineageTree <- list("Malignant"=paste0("Malignant cell state ",states))
   Refnew <- list(refProfiles=refProfiles, sigGenes=sigGenes, lineageTree=lineageTree)
 
   load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
@@ -107,33 +124,37 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
   )
 
   propMat<- rbind(res_deconv,propMat[!rownames(propMat)%in%"Malignant",])
-  SpaCET_obj@results$deconvolution <- propMat
+  SpaCET_obj@results$deconvolution$propMat <- propMat
 
   SpaCET_obj
 }
 
 
-#' @title Deconvolve ST data set with matched scRNAseq
+#' @title Deconvolve ST data set with matched scRNAseq data
 #' @description Estimate the fraction of cell lineage and sub lineage.
 #' @param SpaCET_obj An SpaCET object.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
 #' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
+#' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
 #' @param coreNo Core number.
 #' @return An SpaCET object
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree)
+#'
 #' @rdname SpaCET.deconvolution.matched.scRNAseq
 #' @export
-SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree, coreNo=8)
+SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
 {
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
   print("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
     sc.matrix.data = sc_counts,
     sc.matrix.anno = sc_annotation,
-    sc.matrix.tree = sc_lineageTree
+    sc.matrix.tree = sc_lineageTree,
+    sc.matrix.numb = sc_nCellEachLineage
   )
 
   print("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
@@ -148,18 +169,31 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_anno
     coreNo=coreNo
   )
 
-  SpaCET_obj@results$Ref <- Ref
-  SpaCET_obj@results$deconvolution <- propMat
+  SpaCET_obj@results$deconvolution$Ref <- Ref
+  SpaCET_obj@results$deconvolution$propMat <- propMat
   SpaCET_obj
-
 }
+
 
 generateRef <- function(
     sc.matrix.data = sc.matrix.data,
     sc.matrix.anno = sc.matrix.anno,
-    sc.matrix.tree = sc.matrix.tree
+    sc.matrix.tree = sc.matrix.tree,
+    sc.matrix.numb = sc_nCellEachLineage
 )
 {
+  set.seed(123)
+  idx <- split(sc.matrix.anno[,1], sc.matrix.anno[,2])
+  c_keep <- lapply(idx, function(i) {
+    n <- length(i)
+    if (n > sc.matrix.numb)
+      n <- sc.matrix.numb
+    sample(i, n)
+  })
+
+  sc.matrix.data <- sc.matrix.data[,unlist(c_keep)]
+  sc.matrix.anno <- sc.matrix.anno[unlist(c_keep),]
+
   sc.matrix.data.norm <- t(t(sc.matrix.data)*1e5/colSums(sc.matrix.data))
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
 

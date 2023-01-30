@@ -1,206 +1,116 @@
-#' @title Quality control metrics visualization
-#' @description Visualize quality control metrics in ST dataset.
+#' @title Spatial feature visualization
+#' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj An SpaCET object.
-#' @param itemQC Item for quality control metrics. i.e., "UMI" or "gene".
-#' @param colors Legend color scale, Default: c("blue", "yellow", "red").
+#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.
+#' @param spatialFeatures A vector of spatial features.
+#' @param nrow Row number of the combined panel for multiple spatial features.
 #' @param imageBg logical: should the image be shown?
-#' @return A ggplot2 object
+#' @return A ggplot2 object.
+#' @details
+#' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
+#' "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
+#' "GeneExpr" is set to visualize the expression level of genes.
+#' "CellFraction" refers to the cell fraction of cell types.
+#' "LRNetworkScore" is selected to show the Ligand-Receptor network score. See `SpaCET.CCI.LRNetworkScore` for how to calculate it.
+#'
 #' @examples
-#' SpaCET.visualize.metrics(SpaCET_obj, itemQC="UMI")
-#' @rdname SpaCET.visualize.metrics
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "GeneExpression", spatialFeatures=c("EPCAM","MS4A1"))
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures=c("Malignant","Macrophage"))
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures="All", pointSize = 0.1, nrow=5)
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
+#'
+#' @rdname SpaCET.visualize.spatialFeature
 #' @export
-SpaCET.visualize.metrics <- function(
+SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
-    itemQC = c("UMI","Gene"),
-    colors = c("lightblue", "blue", "darkblue"),
+    spatialType = c("QualityControl","GeneExpr","CellFraction","LRNetworkScore"),
+    spatialFeatures = NULL,
+    pointSize = 1,
+    nrow = 1,
     imageBg = TRUE
 )
 {
-  visiualVector <- SpaCET_obj@results$metrics[itemQC,]
-  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-
-  p1 <- visualSpatial(
-    visiualVector,
-    image=SpaCET_obj@input$image,
-    platform=SpaCET_obj@input$platform,
-    scaleType="color-continuous",
-    colors=colors,
-    pointSize=1,
-    pointAlpha=1,
-    limits=NULL,
-    titleName=itemQC,
-    legendName="Count",
-    imageBg=imageBg)
-
-  p2 <- ggplot(data.frame(value=visiualVector), aes(value)) +
-    geom_histogram(bins = 100,color="#ddaaff",fill="#551177")+
-    xlab(paste0(itemQC,"s each spot", "\n(", length(visiualVector)," spots)"))+
-    ylab("# Spot")+
-    ggtitle(paste0("Median = ", round(quantile(visiualVector)[3],1)))+
-    geom_vline(xintercept=quantile(visiualVector)[3], linetype="dashed", color = "black")+
-    theme_bw() +
-    theme(
-      plot.background = element_blank(),
-      panel.grid = element_blank(),
-      plot.title = element_text(hjust = 0.5,color="black"),
-      axis.text = element_text(colour = "black"),
-      axis.title = element_text(colour = "black")
-    )
-
-  library(patchwork)
-  (p1/p2)
-}
-
-#' @title Gene expression visualization
-#' @description Visualize gene expression level in ST dataset.
-#' @param SpaCET_obj An SpaCET object.
-#' @param genes Gene symbol.
-#' @param colors Legend color scale, Default: c("blue", "yellow", "red").
-#' @return A ggplot2 object
-#' @examples
-#' SpaCET.visualize.gene(SpaCET_obj,"EPCAM")
-#' @rdname SpaCET.visualize.gene
-#' @export
-SpaCET.visualize.gene <- function(
-    SpaCET_obj,
-    genes,
-    ncol=1,
-    colors = c("blue", "yellow", "red"),
-    imageBg = TRUE
-)
-{
-  expression <- SpaCET_obj@input$counts
-  expression <- sweep(expression,2,Matrix::colSums(expression),"/")
-
-  for(gene in genes)
+  if(spatialType == "QualityControl")
   {
-    expression_gene <- expression[gene,]
-    visiualVector <- (expression_gene-min(expression_gene))/(max(expression_gene)-min(expression_gene))
+    mat <- SpaCET_obj@results$metrics
+
+    scaleType="color-continuous"
+    colors = c("lightblue", "blue", "darkblue")
+    legendName = "Count"
+    limits = NULL
+  }else if(spatialType == "GeneExpression"){
+    mat <- as.matrix(SpaCET_obj@input$counts)
+    mat <- t(t(mat)*1e6/colSums(mat))
+    mat <- log2(mat+1)
+
+    scaleType="color-continuous"
+    colors = c("#4d9221", "yellow", "#c51b7d")
+    legendName = "Expr"
+    limits = NULL
+  }else if(spatialType == "CellFraction"){
+    mat <- SpaCET_obj@results$deconvolution$propMat
+
+    if("All"%in%spatialFeatures) spatialFeatures <- rownames(SpaCET_obj@results$deconvolution$propMat)
+
+    scaleType="color-continuous"
+    colors = c("blue", "yellow", "red")
+    legendName = "Fraction"
+    limits = c(0,1)
+  }else if(spatialType == "LRNetworkScore"){
+    mat <- SpaCET_obj@results$CCI$LRNetworkScore
+    mat[2,mat[2,]> 1.5] <- 1.5
+    mat[2,mat[2,]< 0.5] <- 0.5
+    mat[3,] <- -log10(mat[3,])
+
+    scaleType="color-continuous"
+    colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
+    limits = NULL
+  }else{
+    mat <- SpaCET_obj@results$CCI$interface
+
+    spatialFeatures = c("interface")
+    scaleType="color-discrete"
+    colors = colors=c("black","darkgrey","#f3c300")
+    legendName = "Spot"
+    limits = NULL
+  }
+
+  for(spatialFeature in spatialFeatures)
+  {
+    if(spatialType == "LRNetworkScore"){
+      if(spatialFeature == "Network_Score"){
+        legendName = "Score"
+      }else{
+        legendName = "-log10pv"
+      }
+    }
+
+    visiualVector <- mat[spatialFeature,]
     names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
     p <- visualSpatial(
       visiualVector,
       image=SpaCET_obj@input$image,
       platform=SpaCET_obj@input$platform,
-      scaleType="color-continuous",
+      scaleType=scaleType,
       colors=colors,
-      pointSize=1,
+      pointSize=pointSize,
       pointAlpha=1,
-      limits=NULL,
-      titleName=gene,
-      legendName="Expr",
+      limits=limits,
+      titleName=spatialFeature,
+      legendName=legendName,
       imageBg=imageBg)
-
-    if(gene!=genes[length(genes)])
-    {
-    	p <- p + theme(legend.position="none")
-    }
 
     if(exists("pp"))
     {
-    	pp <- pp + p
+      pp <- pp + p
     }else{
-    	pp <- p
+      pp <- p
     }
-
   }
 
-  pp + patchwork::plot_layout(ncol = ncol)
-}
-
-#' @title Cell type fraction visualization
-#' @description Visualize cell type fraction in ST dataset.
-#' @param SpaCET_obj An SpaCET object.
-#' @param cellType Cell type name.
-#' @param colors Legend color scale, Default: c("blue", "yellow", "red").
-#' @param limits Value range, Default: c(0,1). Also can be set as NULL.
-#' @return A ggplot2 object
-#' @examples
-#' SpaCET.visualize.deconvolution(SpaCET_obj,"Malignant")
-#' @rdname SpaCET.visualize.deconvolution
-#' @export
-SpaCET.visualize.deconvolution <- function(
-    SpaCET_obj,
-    cellTypes,
-    ncol=1,
-    colors = c("blue", "yellow", "red"),
-    limits = c(0,1),
-    interactive = FALSE,
-    imageBg = TRUE
-)
-{
-  if(interactive)
-  {
-    visualSpatialInteractive(SpaCET_obj,cellType)
-  }else{
-    for(cellType in cellTypes)
-    {
-      visiualVector <- SpaCET_obj@results$deconvolution[cellType,]
-      names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-
-      p <- visualSpatial(
-        visiualVector,
-        image=SpaCET_obj@input$image,
-        platform=SpaCET_obj@input$platform,
-        scaleType="color-continuous",
-        colors=colors,
-        pointSize=1,
-        pointAlpha=1,
-        limits=limits,
-        titleName=cellType,
-        legendName="Prop",
-        imageBg=imageBg)
-
-      if(cellType!=cellTypes[length(cellTypes)])
-      {
-        p <- p + theme(legend.position="none")
-      }
-
-      if(exists("pp"))
-      {
-        pp <- pp + p
-      }else{
-        pp <- p
-      }
-
-    }
-
-    pp + patchwork::plot_layout(ncol = ncol)
-
-  }
-}
-
-#' @title Ligand-Receptor network score visualization
-#' @description Visualize L-R network score in ST dataset.
-#' @param SpaCET_obj An SpaCET object.
-#' @param colors Legend color scale, Default: c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow").
-#' @return A ggplot2 object
-#' @examples
-#' SpaCET.visualize.LRNetworkScore(SpaCET_obj)
-#' @rdname SpaCET.visualize.LRNetworkScore
-#' @export
-SpaCET.visualize.LRNetworkScore <- function(
-    SpaCET_obj,
-    colors = c("black","black","black","blue","blue","blue","blue","cyan","cyan","yellow"),
-    imageBg = TRUE
-)
-{
-  visiualVector <- SpaCET_obj@results$LRNetworkScore["Network_Score",]
-  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-  visiualVector[visiualVector>1.5] <- 1.5
-
-  visualSpatial(
-    visiualVector,
-    SpaCET_obj@input$image,
-    SpaCET_obj@input$platform,
-    scaleType="color-continuous",
-    colors=colors,
-    pointSize=1,
-    pointAlpha=1,
-    limits=range(visiualVector),
-    titleName="Network_Score",
-    legendName="Score",
-    imageBg=imageBg)
+  pp + patchwork::plot_layout(nrow = nrow)
 }
 
 
@@ -215,8 +125,7 @@ visualSpatial <- function(
     pointAlpha,
     titleName,
     legendName,
-    imageBg,
-    imageCut="complete"
+    imageBg
 )
 {
   library(ggplot2)
@@ -225,17 +134,7 @@ visualSpatial <- function(
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
 
-    if(imageCut!="complete")
-    {
-      image$grob$raster <- image$grob$raster[
-        image$edgeMat["left",imageCut]:image$edgeMat["right",imageCut],
-        image$edgeMat["bottom",imageCut]:image$edgeMat["top",imageCut]]
-
-      coordi[,1] <- coordi[,1]-image$edgeMat["left",imageCut]
-      coordi[,2] <- coordi[,2]-image$edgeMat["bottom",imageCut]
-    }
-
-    if(imageBg& !is.na(image$path))
+    if(imageBg & !is.na(image$path))
     {
       xDiml <- dim(image$grob$raster)[1] # dim pixel
       yDiml <- dim(image$grob$raster)[2] # dim pixel
@@ -251,16 +150,21 @@ visualSpatial <- function(
     )
     rownames(fig.df) <- names(visiualVector)
 
+    # 1. initiate plot
     p <- ggplot(fig.df,aes(x=x,y=y))
 
-    if(imageBg& !is.na(image$path))
+    # 2. add image
+    if(imageBg & !is.na(image$path))
     {
-      p <- p+annotation_custom(image$grob)+# add background image
-        scale_x_continuous(limits = c(0, xDiml), expand = c(0, 0)) +
-        scale_y_continuous(limits = c(0, yDiml), expand = c(0, 0))
+      p <- p+
+        annotation_custom(image$grob)
     }
 
-    p <- p+geom_point(aes(colour=value),size=pointSize,alpha=pointAlpha)+
+    # 3. draw spot
+    p <- p+
+      geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha) +
+      scale_x_continuous(limits = c(0, xDiml), expand = c(0, 0)) +
+      scale_y_continuous(limits = c(0, yDiml), expand = c(0, 0)) +
       ggtitle(titleName)+
       theme(
         panel.background = element_rect(fill = "white"),
@@ -272,6 +176,7 @@ visualSpatial <- function(
         panel.border = element_blank()
       )+coord_flip()
 
+    # 4. set color scale
     if(scaleType=="color-continuous")
     {
       p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
@@ -336,63 +241,4 @@ visualSpatial <- function(
 
 
   }
-}
-
-
-visualSpatialInteractive <- function(SpaCET_obj,gene)
-{
-  library(shiny)
-
-  app <- list(
-    ui=fluidPage(
-
-      titlePanel("Interactive visualization"),
-
-      sidebarLayout(
-
-        sidebarPanel(
-          p("Select a cell type",style="color:black; font-weight: bold; margin-bottom:33px"),
-          selectInput("cellType", p("Cell type:",style="color:black; text-align:center"), choices = rownames(SpaCET_obj@results$deconvolution)),
-          br(),
-          sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.2),
-          br(),
-          sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
-          br(),
-          style="background-color:papayawhip;border-left:8px solid orange"
-        ),
-
-        mainPanel(column(br(),plotOutput("overlayPlot"),br(), width = 10, style="border:1px solid black"))
-      )
-
-    ),
-
-    server=function(input, output) {
-      output$overlayPlot <- renderPlot({
-        cellType <- input$cellType
-        pointSize <- input$pointSize
-        pointAlpha <- input$pointAlpha
-
-        visiualVector <- SpaCET_obj@results$deconvolution[cellType,]
-        names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-
-        visualSpatial(
-          visiualVector,
-          SpaCET_obj@input$image,
-          SpaCET_obj@input$platform,
-          scaleType="color-continuous",
-          colors=c("blue", "yellow", "red"),
-          pointSize=pointSize,
-          pointAlpha=pointAlpha,
-          limits=c(0,1),
-          titleName=cellType,
-          legendName="Prop",
-          imageBg=TRUE
-        )
-
-      })
-
-    }
-
-  )
-  shiny::runApp(app)
 }

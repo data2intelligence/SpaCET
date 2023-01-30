@@ -38,23 +38,17 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
   </div>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">News</a>
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -149,8 +143,8 @@ UMI count) in a particular spot.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plot the QC metrics.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.metrics.html">SpaCET.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.metrics.html">SpaCET.visualize.metrics</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"Gene"</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">SpaCET.visualize.metrics</span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"UMI"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">SpaCET.visualize.metrics</span><span class="op">(</span><span class="va">SpaCET_obj</span>, itemQC<span class="op">=</span><span class="st">"Gene"</span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/QC.png" width="100%" style="border:none"></p>
 </div>
@@ -230,8 +224,8 @@ spatial distribution of cell types by setting the parameter
 <code>cellType</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
-<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Macrophage"</span><span class="op">)</span></span>
 <span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution.png" width="100%" style="border:none"></p>
 <p>By setting the parameter <code>interactive</code> as
@@ -240,7 +234,7 @@ visualize each cell type. Of note, each dot represents an ST spot and
 user can adjust the size and opacity of spots.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># show the spatial distribution of malignant cells and macrophages.</span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span>, interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellType<span class="op">=</span><span class="st">"Malignant"</span>, interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolutionInteractive.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
@@ -294,8 +288,8 @@ networks.</p>
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.LRNetworkScore.html">SpaCET.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># visualize the cell-cell colocalization.</span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.LRNetworkScore.html">SpaCET.visualize.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># visualize the L-R network score.</span></span>
+<span><span class="fu">SpaCET.visualize.LRNetworkScore</span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/LRNetworkScore.png" width="50%" style="border:none"></p>
 <p>The L-R network score at each ST spot indicates the overall
 intensities of ligand-receptor interactions at each location, but not
@@ -345,7 +339,7 @@ states equals to the malignant cell fraction for each spot.</p>
 <span><span class="co">## Cancer cell state A         0.21735562       9.999900e-01       6.845963e-02</span></span>
 <span><span class="co">## Cancer cell state B         0.06870794       1.239573e-11       2.906452e-08</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Cancer cell state A"</span>,<span class="st">"Cancer cell state B"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/cancerCellState.png" width="100%" style="border:none"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

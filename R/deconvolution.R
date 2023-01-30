@@ -1,24 +1,25 @@
 #' @title Deconvolve tumor ST data set
-#' @description Estimate the fraction of cell lineages and sub lineages.
+#' @description Estimate the cell fraction of cell lineages and sub lineages.
 #' @param SpaCET_obj An SpaCET object.
-#' @param cancerType Cancer type of this tumor ST dataset.
-#' @param coreNo Core number in parallel.
-#' @return An SpaCET object
+#' @param cancerType Cancer type of the current tumor ST dataset.
+#' @param coreNo Core number in parallel computation.
+#' @return An SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+#'
 #' @rdname SpaCET.deconvolution
 #' @export
 #'
-SpaCET.deconvolution <- function(SpaCET_obj,cancerType,coreNo=8)
+SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
 {
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
   print("Stage 1. Infer malignant cell fraction.")
   malRes <- inferMal_cor(st.matrix.data,cancerType)
 
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
-
   print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
 
   propMat <- SpatialDeconv(
     ST=st.matrix.data,
@@ -29,39 +30,33 @@ SpaCET.deconvolution <- function(SpaCET_obj,cancerType,coreNo=8)
     coreNo=coreNo
   )
 
-  SpaCET_obj@results$Ref <- Ref
-  SpaCET_obj@results$deconvolution <- propMat
+  SpaCET_obj@results$deconvolution$Ref <- Ref
+  SpaCET_obj@results$deconvolution$propMat <- propMat
   SpaCET_obj
 }
 
 
-corMat <- function(X,Y,method="pearson")
-{
-  olp <- intersect(rownames(X),rownames(Y))
-  X_olp <- X[olp,,drop=F]
-  Y_olp <- Y[olp,,drop=F]
-
-  cc_corr <- psych::corr.test(X_olp,Y_olp,method=method,adjust="none",ci=FALSE)
-
-  cc_corr_r <- round(cc_corr$r[,1],3)
-  cc_corr_p <- signif(cc_corr$p[,1],3)
-
-  cc_corr_rp <- data.frame(
-    cor_r=cc_corr_r,
-    cor_p=cc_corr_p,
-    cor_padj=p.adjust(cc_corr_p, method = "BH")
-  )
-
-  cc_corr_rp
-}
-
 inferMal_cor <- function(st.matrix.data, cancerType)
 {
+  load( system.file("extdata", 'cancerDictionary.rda', package = 'SpaCET') )
+  cancerTypes <- unique(c(names(cancerDictionary$CNA),names(cancerDictionary$expr)))
+  cancerTypes <- sapply(strsplit(cancerTypes,"_",fixed=T),function(x) return(x[2]))
+  if(!cancerType%in%cancerTypes)
+  {
+    stop("The input cancer type does not match anyone in the build-in dictionary of SpaCET.
+         Please make sure you have input the correct cancer type name.
+         If yes, it means the dictionary of SpaCET does not include the signature for input cancer type.
+         User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
+  }
+
+
   print("Stage 1 - Step 1. Clustering.")
 
   # clustering
   set.seed(123)
-  library(MUDAN)
+  suppressPackageStartupMessages(
+    library(MUDAN)
+  )
 
   matnorm.info <- normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
   matnorm <- log10(matnorm.info$mat+1)
@@ -76,9 +71,11 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   rownames(clustering) <- paste0("c",rownames(clustering))
 
   # silhouette
-  suppressPackageStartupMessages(library(factoextra))
-  library(NbClust)
-  library(cluster)
+  suppressPackageStartupMessages({
+    library(factoextra)
+    library(NbClust)
+    library(cluster)
+  })
 
   v <- c()
   for(i in cluster_numbers)
@@ -98,26 +95,21 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
 
   print("Stage 1 - Step 2. Find tumor clusters.")
-
   st.matrix.data <- as.matrix(st.matrix.data)
   st.matrix.data.diff <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
   st.matrix.data.diff <- log2(st.matrix.data.diff+1)
   st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
 
-  malFlag <- TRUE
-  load( system.file("extdata",'cancerDictionary.rda',package = 'SpaCET') )
 
   for(CNA_expr in c("CNA","expr"))
   {
     cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
-    if(sum(cancerTypeExists) > 0 )
+    if(sum(cancerTypeExists) > 0)
     {
       sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-    }else if(CNA_expr=="CNA" & sum(cancerTypeExists)==0 ){
-      next
     }else{
-      sig <- as.matrix(cancerDictionary[[CNA_expr]]["TCGA_PANCAN"][[1]],ncol=1)
+      if(CNA_expr=="CNA") next
     }
 
     cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
@@ -134,39 +126,27 @@ inferMal_cor <- function(st.matrix.data, cancerType)
       stat.df[i,"wilcoxTestG0"] <- wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value
     }
 
-    stat.df[i+1,"cluster"] <- "All"
-    stat.df[i+1,"spotNum"] <- nrow(cor_sig)
-    stat.df[i+1,"mean"] <- mean(cor_sig[,1])
-    stat.df[i+1,"fraction_spot_padj"] <- sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-    stat.df[i+1,"wilcoxTestG0"] <- wilcox.test(cor_sig[,1],mu=0,alternative="greater")$ p.value
+    clusterMal <- which(
+      stat.df[1:i,"mean"]>0&stat.df[1:i,"wilcoxTestG0"]<0.05 &
+      stat.df[1:i,"fraction_spot_padj"]>=sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+    )
 
-    stat.df[,"mean"] <- round(stat.df[,"mean"],6)
-    stat.df[,"fraction_spot_padj"] <- round(stat.df[,"fraction_spot_padj"],6)
-
-    clusterMal <- which(stat.df[1:i,"mean"]>0&stat.df[1:i,"wilcoxTestG0"]<0.05&stat.df[1:i,"fraction_spot_padj"]>=stat.df[i+1,"fraction_spot_padj"])
-
-    if(length(clusterMal)!=0)
+    if(length(clusterMal)!=0) # find malignant spots.
     {
-      if(sum(cancerTypeExists) > 0)
-      {
-        print(paste0("                  > Use cancer-type specific ",CNA_expr," signature: ",cancerType))
-      }else{
-        print(paste0("                  > Use pan-cancer expr signature."))
-      }
+      print(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
+      malFlag <- TRUE
       break
     }else{
       if(CNA_expr=="expr")
       {
-        print(paste0("                  > No malignant cell detected in this ST data set."))
+        print(paste0("                  > No malignant cells detected in this tumor ST data set."))
         malFlag <- FALSE
       }
     }
 
   }
 
-
-  print("Stage 1 - Step 3. Infer malignant cell.")
-
+  print("Stage 1 - Step 3. Infer malignant cells.")
   if(malFlag)
   {
     spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
@@ -198,7 +178,6 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
     list("malRef"=NULL,"malProp"=malProp)
   }
-
 }
 
 
@@ -210,7 +189,7 @@ SpatialDeconv <- function(
     mode=c("standard","deconvMal","deconvWithSC"),
     Unidentifiable=TRUE,
     MacrophageOther=TRUE,
-    coreNo=8
+    coreNo
 )
 {
   Reference <- Ref$refProfiles
@@ -348,7 +327,10 @@ SpatialDeconv <- function(
     colnames(propMatLevel1) <- colnames(malProp)
   }
 
-  print("Stage 2 - Level 2. Estimate the sub lineage.")
+  if(mode!="deconvMal")
+  {
+    print("Stage 2 - Level 2. Estimate the sub lineage.")
+  }
 
     ###### level 2 deconv ######
     for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
@@ -448,4 +430,25 @@ SpatialDeconv <- function(
     propMat[propMat>1] <- 1
 
     propMat
+}
+
+
+corMat <- function(X,Y,method="pearson")
+{
+  olp <- intersect(rownames(X),rownames(Y))
+  X_olp <- X[olp,,drop=F]
+  Y_olp <- Y[olp,,drop=F]
+
+  cc_corr <- psych::corr.test(X_olp,Y_olp,method=method,adjust="none",ci=FALSE)
+
+  cc_corr_r <- round(cc_corr$r[,1],3)
+  cc_corr_p <- signif(cc_corr$p[,1],3)
+
+  cc_corr_rp <- data.frame(
+    cor_r=cc_corr_r,
+    cor_p=cc_corr_p,
+    cor_padj=p.adjust(cc_corr_p, method = "BH")
+  )
+
+  cc_corr_rp
 }

@@ -9,14 +9,15 @@ SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo = 8)
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
-\item{coreNo}{Core number in parallel.}
+\item{coreNo}{Core number in parallel computation.}
 }
 \value{
-An SpaCET object
+An SpaCET object.
 }
 \description{
 Calculate the overall intensity of L-R interactions within ST spots.
 }
 \examples{
 SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj)
+
 }

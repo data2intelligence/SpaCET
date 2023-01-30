@@ -10,11 +10,12 @@ SpaCET.CCI.colocalization(SpaCET_obj)
 \item{SpaCET_obj}{An SpaCET object.}
 }
 \value{
-An SpaCET object
+An SpaCET object.
 }
 \description{
 Calculate the cell-type pair colocalization by using Spearman correlation analysis.
 }
 \examples{
 SpaCET_obj <- SpaCET.CCI.colocalization(SpaCET_obj)
+
 }

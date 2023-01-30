@@ -38,23 +38,17 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="active nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
   </div>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">News</a>
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -227,7 +221,7 @@ to carry out cell type deconvolution.</p>
 <span>  coreNo<span class="op">=</span><span class="fl">8</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution</a></span><span class="op">(</span></span>
+<span><span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>, </span>
 <span>  cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer clone A"</span>,<span class="st">"Cancer clone B"</span>,<span class="st">"Acinar cells"</span>,<span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span>,</span>
 <span>  ncol<span class="op">=</span><span class="fl">2</span></span>
@@ -237,7 +231,7 @@ to carry out cell type deconvolution.</p>
 expression level and verify the cell type deconvolution.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Markers for cancer clone A and B, acinar cell, and centroacinar like ductal cell</span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.gene.html">SpaCET.visualize.gene</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>,genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TM4SF1"</span>,<span class="st">"S100A4"</span>,<span class="st">"PRSS1"</span>,<span class="st">"CRISP3"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SpaCET.visualize.gene</span><span class="op">(</span><span class="va">SpaCET_obj</span>,genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TM4SF1"</span>,<span class="st">"S100A4"</span>,<span class="st">"PRSS1"</span>,<span class="st">"CRISP3"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/PDAC_expr.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">

@@ -18,24 +18,18 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item">
-  <a class="nav-link" href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
-    <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
-  </div>
-</li>
-<li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+  </div>
+</li>
 <li class="nav-item">
-  <a class="nav-link" href="../news/index.html">News</a>
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -57,7 +51,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="spacet-object">SpaCET object<a class="anchor" aria-label="anchor" href="#spacet-object"></a></h2>
+      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
       
       
 
@@ -74,26 +68,20 @@
         <dd>Define the SpaCET object</dd>
       </dl><dl><dt>
           
-          <code><a href="create.SpaCET.object.html">create.SpaCET.object()</a></code> 
+          <code><a href="SpaCET.CCI.LRNetworkScore.html">SpaCET.CCI.LRNetworkScore()</a></code> 
         </dt>
-        <dd>Create an SpaCET object</dd>
+        <dd>Ligand-Receptor interaction enrichment analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="create.SpaCET.object.10X.html">create.SpaCET.object.10X()</a></code> 
+          <code><a href="SpaCET.CCI.cellTypePair.html">SpaCET.CCI.cellTypePair()</a></code> 
         </dt>
-        <dd>Create an SpaCET object from 10X Visium</dd>
-      </dl></div><div class="section level2">
-      <h2 id="deconvolution-of-st-data">Deconvolution of ST data<a class="anchor" aria-label="anchor" href="#deconvolution-of-st-data"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
+        <dd>Ligand-Receptor analysis for a co-localized cell-type pair</dd>
+      </dl><dl><dt>
+          
+          <code><a href="SpaCET.CCI.colocalization.html">SpaCET.CCI.colocalization()</a></code> 
+        </dt>
+        <dd>Cell-cell colocalization analysis</dd>
+      </dl><dl><dt>
           
           <code><a href="SpaCET.deconvolution.html">SpaCET.deconvolution()</a></code> 
         </dt>
@@ -108,58 +96,16 @@
           <code><a href="SpaCET.deconvolution.matched.scRNAseq.html">SpaCET.deconvolution.matched.scRNAseq()</a></code> 
         </dt>
         <dd>Deconvolve ST data set with matched scRNAseq</dd>
-      </dl></div><div class="section level2">
-      <h2 id="cell-cell-interaction-analysis">Cell-cell interaction analysis<a class="anchor" aria-label="anchor" href="#cell-cell-interaction-analysis"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="SpaCET.CCI.colocalization.html">SpaCET.CCI.colocalization()</a></code> 
-        </dt>
-        <dd>Cell-cell colocalization analysis</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCET.CCI.LRNetworkScore.html">SpaCET.CCI.LRNetworkScore()</a></code> 
+          <code><a href="SpaCET.identify.interface.html">SpaCET.identify.interface()</a></code> 
         </dt>
-        <dd>Ligand-Receptor interaction enrichment analysis</dd>
+        <dd>Tumor-Stroma Interface</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCET.CCI.cellTypePair.html">SpaCET.CCI.cellTypePair()</a></code> 
+          <code><a href="SpaCET.quality.control.html">SpaCET.quality.control()</a></code> 
         </dt>
-        <dd>Ligand-Receptor analysis for a co-localized cell-type pair</dd>
-      </dl></div><div class="section level2">
-      <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="SpaCET.visualize.gene.html">SpaCET.visualize.gene()</a></code> 
-        </dt>
-        <dd>Gene expression visualization</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpaCET.visualize.metrics.html">SpaCET.visualize.metrics()</a></code> 
-        </dt>
-        <dd>Quality control metrics visualization</dd>
-      </dl><dl><dt>
-          
-          <code><a href="SpaCET.visualize.deconvolution.html">SpaCET.visualize.deconvolution()</a></code> 
-        </dt>
-        <dd>Cell type fraction visualization</dd>
+        <dd>Filter spatial spots and calculate the QC metrics</dd>
       </dl><dl><dt>
           
           <code><a href="SpaCET.visualize.colocalization.html">SpaCET.visualize.colocalization()</a></code> 
@@ -167,12 +113,21 @@
         <dd>Cell-cell colocalization visualization</dd>
       </dl><dl><dt>
           
-          <code><a href="SpaCET.visualize.LRNetworkScore.html">SpaCET.visualize.LRNetworkScore()</a></code> 
+          <code><a href="SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature()</a></code> 
         </dt>
-        <dd>Ligand-Receptor network score visualization</dd>
+        <dd>Spatial feature visualization</dd>
+      </dl><dl><dt>
+          
+          <code><a href="create.SpaCET.object.10X.html">create.SpaCET.object.10X()</a></code> 
+        </dt>
+        <dd>Create an SpaCET object from 10X Visium</dd>
+      </dl><dl><dt>
+          
+          <code><a href="create.SpaCET.object.html">create.SpaCET.object()</a></code> 
+        </dt>
+        <dd>Create an SpaCET object</dd>
       </dl></div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
-    </nav></aside></div>
+  </main></div>
 
 
     <footer><div class="pkgdown-footer-left">
