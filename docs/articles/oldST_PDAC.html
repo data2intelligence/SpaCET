@@ -44,7 +44,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
-    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis without reference</a>
+    <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
   </div>
 </li>
 <li class="nav-item">
@@ -221,34 +221,24 @@ to carry out cell type deconvolution.</p>
 <span>  coreNo<span class="op">=</span><span class="fl">8</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">SpaCET.visualize.deconvolution</span><span class="op">(</span></span>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>, </span>
-<span>  cellTypes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer clone A"</span>,<span class="st">"Cancer clone B"</span>,<span class="st">"Acinar cells"</span>,<span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span>,</span>
-<span>  ncol<span class="op">=</span><span class="fl">2</span></span>
+<span>  spatialType <span class="op">=</span> <span class="st">"CellFraction"</span>,</span>
+<span>  spatialFeatures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cancer clone A"</span>,<span class="st">"Cancer clone B"</span>,<span class="st">"Acinar cells"</span>,<span class="st">"Ductal - CRISP3 high/centroacinar like"</span><span class="op">)</span>,</span>
+<span>  nrow<span class="op">=</span><span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/PDAC_prop.png" width="100%" style="border:none"></p>
 <p>User can use the following code to visualize the marker gene
 expression level and verify the cell type deconvolution.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Markers for cancer clone A and B, acinar cell, and centroacinar like ductal cell</span></span>
-<span><span class="fu">SpaCET.visualize.gene</span><span class="op">(</span><span class="va">SpaCET_obj</span>,genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TM4SF1"</span>,<span class="st">"S100A4"</span>,<span class="st">"PRSS1"</span>,<span class="st">"CRISP3"</span><span class="op">)</span>,ncol<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>
+<span>  <span class="va">SpaCET_obj</span>,</span>
+<span>  spatialType <span class="op">=</span> <span class="st">"GeneExpression"</span>,</span>
+<span>  spatialFeatures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TM4SF1"</span>,<span class="st">"S100A4"</span>,<span class="st">"PRSS1"</span>,<span class="st">"CRISP3"</span><span class="op">)</span>,</span>
+<span>  nrow<span class="op">=</span><span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/PDAC_expr.png" width="100%" style="border:none"></p>
-</div>
-<div class="section level2">
-<h2 id="identify-cell-cell-interaction">Identify cell-cell interaction<a class="anchor" aria-label="anchor" href="#identify-cell-cell-interaction"></a>
-</h2>
-<p>After decomposing cell fractions, SpaCET can infer intercellular
-interactions based on cell colocalization and ligand-receptor
-coexpression. Linear correlations of cell fraction between cell types
-are computed across all ST spots to evaluate cell-type colocalization.
-High positive correlations indicate that cell-type pairs tend to
-colocalize together. To infer physical interactions, SpaCET tests the
-co-expression of ligand and receptor genes within the same ST spot for
-the co-localized cell-type pairs. SpaCET provides
-<code>SpaCET.CCI.colocalization</code> and
-<code>SpaCET.visualize.colocalization</code> to compute and visualize
-the co-localized cell-type pairs.</p>
-<p><img src="img/PDAC_CCC.png" width="100%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="extand-this-function-module">Extand this function module<a class="anchor" aria-label="anchor" href="#extand-this-function-module"></a>

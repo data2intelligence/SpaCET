@@ -203,14 +203,17 @@ SpaCET.visualize.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
 SpaCET_obj <- SpaCET.identify.interface(SpaCET_obj)
 
 # Visualize the Interface
-p1 <- SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface")
+SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface")
 
+```
+<img src="img/cancerInterface1.png" width="50%" style="border:none" />
+
+``` r
 # Compute the distance of CAF-M2 to tumor border
-p2 <- SpaCET.distance.to.interface(SpaCET_obj, cellTypePair=c("CAF", "Macrophage M2"))
+SpaCET.distance.to.interface(SpaCET_obj, cellTypePair=c("CAF", "Macrophage M2"))
 
-library(patchwork)
-p1|p2
 ``` 
+<img src="img/cancerInterface2.png" width="60%" style="border:none" />
 
 ## Explore cancer cell states
 The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCET can automatically explore the spatial distribution of different cancer cell states.

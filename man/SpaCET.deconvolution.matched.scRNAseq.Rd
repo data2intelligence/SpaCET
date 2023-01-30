@@ -2,13 +2,14 @@
 % Please edit documentation in R/extensions.R
 \name{SpaCET.deconvolution.matched.scRNAseq}
 \alias{SpaCET.deconvolution.matched.scRNAseq}
-\title{Deconvolve ST data set with matched scRNAseq}
+\title{Deconvolve ST data set with matched scRNAseq data}
 \usage{
 SpaCET.deconvolution.matched.scRNAseq(
   SpaCET_obj,
   sc_counts,
   sc_annotation,
   sc_lineageTree,
+  sc_nCellEachLineage = 100,
   coreNo = 8
 )
 }
@@ -20,6 +21,8 @@ SpaCET.deconvolution.matched.scRNAseq(
 \item{sc_annotation}{Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.}
 
 \item{sc_lineageTree}{Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.}
+
+\item{sc_nCellEachLineage}{Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.}
 
 \item{coreNo}{Core number.}
 }

@@ -46,6 +46,9 @@
     <loc>/reference/SpaCET.deconvolution.matched.scRNAseq.html</loc>
   </url>
   <url>
+    <loc>/reference/SpaCET.distance.to.interface.html</loc>
+  </url>
+  <url>
     <loc>/reference/SpaCET.identify.interface.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/SpaCET.visualize.LRNetworkScore.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SpaCET.visualize.cellTypePair.html</loc>
   </url>
   <url>
     <loc>/reference/SpaCET.visualize.colocalization.html</loc>

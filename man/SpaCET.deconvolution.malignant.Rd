@@ -17,7 +17,7 @@ SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
 An SpaCET object
 }
 \description{
-Explore different cancer cell state in tumor ST dataset.
+Explore different malignant cell state in tumor ST dataset.
 }
 \examples{
 SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)
