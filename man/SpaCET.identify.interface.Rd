@@ -4,10 +4,16 @@
 \alias{SpaCET.identify.interface}
 \title{Tumor-Stroma Interface}
 \usage{
-SpaCET.identify.interface(SpaCET_obj, MalignantCutoff = 0.5)
+SpaCET.identify.interface(
+  SpaCET_obj,
+  Malignant = c("Malignant"),
+  MalignantCutoff = 0.5
+)
 }
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
+
+\item{Malignant}{Malignant cell type.}
 
 \item{MalignantCutoff}{Malignant cell fraction cutoff for tumor boundary. Default: 0.5.}
 }
