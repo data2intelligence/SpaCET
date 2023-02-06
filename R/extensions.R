@@ -11,6 +11,9 @@
 #' @export
 SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, coreNo=8)
 {
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+
   if(is.null(SpaCET_obj@results$deconvolution$propMat))
   {
     stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
@@ -146,15 +149,48 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
 #' @export
 SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
 {
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
+
+  if(length(sc_lineageTree)==0)
+  {
+    stop("Your lineage tree is empty. Please build a lineage tree as a list.")
+  }
+
+  allCellTypes <- unlist(sc_lineageTree)
+  allCellTypes_flag <- allCellTypes%in%unique(sc_annotation[,2])
+  if(sum(!allCellTypes_flag)>0)
+  {
+    stop(paste0(
+      "These cell types (i.e., ",
+      paste0(allCellTypes[!allCellTypes_flag], collapse = ", "),
+      ") in the lineage tree do not match with the cell typpes in sc_annotation. Please double-check your lineage tree."
+    ))
+  }
+
+  set.seed(123)
+  idx <- split(sc_annotation[,1], sc_annotation[,2])
+  c_keep <- lapply(idx, function(i) {
+    n <- length(i)
+    if (n > sc_nCellEachLineage)
+      n <- sc_nCellEachLineage
+    sample(i, n)
+  })
+
+  sc_counts <- sc_counts[,unlist(c_keep)]
+  sc_annotation <- sc_annotation[unlist(c_keep),]
+
+  sc_counts <- sc_counts[rowSums(sc_counts)>0,]
 
   print("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
     sc.matrix.data = sc_counts,
     sc.matrix.anno = sc_annotation,
     sc.matrix.tree = sc_lineageTree,
-    sc.matrix.numb = sc_nCellEachLineage
+    coreNo=coreNo
   )
 
   print("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
@@ -179,21 +215,9 @@ generateRef <- function(
     sc.matrix.data = sc.matrix.data,
     sc.matrix.anno = sc.matrix.anno,
     sc.matrix.tree = sc.matrix.tree,
-    sc.matrix.numb = sc_nCellEachLineage
+    coreNo = coreNo
 )
 {
-  set.seed(123)
-  idx <- split(sc.matrix.anno[,1], sc.matrix.anno[,2])
-  c_keep <- lapply(idx, function(i) {
-    n <- length(i)
-    if (n > sc.matrix.numb)
-      n <- sc.matrix.numb
-    sample(i, n)
-  })
-
-  sc.matrix.data <- sc.matrix.data[,unlist(c_keep)]
-  sc.matrix.anno <- sc.matrix.anno[unlist(c_keep),]
-
   sc.matrix.data.norm <- t(t(sc.matrix.data)*1e5/colSums(sc.matrix.data))
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
 
@@ -209,8 +233,7 @@ generateRef <- function(
       sc.matrix.data.norm[,sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]],drop=F],
       1,mean)
 
-    markers <- c()
-    for(cellTypeOther in setdiff(cellTypes_level_1,cellType))
+    run_limma <- function(cellTypeOther)
     {
       library(limma)
       TT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]])
@@ -224,10 +247,11 @@ generateRef <- function(
       res <- res[order(res[,"t"],decreasing=T),]
       res <- res[1:500,]
 
-      temp <- rownames(res)[res[,"logFC"]>0.25&res[,"adj.P.Val"]<0.01]
-      markers <- c(markers,temp)
+      rownames(res)[res[,"logFC"]>0.25&res[,"adj.P.Val"]<0.01]
     }
-    temp <- table(markers)
+
+    markers <- parallel::mclapply(setdiff(cellTypes_level_1,cellType), run_limma, mc.cores=coreNo)
+    temp <- table(unlist(markers))
 
     sigGenes[[cellType]] <- names(temp)[temp>=length(cellTypes_level_1)-1]
 

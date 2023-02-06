@@ -12,6 +12,9 @@
 #'
 SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
 {
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
