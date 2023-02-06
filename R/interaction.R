@@ -164,6 +164,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #' @return An SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj)
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 #'
 #' @rdname SpaCET.CCI.LRNetworkScore
 #' @export
@@ -464,6 +465,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #' @title Tumor-Stroma Interface
 #' @description Visualize the cell-type pair colocalization.
 #' @param SpaCET_obj An SpaCET object.
+#' @param Malignant Malignant cell type.
 #' @param MalignantCutoff Malignant cell fraction cutoff for tumor boundary. Default: 0.5.
 #' @return An SpaCET object.
 #' @examples
@@ -473,12 +475,12 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #' @rdname SpaCET.identify.interface
 #' @export
 #'
-SpaCET.identify.interface <- function(SpaCET_obj, MalignantCutoff=0.5)
+SpaCET.identify.interface <- function(SpaCET_obj, Malignant=c("Malignant"), MalignantCutoff=0.5)
 {
   res_deconv <- SpaCET_obj@results$deconvolution$propMat
   colnames(res_deconv) <- gsub("X","",colnames(res_deconv))
 
-  Content <- res_deconv["Malignant",]
+  Content <- colSums(res_deconv[Malignant,,drop=F])
   names(Content) <- colnames(res_deconv)
   Content[Content>=MalignantCutoff] <- "Tumor"
   Content[Content!="Tumor"] <- "Stroma"
@@ -591,6 +593,7 @@ SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macro
   ggplot(fg.df,aes(x=value)) +
     geom_histogram(aes(y=..density..), colour="grey1", fill="gainsboro", alpha=0.5)+
     geom_density(color="grey3",size=0.6)+
+    ggtitle(paste0("Permutation\n P = ",signif(pv,3)))+
     ylab("Density")+
     xlab("Distance to Tumor-Stroma Interface")+
     theme(
@@ -603,7 +606,6 @@ SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macro
       axis.line.y.left = element_line(color = 'black'),
       axis.line.x.bottom = element_line(color = 'black')
     )+
-    geom_vline(xintercept=d0, color = "green", linetype="dashed",size=1.3)+
-    geom_text(x = 6.8, y = 1.6, size=5, label = paste0("Permutation\n P = ",signif(pv,3)))
+    geom_vline(xintercept=d0, color = "green", linetype="dashed",size=1.3)
 
 }

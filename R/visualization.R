@@ -33,6 +33,11 @@ SpaCET.visualize.spatialFeature <- function(
 {
   if(spatialType == "QualityControl")
   {
+    if(is.null(SpaCET_obj@results$metrics))
+    {
+      stop("Please run SpaCET.quality.control first.")
+    }
+
     mat <- SpaCET_obj@results$metrics
 
     scaleType="color-continuous"
@@ -49,6 +54,11 @@ SpaCET.visualize.spatialFeature <- function(
     legendName = "Expr"
     limits = NULL
   }else if(spatialType == "CellFraction"){
+    if(is.null(SpaCET_obj@results$deconvolution$propMat))
+    {
+      stop("Please run cell type deconvolution first.")
+    }
+
     mat <- SpaCET_obj@results$deconvolution$propMat
 
     if("All"%in%spatialFeatures) spatialFeatures <- rownames(SpaCET_obj@results$deconvolution$propMat)
@@ -58,6 +68,11 @@ SpaCET.visualize.spatialFeature <- function(
     legendName = "Fraction"
     limits = c(0,1)
   }else if(spatialType == "LRNetworkScore"){
+    if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
+    {
+      stop("Please run SpaCET.CCI.LRNetworkScore first.")
+    }
+
     mat <- SpaCET_obj@results$CCI$LRNetworkScore
     mat[2,mat[2,]> 1.5] <- 1.5
     mat[2,mat[2,]< 0.5] <- 0.5
@@ -67,6 +82,11 @@ SpaCET.visualize.spatialFeature <- function(
     colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
     limits = NULL
   }else{
+    if(is.null(SpaCET_obj@results$CCI$interface))
+    {
+      stop("Please run SpaCET.identify.interface first.")
+    }
+
     mat <- SpaCET_obj@results$CCI$interface
 
     spatialFeatures = c("interface")
