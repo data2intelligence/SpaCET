@@ -55,22 +55,10 @@
     <loc>/reference/SpaCET.quality.control.html</loc>
   </url>
   <url>
-    <loc>/reference/SpaCET.visualize.LRNetworkScore.html</loc>
-  </url>
-  <url>
     <loc>/reference/SpaCET.visualize.cellTypePair.html</loc>
   </url>
   <url>
     <loc>/reference/SpaCET.visualize.colocalization.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.deconvolution.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.gene.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.metrics.html</loc>
   </url>
   <url>
     <loc>/reference/SpaCET.visualize.spatialFeature.html</loc>
