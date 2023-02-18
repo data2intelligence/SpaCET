@@ -30,6 +30,16 @@ To install `SpaCET`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCET")
 ```
 
+Or user can install from the local source code:
+
+``` r
+# download in the shell.
+git clone https://github.com/data2intelligence/SpaCET.git
+
+# install SpaCET in R environment.
+install.packages(“location_to_SpaCET_gitclone", repos = NULL, type="source”)
+```
+
 ## Dependencies
 
 -   R version \>= 4.2.0.
@@ -76,3 +86,4 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang.
 Estimation of cell lineages in tumors from spatial transcriptomics data.
 Nature Communications 14, 568 (2023).
+\[<a href="https://www.nature.com/articles/s41467-023-36062-6" target="_blank">Link</a>\]

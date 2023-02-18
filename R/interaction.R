@@ -465,7 +465,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #' @title Tumor-Stroma Interface
 #' @description Visualize the cell-type pair colocalization.
 #' @param SpaCET_obj An SpaCET object.
-#' @param Malignant Malignant cell type.
+#' @param Malignant Indicates the major malignant cell type in the deconvolution results. Default: "Malignant".
 #' @param MalignantCutoff Malignant cell fraction cutoff for tumor boundary. Default: 0.5.
 #' @return An SpaCET object.
 #' @examples
@@ -475,12 +475,31 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #' @rdname SpaCET.identify.interface
 #' @export
 #'
-SpaCET.identify.interface <- function(SpaCET_obj, Malignant=c("Malignant"), MalignantCutoff=0.5)
+SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", MalignantCutoff=0.5)
 {
-  res_deconv <- SpaCET_obj@results$deconvolution$propMat
-  colnames(res_deconv) <- gsub("X","",colnames(res_deconv))
+  if(is.null(SpaCET_obj@results$deconvolution$propMat))
+  {
+    stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
+  }else{
+    res_deconv <- SpaCET_obj@results$deconvolution$propMat
+  }
 
-  Content <- colSums(res_deconv[Malignant,,drop=F])
+  if(length(Malignant)>1 | length(Malignant)==0)
+  {
+    stop("Please input the only one major malignant cell type.")
+  }else{
+    if(!Malignant%in%rownames(res_deconv))
+    {
+      stop("The input malignant cell type does not exist in the deconvolution results.")
+    }
+  }
+
+  if(MalignantCutoff>1 | MalignantCutoff<0)
+  {
+    stop("Please input a value within 0~1 for the cutoff of malignant spots.")
+  }
+
+  Content <- res_deconv[Malignant,]
   names(Content) <- colnames(res_deconv)
   Content[Content>=MalignantCutoff] <- "Tumor"
   Content[Content!="Tumor"] <- "Stroma"

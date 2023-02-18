@@ -1,6 +1,7 @@
 #' @title Deconvolve malignant cell fraction
 #' @description Explore different malignant cell state in tumor ST dataset.
 #' @param SpaCET_obj An SpaCET object.
+#' @param Malignant Indicates the major malignant cell type in the deconvolution results. Default: "Malignant".
 #' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells.
 #' @param coreNo Core number in parallel.
 #' @return An SpaCET object
@@ -9,7 +10,7 @@
 #'
 #' @rdname SpaCET.deconvolution.malignant
 #' @export
-SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, coreNo=8)
+SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=8)
 {
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
@@ -21,6 +22,16 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
     res_deconv <- SpaCET_obj@results$deconvolution$propMat
   }
 
+  if(length(Malignant)>1 | length(Malignant)==0)
+  {
+    stop("Please input the only one major malignant cell type.")
+  }else{
+    if(!Malignant%in%rownames(res_deconv))
+    {
+      stop("The input malignant cell type does not exist in the deconvolution results.")
+    }
+  }
+
   if(malignantCutoff>1 | malignantCutoff<0)
   {
     stop("Please input a value within 0~1 for the cutoff of malignant spots.")
@@ -29,7 +40,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
-  st.matrix.data.mal <- st.matrix.data[,res_deconv["Malignant",]>=malignantCutoff]
+  st.matrix.data.mal <- st.matrix.data[,res_deconv[Malignant,]>=malignantCutoff]
   st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e5/colSums(st.matrix.data.mal) )
   st.matrix.data.mal.log <- log2(st.matrix.data.mal.CPM+1)
 
@@ -84,7 +95,10 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
   refProfiles <- data.frame()
   sigGenes <- list()
 
-  refProfiles[rownames(st.matrix.data.mal.CPM),"Malignant"] <- rowMeans(st.matrix.data.mal.CPM)
+  if(!Malignant%in%colnames(refProfiles))
+  {
+    refProfiles[rownames(st.matrix.data.mal.CPM),"Malignant"] <- rowMeans(st.matrix.data.mal.CPM)
+  }
 
   for(i in states)
   {
@@ -112,7 +126,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, malignantCutoff=0.7, core
     sigGenes[[paste0("Malignant cell state ",i)]] <- names(tempMarkers)[tempMarkers==1]
   }
 
-  lineageTree <- list("Malignant"=paste0("Malignant cell state ",states))
+  lineageTree <- list(Malignant=paste0("Malignant cell state ",states))
   Refnew <- list(refProfiles=refProfiles, sigGenes=sigGenes, lineageTree=lineageTree)
 
   load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
