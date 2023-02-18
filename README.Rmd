@@ -34,14 +34,11 @@ To install `SpaCET`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCET")
 ```
 
-Or user can install from the local source code:
+Or user can install `SpaCET` from the local source code. Click [<a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank">here</a>] to download it.
 
 ``` r
-# download in the shell.
-git clone https://github.com/data2intelligence/SpaCET.git
-
 # install SpaCET in R environment.
-install.packages(“location_to_SpaCET_gitclone", repos = NULL, type="source”)
+install.packages("Location_to_the_source_code_file", repos = NULL, type="source")
 ``` 
 
 ## Dependencies
