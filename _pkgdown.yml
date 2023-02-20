@@ -4,7 +4,7 @@ template:
 
 navbar:
   left:
-    - icon: fas fa-home fa-lg
+    - text: Home
       href: index.html
     - text: Tutorials
       menu:
