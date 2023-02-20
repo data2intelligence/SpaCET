@@ -4,12 +4,19 @@
 \alias{SpaCET.deconvolution.malignant}
 \title{Deconvolve malignant cell fraction}
 \usage{
-SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
+SpaCET.deconvolution.malignant(
+  SpaCET_obj,
+  Malignant = "Malignant",
+  malignantCutoff = 0.7,
+  coreNo = 8
+)
 }
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
-\item{malignantCutoff}{Fraction cutoff for defining spots with high abundant malignant cells.}
+\item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
+
+\item{malignantCutoff}{Fraction cutoff for defining spots with high abundant malignant cells. Default: 0.7.}
 
 \item{coreNo}{Core number in parallel.}
 }
@@ -17,7 +24,7 @@ SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
 An SpaCET object
 }
 \description{
-Explore different malignant cell state in tumor ST dataset.
+Explore different malignant cell states in tumor ST dataset.
 }
 \examples{
 SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)

@@ -223,7 +223,7 @@ SpatialDeconv <- function(
 
       ST <- ST[,!is.nan(ST[1,])]
 
-      mixtureMal <- malRef%*%malProp[-1,] # -1 for minus unidentifiable
+      mixtureMal <- malRef%*%malProp[colnames(malRef),] # -1 for minus unidentifiable
     }else{
       malRef <- malRef[rownames(ST)]
       malRef <- malRef*1e6/sum(malRef)

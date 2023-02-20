@@ -81,12 +81,17 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 
   summary_df[summary_df[,"fraction_product"]>0.02,"fraction_product"] <- 0.02
 
-  if("Cancer cell state A"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+  if("Malignant cell state A"%in%rownames(SpaCET_obj@results$deconvolution$propMat) & "Unidentifiable"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
   {
-    states <- rownames(SpaCET_obj@results$deconvolution$propMat)[grepl("Cancer cell state",rownames(SpaCET_obj@results$deconvolution))]
+    states <- rownames(SpaCET_obj@results$deconvolution$propMat)[grepl("Malignant cell state",rownames(SpaCET_obj@results$deconvolution$propMat))]
     ctOrder <- c(states,unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree))
   }else{
-    ctOrder <- c("Malignant",unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree))
+    if("Unidentifiable"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+    {
+      ctOrder <- c("Malignant",unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree))
+    }else{
+      ctOrder <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+    }
   }
 
   summary_df <- summary_df[summary_df[,1]%in%ctOrder,]
@@ -280,6 +285,16 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=8)
 #'
 SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 {
+  if(length(cellTypePair)!=2)
+  {
+    stop("Please input a pair of cell-types.")
+  }
+
+  if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
+  {
+    stop("Please input the correct cell-type name.")
+  }
+
   cellTypePair <- sort(cellTypePair)
 
   res_deconv <- SpaCET_obj@results$deconvolution$propMat
@@ -325,26 +340,33 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
   groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)] <- Content
 
-
-  fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
-  fg.df <- fg.df[!fg.df[,"group"]%in%NA,]
-  fg.df[fg.df[,1]%in%cellTypePair,1] <- "Single"
-
-  cohend_res <- psych::cohen.d(fg.df, group="group", alpha=.05, std=TRUE)
-  cd1 <- signif(cohend_res$cohen.d["value","effect"],2)
-
-  n1 <- sum(fg.df[,1]%in%"Both")
-  n2 <- sum(!fg.df[,1]%in%"Both")
-  pv2 <- signif(wilcox.test(fg.df[fg.df[,1]%in%"Both",2],fg.df[!fg.df[,1]%in%"Both",2])$p.value,2)
-
-  testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_cohen.d"] <- cd1
-  testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"] <- pv2
-
-  if(rho > 0 & pv1 < 0.05 & cd1 < 0 & pv2 < 0.05)
+  if(sum(Content%in%"Both")>5)
   {
-    print(paste0(cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
+    fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
+    fg.df <- fg.df[!fg.df[,"group"]%in%NA,]
+    fg.df[fg.df[,1]%in%cellTypePair,1] <- "Single"
+
+    cohend_res <- psych::cohen.d(fg.df, group="group", alpha=.05, std=TRUE)
+    cd1 <- signif(cohend_res$cohen.d["value","effect"],2)
+
+    n1 <- sum(fg.df[,1]%in%"Both")
+    n2 <- sum(!fg.df[,1]%in%"Both")
+    pv2 <- signif(wilcox.test(fg.df[fg.df[,1]%in%"Both",2],fg.df[!fg.df[,1]%in%"Both",2])$p.value,2)
+
+    testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_cohen.d"] <- cd1
+    testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"] <- pv2
+
+    if(rho > 0 & pv1 < 0.05 & cd1 < 0 & pv2 < 0.05)
+    {
+      print("Based on colocalization analysis and L-R enrichment analysis, ",paste0(cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
+      testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- TRUE
+     }else{
+      print("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
+      testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- FALSE
+     }
   }else{
-    print("The intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- FALSE
   }
 
   SpaCET_obj@results$CCI$interaction$groupMat <- groupMat
@@ -367,105 +389,120 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #'
 SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 {
+  if(length(cellTypePair)!=2)
+  {
+    stop("Please input a pair of cell-types.")
+  }
+
+  if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
+  {
+    stop("Please input the correct cell-type name.")
+  }
   cellTypePair <- sort(cellTypePair)
 
   res_deconv <- SpaCET_obj@results$deconvolution$propMat
   groupMat <- SpaCET_obj@results$CCI$interaction$groupMat
   testRes <- SpaCET_obj@results$CCI$interaction$testRes
 
-  rho <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_rho"]
-  pv1 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_pv"]
-  pv1 <- signif(as.numeric(pv1),3)
-  pv1 <-  ifelse(pv1==0," < 2.2e-16",paste0(" = ",pv1))
+  if(is.na(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]))
+  {
+    print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+  }else{
 
-  cd1 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_cohen.d"]
-  pv2 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]
+    rho <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_rho"]
+    pv1 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_pv"]
+    pv1 <- signif(as.numeric(pv1),3)
+    pv1 <-  ifelse(pv1==0," < 2.2e-16",paste0(" = ",pv1))
 
-  Content <- unlist(groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)])
-  visiualVector <- Content
-  names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-  p2 <- visualSpatial(
-    visiualVector,
-    SpaCET_obj@input$image,
-    SpaCET_obj@input$platform,
-    scaleType="color-discrete",
-    c("green","red","blue"),
-    pointSize=1,
-    pointAlpha=1,
-    limits,
-    "",
-    "Spot",
-    imageBg=TRUE
-  ) + theme(legend.position = "none")
+    cd1 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_cohen.d"]
+    pv2 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]
 
-
-  # scatter plot
-
-  Content[is.na(Content)] <- "Other"
-
-  fg.df <- as.data.frame(cbind(
-    x=res_deconv[cellTypePair[1],],
-    y=res_deconv[cellTypePair[2],]
-  ))
-  fg.df <- cbind(fg.df,group=Content)
-  fg.df <- fg.df[order(fg.df[,3],decreasing=T),]
-
-  p1 <- ggplot(fg.df,aes(x=x, y=y)) +
-    geom_point(aes(colour=group),size=0.5)+
-    scale_colour_manual(values=c("green","red","blue","grey"))+
-    ggtitle(paste0("Spearman Rho = ",rho,", P ",pv1))+
-    xlab(paste0("Cell fraction (",cellTypePair[1],")"))+
-    ylab(paste0("Cell fraction (",cellTypePair[2],")"))+
-    guides(colour=guide_legend(title=""))+
-    theme_bw()+
-    theme(
-      plot.background = element_blank(),
-      panel.grid = element_blank(),
-      plot.title = element_text(size=14,hjust = 0.5),
-      axis.title = element_text(size=14,colour = "black"),
-      axis.text = element_text(size=13,colour = "black"),
-      legend.position=c(.8,.85)
-    )+
-    geom_smooth(method = "lm", formula = "y ~ x", color="orange")
+    Content <- unlist(groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)])
+    visiualVector <- Content
+    names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
+    p2 <- visualSpatial(
+      visiualVector,
+      SpaCET_obj@input$image,
+      SpaCET_obj@input$platform,
+      scaleType="color-discrete",
+      c("green","red","blue"),
+      pointSize=1,
+      pointAlpha=1,
+      limits,
+      "",
+      "Spot",
+      imageBg=TRUE
+    ) + theme(legend.position = "none")
 
 
-  # boxplot
+    # scatter plot
 
-  LRNetworkScoreMat <- SpaCET_obj@results$CCI$LRNetworkScore
+    Content[is.na(Content)] <- "Other"
 
-  fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
-  fg.df <- fg.df[!fg.df[,"group"]%in%"Other",]
-  fg.df[fg.df[,1]%in%cellTypePair,1] <- "Single"
+    fg.df <- as.data.frame(cbind(
+      x=res_deconv[cellTypePair[1],],
+      y=res_deconv[cellTypePair[2],]
+    ))
+    fg.df <- cbind(fg.df,group=Content)
+    fg.df <- fg.df[order(fg.df[,3],decreasing=T),]
 
-  xlab <- paste0(cellTypePair[1]," - ",cellTypePair[2])
-  ylab <- "LR network score"
+    p1 <- ggplot(fg.df,aes(x=x, y=y)) +
+      geom_point(aes(colour=group),size=0.5)+
+      scale_colour_manual(values=c("green","red","blue","grey"))+
+      ggtitle(paste0("Spearman Rho = ",rho,", P ",pv1))+
+      xlab(paste0("Cell fraction (",cellTypePair[1],")"))+
+      ylab(paste0("Cell fraction (",cellTypePair[2],")"))+
+      guides(colour=guide_legend(title=""))+
+      theme_bw()+
+      theme(
+        plot.background = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(size=14,hjust = 0.5),
+        axis.title = element_text(size=14,colour = "black"),
+        axis.text = element_text(size=13,colour = "black"),
+        legend.position=c(.8,.85)
+      )+
+      geom_smooth(method = "lm", formula = "y ~ x", color="orange")
 
-  p3 <- ggplot(fg.df,aes(x=group, y=value)) +
-    geom_jitter(aes(colour = group),size=0.3)+
-    geom_boxplot(aes(colour = group), outlier.shape = NA, alpha = 0.8,size=0.8)+
-    scale_colour_manual(values=c("green","purple"))+
-    xlab(xlab)+
-    ylab(ylab)+
-    ggtitle(paste0("Cohen's d=",cd1,", P=",pv2))+
-    theme_bw()+
-    theme(
-      plot.background = element_blank(),
-      panel.grid = element_blank(),
-      plot.title = element_text(size=14,hjust = 0.5),
-      axis.title = element_text(size=14,colour = "black"),
-      axis.text = element_text(size=13,colour = "black"),
-      legend.position="none"
-    )
 
-  library(patchwork)
-  p1+p2+p3
+    # boxplot
+
+    LRNetworkScoreMat <- SpaCET_obj@results$CCI$LRNetworkScore
+
+    fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
+    fg.df <- fg.df[!fg.df[,"group"]%in%"Other",]
+    fg.df[fg.df[,1]%in%cellTypePair,1] <- "Single"
+
+    xlab <- paste0(cellTypePair[1]," - ",cellTypePair[2])
+    ylab <- "LR network score"
+
+    p3 <- ggplot(fg.df,aes(x=group, y=value)) +
+      geom_jitter(aes(colour = group),size=0.3)+
+      geom_boxplot(aes(colour = group), outlier.shape = NA, alpha = 0.8,size=0.8)+
+      scale_colour_manual(values=c("green","purple"))+
+      xlab(xlab)+
+      ylab(ylab)+
+      ggtitle(paste0("Cohen's d=",cd1,", P=",pv2))+
+      theme_bw()+
+      theme(
+        plot.background = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(size=14,hjust = 0.5),
+        axis.title = element_text(size=14,colour = "black"),
+        axis.text = element_text(size=13,colour = "black"),
+        legend.position="none"
+      )
+
+    library(patchwork)
+    p1+p2+p3
+  }
 }
 
 
 #' @title Tumor-Stroma Interface
 #' @description Visualize the cell-type pair colocalization.
 #' @param SpaCET_obj An SpaCET object.
-#' @param Malignant Indicates the major malignant cell type in the deconvolution results. Default: "Malignant".
+#' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
 #' @param MalignantCutoff Malignant cell fraction cutoff for tumor boundary. Default: 0.5.
 #' @return An SpaCET object.
 #' @examples
@@ -490,7 +527,7 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
   }else{
     if(!Malignant%in%rownames(res_deconv))
     {
-      stop("The input malignant cell type does not exist in the deconvolution results.")
+      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type.")
     }
   }
 
@@ -561,70 +598,90 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
 #'
 SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"), nPermutation = 1000)
 {
+  if(length(cellTypePair)!=2)
+  {
+    stop("Please input a pair of cell-types.")
+  }
+
+  if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
+  {
+    stop("Please input the correct cell-type name.")
+  }
   cellTypePair <- sort(cellTypePair)
+  testRes <- SpaCET_obj@results$CCI$interaction$testRes
 
-  interface <- SpaCET_obj@results$CCI$interface
-  spot_Malignant_border <- colnames(interface)[interface[1,]%in%"Interface"]
-  spot_Non_Malignant_core <- colnames(interface)[interface[1,]%in%"Stroma"]
-
-  groupCellTypes <- SpaCET_obj@results$CCI$interaction$groupMat [paste0(cellTypePair[1],"_",cellTypePair[2]), ,drop=F]
-
-  M2CAF <- colnames(groupCellTypes)[groupCellTypes[1,]%in%c("Both")]
-  M2CAF <- M2CAF[M2CAF%in%spot_Non_Malignant_core] #filter by malignant
-
-  M2_CAF <- colnames(groupCellTypes)[groupCellTypes[1,]%in%cellTypePair]
-  M2_CAF <- M2_CAF[M2_CAF%in%spot_Non_Malignant_core] #filter by malignant
-
-  calSpotSpotDistance <- function(spot1, spot2)
+  if(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] == FALSE)
   {
-    spot1_xy <- as.numeric(unlist(strsplit(spot1,"x")))
-    spot2_xy <- as.numeric(unlist(strsplit(spot2,"x")))
+    if(is.na(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]))
+    {
+      print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    }else{
+      print("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    }
+  }else{
 
-    sqrt((spot1_xy[1]-spot2_xy[1])^2+(spot1_xy[2]-spot2_xy[2])^2)
+    interface <- SpaCET_obj@results$CCI$interface
+    spot_Malignant_border <- colnames(interface)[interface[1,]%in%"Interface"]
+    spot_Non_Malignant_core <- colnames(interface)[interface[1,]%in%"Stroma"]
+
+    groupCellTypes <- SpaCET_obj@results$CCI$interaction$groupMat [paste0(cellTypePair[1],"_",cellTypePair[2]), ,drop=F]
+
+    M2CAF <- colnames(groupCellTypes)[groupCellTypes[1,]%in%c("Both")]
+    M2CAF <- M2CAF[M2CAF%in%spot_Non_Malignant_core] #filter by malignant
+
+    M2_CAF <- colnames(groupCellTypes)[groupCellTypes[1,]%in%cellTypePair]
+    M2_CAF <- M2_CAF[M2_CAF%in%spot_Non_Malignant_core] #filter by malignant
+
+    calSpotSpotDistance <- function(spot1, spot2)
+    {
+      spot1_xy <- as.numeric(unlist(strsplit(spot1,"x")))
+      spot2_xy <- as.numeric(unlist(strsplit(spot2,"x")))
+
+      sqrt((spot1_xy[1]-spot2_xy[1])^2+(spot1_xy[2]-spot2_xy[2])^2)
+    }
+
+    calSpotVecDistance <- function(spot1, vec2)
+    {
+      min(sapply(vec2,calSpotSpotDistance,spot1=spot1))
+    }
+
+    calVecVecDistance <- function(vec1,vec2)  # vec1 M2CAF, vec2 border
+    {
+      sapply(vec1,calSpotVecDistance,vec2=vec2)
+    }
+
+    d0 <- mean( calVecVecDistance(M2CAF,spot_Malignant_border) )
+    db <- calVecVecDistance(M2_CAF,spot_Malignant_border)
+
+    dd <- function(i)
+    {
+      set.seed(i)
+      mean( db[sample(M2_CAF,length(M2CAF))] )
+    }
+
+    d_list <- sapply(1:nPermutation, dd)
+    d_vec <- unlist(d_list)
+
+    pv <- (sum(d_vec<=d0)+1)/(nPermutation+1)
+
+    fg.df <- data.frame(value=d_vec)
+
+    ggplot(fg.df,aes(x=value)) +
+      geom_histogram(aes(y=..density..), colour="grey1", fill="gainsboro", alpha=0.5)+
+      geom_density(color="grey3",size=0.6)+
+      ggtitle(paste0("Permutation\n P = ",signif(pv,3)))+
+      ylab("Density")+
+      xlab("Distance to Tumor-Stroma Interface")+
+      theme(
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.title = element_text(size=14,colour = "black"),
+        axis.text = element_text(size=13,colour = "black"),
+        legend.position="none",
+        #panel.border = element_blank(),
+        axis.line.y.left = element_line(color = 'black'),
+        axis.line.x.bottom = element_line(color = 'black')
+      )+
+      geom_vline(xintercept=d0, color = "green", linetype="dashed",size=1.3)
   }
-
-  calSpotVecDistance <- function(spot1, vec2)
-  {
-    min(sapply(vec2,calSpotSpotDistance,spot1=spot1))
-  }
-
-  calVecVecDistance <- function(vec1,vec2)  # vec1 M2CAF, vec2 border
-  {
-    sapply(vec1,calSpotVecDistance,vec2=vec2)
-  }
-
-  d0 <- mean( calVecVecDistance(M2CAF,spot_Malignant_border) )
-  db <- calVecVecDistance(M2_CAF,spot_Malignant_border)
-
-  dd <- function(i)
-  {
-    set.seed(i)
-    mean( db[sample(M2_CAF,length(M2CAF))] )
-  }
-
-  d_list <- sapply(1:nPermutation, dd)
-  d_vec <- unlist(d_list)
-
-  pv <- (sum(d_vec<=d0)+1)/(nPermutation+1)
-
-  fg.df <- data.frame(value=d_vec)
-
-  ggplot(fg.df,aes(x=value)) +
-    geom_histogram(aes(y=..density..), colour="grey1", fill="gainsboro", alpha=0.5)+
-    geom_density(color="grey3",size=0.6)+
-    ggtitle(paste0("Permutation\n P = ",signif(pv,3)))+
-    ylab("Density")+
-    xlab("Distance to Tumor-Stroma Interface")+
-    theme(
-      panel.background = element_blank(),
-      panel.grid = element_blank(),
-      axis.title = element_text(size=14,colour = "black"),
-      axis.text = element_text(size=13,colour = "black"),
-      legend.position="none",
-      #panel.border = element_blank(),
-      axis.line.y.left = element_line(color = 'black'),
-      axis.line.x.bottom = element_line(color = 'black')
-    )+
-    geom_vline(xintercept=d0, color = "green", linetype="dashed",size=1.3)
-
 }

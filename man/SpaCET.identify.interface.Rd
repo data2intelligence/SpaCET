@@ -6,14 +6,14 @@
 \usage{
 SpaCET.identify.interface(
   SpaCET_obj,
-  Malignant = c("Malignant"),
+  Malignant = "Malignant",
   MalignantCutoff = 0.5
 )
 }
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
-\item{Malignant}{Malignant cell type.}
+\item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
 
 \item{MalignantCutoff}{Malignant cell fraction cutoff for tumor boundary. Default: 0.5.}
 }
