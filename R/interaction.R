@@ -358,7 +358,7 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
     if(rho > 0 & pv1 < 0.05 & cd1 < 0 & pv2 < 0.05)
     {
-      print("Based on colocalization analysis and L-R enrichment analysis, ",paste0(cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
+      print(paste0("Based on colocalization analysis and L-R enrichment analysis, ",cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
       testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- TRUE
      }else{
       print("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")

@@ -224,7 +224,7 @@ Similar to the deconvolution of immune major lineages into sublineages, the over
 
 ``` r
 # further deconvolve malignant cell states
-SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, malignantCutoff = 0.7, coreNo = 8)
+SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, coreNo = 8)
 
 # show cancer cell state fraction of the first five spots
 SpaCET_obj@results$deconvolution$propMat[c("Malignant cell state A","Malignant cell state B"),1:6]
