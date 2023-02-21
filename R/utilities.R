@@ -57,7 +57,13 @@ create.SpaCET.object.10X <- function(visiumPath)
 
   jsonFile <- jsonlite::fromJSON(paste0(visiumPath,"/spatial/scalefactors_json.json"))
 
-  barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=F)
+  if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
+  {
+    barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
+  }else{
+    barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
+  }
+
   colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
   rownames(barcode) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
 
