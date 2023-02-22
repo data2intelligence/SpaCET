@@ -30,7 +30,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   }else{
     if(!Malignant%in%rownames(res_deconv))
     {
-      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type.")
+      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type. Of note, R language is case sensitive generally.")
     }
   }
 

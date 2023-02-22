@@ -150,7 +150,7 @@ visualSpatial <- function(
 {
   library(ggplot2)
 
-  if(tolower(platform)=="visium")
+  if(grepl("visium", tolower(platform)))
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
 
@@ -182,9 +182,18 @@ visualSpatial <- function(
 
     # 3. draw spot
     p <- p+
-      geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha) +
-      scale_x_continuous(limits = c(0, xDiml), expand = c(0, 0)) +
-      scale_y_continuous(limits = c(0, yDiml), expand = c(0, 0)) +
+      geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)
+
+    # 4. axis
+    if(imageBg & !is.na(image$path))
+    {
+      p <- p+
+        scale_x_continuous(limits = c(0, xDiml), expand = c(0, 0)) +
+        scale_y_continuous(limits = c(0, yDiml), expand = c(0, 0))
+    }
+
+    # 5. set theme
+    p <- p+
       ggtitle(titleName)+
       theme(
         panel.background = element_rect(fill = "white"),
@@ -196,7 +205,7 @@ visualSpatial <- function(
         panel.border = element_blank()
       )+coord_flip()
 
-    # 4. set color scale
+    # 6. set color scale
     if(scaleType=="color-continuous")
     {
       p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)

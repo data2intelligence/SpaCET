@@ -292,7 +292,7 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
   if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
   {
-    stop("Please input the correct cell-type name.")
+    stop("Please input the correct cell-type name. Of note, R language is case sensitive generally.")
   }
 
   cellTypePair <- sort(cellTypePair)
@@ -396,7 +396,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
   if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
   {
-    stop("Please input the correct cell-type name.")
+    stop("Please input the correct cell-type name. Of note, R language is case sensitive generally.")
   }
   cellTypePair <- sort(cellTypePair)
 
@@ -527,7 +527,7 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
   }else{
     if(!Malignant%in%rownames(res_deconv))
     {
-      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type.")
+      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type. Of note, R language is case sensitive generally.")
     }
   }
 
@@ -605,7 +605,7 @@ SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macro
 
   if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
   {
-    stop("Please input the correct cell-type name.")
+    stop("Please input the correct cell-type name. Of note, R language is case sensitive generally.")
   }
   cellTypePair <- sort(cellTypePair)
   testRes <- SpaCET_obj@results$CCI$interaction$testRes

@@ -123,7 +123,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
     {
       stop("The image under the imagePath does not exist. Please input the correct path. User can set imagePath=NA if the current ST dataset does not have a matched H&E image.")
     }else{
-      if(tolower(platform)=="visium")
+      if(grepl("visium", tolower(platform)))
       {
         r <- png::readPNG(imagePath)
         rg <- grid::rasterGrob(r, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
