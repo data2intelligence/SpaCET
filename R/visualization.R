@@ -130,7 +130,14 @@ SpaCET.visualize.spatialFeature <- function(
     }
   }
 
-  pp + patchwork::plot_layout(nrow = nrow)
+  pp <- pp + patchwork::plot_layout(nrow = nrow)
+
+  if(spatialType == "CellFraction")
+  {
+    pp <- pp + patchwork::plot_layout(guides = "collect")
+  }
+
+  pp
 }
 
 
