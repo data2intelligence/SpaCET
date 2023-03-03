@@ -15,6 +15,10 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
 
+  # filter the matrix with ref genes in case the matrix is too big
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
+  SpaCET_obj@input$counts <- SpaCET_obj@input$counts[rownames(SpaCET_obj@input$counts)%in%rownames(Ref$refProfiles),]
+
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
@@ -22,8 +26,6 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
   malRes <- inferMal_cor(st.matrix.data,cancerType)
 
   print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
-
   propMat <- SpatialDeconv(
     ST=st.matrix.data,
     Ref=Ref,
@@ -52,112 +54,142 @@ inferMal_cor <- function(st.matrix.data, cancerType)
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
   }
 
-
-  print("Stage 1 - Step 1. Clustering.")
-
-  # clustering
-  set.seed(123)
-  suppressPackageStartupMessages(
-    library(MUDAN)
-  )
-
-  matnorm.info <- normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
-  matnorm <- log10(matnorm.info$mat+1)
-  pcs <- getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
-
-  d <- as.dist(1-cor(t(pcs)))
-  hc <- hclust(d, method='ward.D')
-
-  cluster_numbers <- 2:9
-  clustering <- cutree(hc,k=cluster_numbers)
-  clustering <- t(clustering)
-  rownames(clustering) <- paste0("c",rownames(clustering))
-
-  # silhouette
-  suppressPackageStartupMessages({
-    library(factoextra)
-    library(NbClust)
-    library(cluster)
-  })
-
-  v <- c()
-  for(i in cluster_numbers)
-  {
-    clustering0 <- cutree(hc,k=i)
-    sil <- silhouette(clustering0, d, Fun=mean)
-    v <- c(v, mean(sil[,3]))
-  }
-
-  v_diff <- v[1:(length(v)-1)]-v[2:length(v)]
-  maxN <- which( v_diff == max(v_diff) ) +1  # find one that has the biggest decrease
-
-  silMat <- cbind(cluster=cluster_numbers,silhouette=v)
-  silMat <- cbind(silMat,maxN=cluster_numbers%in%maxN)
-
-  clustering <- clustering[paste0("c",maxN),] # find optimal k
-
-
-  print("Stage 1 - Step 2. Find tumor clusters.")
   st.matrix.data <- as.matrix(st.matrix.data)
   st.matrix.data.diff <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
   st.matrix.data.diff <- log2(st.matrix.data.diff+1)
   st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
 
-
-  for(CNA_expr in c("CNA","expr"))
+  if(ncol(st.matrix.data.diff) < 20000)
   {
-    cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+    print("Stage 1 - Step 1. Clustering.")
 
-    if(sum(cancerTypeExists) > 0)
-    {
-      sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-    }else{
-      if(CNA_expr=="CNA") next
-    }
-
-    cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-
-    stat.df <- data.frame()
-    for(i in sort(unique(clustering)))
-    {
-      cor_sig_clustering <- cor_sig[clustering==i,]
-
-      stat.df[i,"cluster"] <- i
-      stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-      stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-      stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-      stat.df[i,"wilcoxTestG0"] <- wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value
-    }
-
-    clusterMal <- which(
-      stat.df[1:i,"mean"]>0&stat.df[1:i,"wilcoxTestG0"]<0.05 &
-      stat.df[1:i,"fraction_spot_padj"]>=sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+    # clustering
+    set.seed(123)
+    suppressPackageStartupMessages(
+      library(MUDAN)
     )
 
-    if(length(clusterMal)!=0) # find malignant spots.
+    matnorm.info <- normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
+    matnorm <- log10(matnorm.info$mat+1)
+    pcs <- getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
+
+    d <- as.dist(1-cor(t(pcs)))
+    hc <- hclust(d, method='ward.D')
+
+    cluster_numbers <- 2:9
+    clustering <- cutree(hc,k=cluster_numbers)
+    clustering <- t(clustering)
+    rownames(clustering) <- paste0("c",rownames(clustering))
+
+    # silhouette
+    suppressPackageStartupMessages({
+      library(factoextra)
+      library(NbClust)
+      library(cluster)
+    })
+
+    v <- c()
+    for(i in cluster_numbers)
     {
-      print(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
-      malFlag <- TRUE
-      break
-    }else{
-      if(CNA_expr=="expr")
-      {
-        print(paste0("                  > No malignant cells detected in this tumor ST data set."))
-        malFlag <- FALSE
-      }
+      clustering0 <- cutree(hc,k=i)
+      sil <- silhouette(clustering0, d, Fun=mean)
+      v <- c(v, mean(sil[,3]))
     }
 
-  }
+    v_diff <- v[1:(length(v)-1)]-v[2:length(v)]
+    maxN <- which( v_diff == max(v_diff) ) +1  # find one that has the biggest decrease
 
-  print("Stage 1 - Step 3. Infer malignant cells.")
-  if(malFlag)
-  {
-    spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
-    malRef <- rowMeans( t( t(st.matrix.data[,spotMal])*1e6/colSums(st.matrix.data[,spotMal]) ) )
+    silMat <- cbind(cluster=cluster_numbers,silhouette=v)
+    silMat <- cbind(silMat,maxN=cluster_numbers%in%maxN)
 
-    sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
-    sig <- matrix(sig)
-    rownames(sig) <- rownames(st.matrix.data.diff)
+    clustering <- clustering[paste0("c",maxN),] # find optimal k
+
+
+    print("Stage 1 - Step 2. Find tumor clusters.")
+
+    for(CNA_expr in c("CNA","expr"))
+    {
+      cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+
+      if(sum(cancerTypeExists) > 0)
+      {
+        sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
+      }else{
+        if(CNA_expr=="CNA") next
+      }
+
+      cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+      stat.df <- data.frame()
+      for(i in sort(unique(clustering)))
+      {
+        cor_sig_clustering <- cor_sig[clustering==i,]
+
+        stat.df[i,"cluster"] <- i
+        stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+        stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+        stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+        stat.df[i,"wilcoxTestG0"] <- wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value
+      }
+
+      clusterMal <- which(
+        stat.df[1:i,"mean"]>0&stat.df[1:i,"wilcoxTestG0"]<0.05 &
+        stat.df[1:i,"fraction_spot_padj"]>=sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+      )
+
+      if(length(clusterMal)!=0) # find malignant spots.
+      {
+        print(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
+        malFlag <- TRUE
+        break
+      }else{
+        if(CNA_expr=="expr")
+        {
+          print(paste0("                  > No malignant cells detected in this tumor ST data set."))
+          malFlag <- FALSE
+        }
+      }
+
+    }
+
+    print("Stage 1 - Step 3. Infer malignant cells.")
+    if(malFlag)
+    {
+      spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
+      malRef <- rowMeans( t( t(st.matrix.data[,spotMal])*1e6/colSums(st.matrix.data[,spotMal]) ) )
+
+      sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
+      sig <- matrix(sig)
+      rownames(sig) <- rownames(st.matrix.data.diff)
+
+      cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+      malProp <- cor_sig[,"cor_r"]
+      names(malProp) <- rownames(cor_sig)
+
+      malPropSorted <- sort(malProp)
+      top5p <- round(length(malPropSorted)*0.05)
+      p5 <- malPropSorted[top5p]
+      p95 <- malPropSorted[length(malPropSorted)-top5p+1]
+
+      malProp[malProp<=p5] <- p5
+      malProp[malProp>=p95] <- p95
+
+      malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
+
+      list("malRef"=malRef,"malProp"=malProp)
+    }else{
+      malProp <- rep(0,dim(st.matrix.data.diff)[2])
+      names(malProp) <- colnames(st.matrix.data.diff)
+
+      list("malRef"=NULL,"malProp"=malProp)
+    }
+
+  }else{ # spot > 20000
+    CNA_expr <- "CNA"
+
+    cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+    sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
     cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
 
@@ -165,7 +197,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     names(malProp) <- rownames(cor_sig)
 
     malPropSorted <- sort(malProp)
-    top5p <- round(length(malPropSorted)*0.05)
+    top5p <- round(length(malPropSorted)*0.02)
     p5 <- malPropSorted[top5p]
     p95 <- malPropSorted[length(malPropSorted)-top5p+1]
 
@@ -174,13 +206,14 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
     malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
 
-    list("malRef"=malRef,"malProp"=malProp)
-  }else{
-    malProp <- rep(0,dim(st.matrix.data.diff)[2])
-    names(malProp) <- colnames(st.matrix.data.diff)
 
-    list("malRef"=NULL,"malProp"=malProp)
+    malRef <- rowMeans( t( t(st.matrix.data[,malProp==1])*1e6/colSums(st.matrix.data[,malProp==1]) ) )
+
+    list("malRef"=malRef,"malProp"=malProp)
   }
+
+
+
 }
 
 
@@ -439,10 +472,11 @@ SpatialDeconv <- function(
 corMat <- function(X,Y,method="pearson")
 {
   olp <- intersect(rownames(X),rownames(Y))
-  X_olp <- X[olp,,drop=F]
-  Y_olp <- Y[olp,,drop=F]
 
-  cc_corr <- psych::corr.test(X_olp,Y_olp,method=method,adjust="none",ci=FALSE)
+  cc_corr <- psych::corr.test(
+    X[olp,,drop=F],
+    Y[olp,,drop=F],
+    method=method,adjust="none",ci=FALSE)
 
   cc_corr_r <- round(cc_corr$r[,1],3)
   cc_corr_p <- signif(cc_corr$p[,1],3)
