@@ -13,9 +13,9 @@ malignancies. SpaCET then uses a constrained regression model to
 calibrate local tissue densities and determine stromal and immune cell
 lineage fraction. Further, SpaCET can reveal putative cell-cell
 interactions in tumor microenvironment. Additionally, although SpaCET
-does not require any input cell reference profile to process tumor ST
-data, SpaCET can still accept a matched scRNA-seq dataset as customized
-references to carry out cell type deconvolution.
+does not require any input cell references to analyze tumor ST data,
+SpaCET can still accept a matched scRNA-seq dataset as customized
+references to conduct cell type deconvolution.
 
 <img src="man/figures/workflow.png" width="100%" />
 
@@ -28,13 +28,13 @@ To install `SpaCET`, we recommend using `devtools`:
 devtools::install_github("data2intelligence/SpaCET")
 ```
 
-Or user can install `SpaCET` from the local source code. Click
-\[<a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank">here</a>\]
+Or user can install `SpaCET` from the source code. Click
+<a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank">here</a>
 to download it.
 
 ``` r
-# install SpaCET in R environment.
-install.packages("Location_to_the_source_code_file", repos = NULL, type="source")
+# install SpaCET in the R environment.
+install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ```
 
 ## Dependencies

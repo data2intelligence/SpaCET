@@ -68,13 +68,12 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
       }else{
         propMat <- cbind(propMat, propMatSub)
       }
-
     }
-
-    SpaCET_obj@results$deconvolution$Ref <- Ref
-    SpaCET_obj@results$deconvolution$propMat <- propMat
-    SpaCET_obj
   }
+
+  SpaCET_obj@results$deconvolution$Ref <- Ref
+  SpaCET_obj@results$deconvolution$propMat <- propMat
+  SpaCET_obj
 }
 
 
