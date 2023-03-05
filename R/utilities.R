@@ -159,7 +159,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 {
   st.matrix.data <- SpaCET_obj@input$counts
-  expressed.genes<- colSums(as.matrix(st.matrix.data>0))
+  expressed.genes<- Matrix::colSums(st.matrix.data>0)
 
   remaining.spots <- expressed.genes>=min.genes
   remaining.spots.num <- sum(remaining.spots)
@@ -173,8 +173,8 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
   SpaCET_obj@input$spotCoordinates <- SpaCET_obj@input$spotCoordinates[colnames(st.matrix.data),]
 
   SpaCET_obj@results$metrics <- rbind(
-    UMI=colSums(as.matrix(st.matrix.data)),
-    Gene=colSums(as.matrix(st.matrix.data)>0)
+    UMI=Matrix::colSums(st.matrix.data),
+    Gene=Matrix::colSums(st.matrix.data>0)
   )
 
   SpaCET_obj

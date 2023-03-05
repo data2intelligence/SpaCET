@@ -41,15 +41,15 @@
      
   </a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="reference/index.html">Reference</a>
+</li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-tutorials">Tutorials</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-tutorials">
     <a class="dropdown-item" href="articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
     <a class="dropdown-item" href="articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
   </div>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="news/index.html">News</a>
@@ -76,9 +76,7 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="spacet-spatial-cellular-estimator-for-tumors">SpaCET (Spatial Cellular Estimator for Tumors)<a class="anchor" aria-label="anchor" href="#spacet-spatial-cellular-estimator-for-tumors"></a>
 </h1></div>
-<!--
-<img src="man/figures/workflow.png" height="200" align="right" />
--->
+<p><img src="reference/figures/sticker.png" width="18%" align="right"></p>
 <p>SpaCET is an R package for analyzing cancer spatial transcriptomics (ST) datasets to estimate cell lineage and intercellular interactions in tumor microenvironment. Briefly, SpaCET first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCET then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage fraction. Further, SpaCET can reveal putative cell-cell interactions in tumor microenvironment. Additionally, although SpaCET does not require any input cell reference profile to process tumor ST data, SpaCET can still accept a matched scRNA-seq dataset as customized references to carry out cell type deconvolution.</p>
 <p><img src="reference/figures/workflow.png" width="100%"></p>
 <div class="section level2">
@@ -88,6 +86,10 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"data2intelligence/SpaCET"</span><span class="op">)</span></span></code></pre></div>
+<p>Or user can install <code>SpaCET</code> from the local source code. Click [<a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank" class="external-link">here</a>] to download it.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install SpaCET in R environment.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"Location_to_the_source_code_file"</span>, repos <span class="op">=</span> <span class="cn">NULL</span>, type<span class="op">=</span><span class="st">"source"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
@@ -100,7 +102,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
@@ -137,7 +139,7 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. Nature Communications 14, 568 (2023).</p>
+<p>Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. Nature Communications 14, 568 (2023). [<a href="https://www.nature.com/articles/s41467-023-36062-6" target="_blank" class="external-link">Link</a>]</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

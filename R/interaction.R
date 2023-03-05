@@ -140,7 +140,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
     geom_point(aes(size=fraction_product),color="#856aad")+
     geom_smooth(method="lm",formula="y~x",color="darkgrey",mapping = aes(weight = fraction_product))+
     scale_size(range = c(0, 6))+
-    ggrepel::geom_text_repel(max.overlaps=20)+
+    ggrepel::geom_text_repel(max.overlaps=Inf)+
     ggtitle("Correlation of cell fractions and cell reference profiles")+
     xlab("Cor (Reference profiles)")+
     ylab(" \nCor (Cell fractions)")+
@@ -176,10 +176,11 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #'
 SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=8)
 {
-  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  st.matrix.data <- SpaCET_obj@input$counts
 
-  st.matrix.data <- t(t(st.matrix.data)*1e5/colSums(st.matrix.data))
-  st.matrix.data <- log2(st.matrix.data+1)
+  st.matrix.data <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
+  st.matrix.data@x <- log2(st.matrix.data@x+1)
+
   spotNum <- ncol(st.matrix.data)
 
   ###### preprocess L-R network ######
@@ -514,6 +515,11 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 #'
 SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", MalignantCutoff=0.5)
 {
+  if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
+  {
+    stop("This function is only applicable to 10X Visium data.")
+  }
+
   if(is.null(SpaCET_obj@results$deconvolution$propMat))
   {
     stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
@@ -598,6 +604,11 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
 #'
 SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"), nPermutation = 1000)
 {
+  if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
+  {
+    stop("This function is only applicable to 10X Visium data.")
+  }
+
   if(length(cellTypePair)!=2)
   {
     stop("Please input a pair of cell-types.")

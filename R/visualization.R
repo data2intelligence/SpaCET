@@ -45,9 +45,9 @@ SpaCET.visualize.spatialFeature <- function(
     legendName = "Count"
     limits = NULL
   }else if(spatialType == "GeneExpression"){
-    mat <- as.matrix(SpaCET_obj@input$counts)
-    mat <- t(t(mat)*1e6/colSums(mat))
-    mat <- log2(mat+1)
+    mat <- SpaCET_obj@input$counts
+    mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
+    mat@x <- log2(mat@x+1)
 
     scaleType="color-continuous"
     colors = c("#4d9221", "yellow", "#c51b7d")
@@ -238,7 +238,7 @@ visualSpatial <- function(
 
       ggplot(fig.df,aes(x=x,y=y))+
         annotation_custom(rg)+  # add background image
-        geom_point(aes(colour=value))+
+        geom_point(aes(colour=value), size=pointSize)+
         scale_colour_gradientn(name=legendName, colours = colors,limits=limits)+
         scale_x_continuous(limits = c(0, pix_x), expand = c(0, 0)) +
         scale_y_continuous(limits = c(0, pix_y), expand = c(0, 0)) +
@@ -261,8 +261,8 @@ visualSpatial <- function(
       )
 
       ggplot(fig.df,aes(x=x,y=y))+
-        geom_point(aes(colour=value))+
-        scale_colour_gradientn(name=legendName, colours = colors,limits=limits)+
+        geom_point(aes(colour=value), size=pointSize)+
+        scale_colour_gradientn(name=legendName, colours = colors, limits=limits)+
         ggtitle(titleName)+
         theme_bw()+
         theme(

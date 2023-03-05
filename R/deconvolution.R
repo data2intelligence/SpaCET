@@ -15,29 +15,66 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
 
+  st.matrix.data <- SpaCET_obj@input$counts
+  st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]
+
   # filter the matrix with ref genes in case the matrix is too big
   load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
-  SpaCET_obj@input$counts <- SpaCET_obj@input$counts[rownames(SpaCET_obj@input$counts)%in%rownames(Ref$refProfiles),]
-
-  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
-  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
+  if(ncol(st.matrix.data) > 20000)
+  {
+    st.matrix.data <- st.matrix.data[rownames(st.matrix.data)%in%rownames(Ref$refProfiles),]
+  }
 
   print("Stage 1. Infer malignant cell fraction.")
   malRes <- inferMal_cor(st.matrix.data,cancerType)
 
   print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
-  propMat <- SpatialDeconv(
-    ST=st.matrix.data,
-    Ref=Ref,
-    malProp=malRes$malProp,
-    malRef=malRes$malRef,
-    mode="standard",
-    coreNo=coreNo
-  )
 
-  SpaCET_obj@results$deconvolution$Ref <- Ref
-  SpaCET_obj@results$deconvolution$propMat <- propMat
-  SpaCET_obj
+  if(ncol(st.matrix.data) <= 20000)
+  {
+    propMat <- SpatialDeconv(
+      ST=st.matrix.data,
+      Ref=Ref,
+      malProp=malRes$malProp,
+      malRef=malRes$malRef,
+      mode="standard",
+      coreNo=coreNo
+    )
+  }else{
+    subNo <- ceiling(ncol(st.matrix.data)/5000)
+    for(x in 1:subNo)
+    {
+      print(paste0("Processing ",x,"/",subNo))
+
+      if(x!=subNo)
+      {
+        spotSub <- (5000*(x-1)+1):(5000*x)
+      }else{
+        spotSub <- (5000*(x-1)+1):ncol(st.matrix.data)
+      }
+
+      propMatSub <- SpatialDeconv(
+        ST=st.matrix.data[,spotSub],
+        Ref=Ref,
+        malProp=malRes$malProp[spotSub],
+        malRef=malRes$malRef,
+        mode="standard",
+        coreNo=coreNo
+      )
+
+      if(x==1)
+      {
+        propMat <- propMatSub
+      }else{
+        propMat <- cbind(propMat, propMatSub)
+      }
+
+    }
+
+    SpaCET_obj@results$deconvolution$Ref <- Ref
+    SpaCET_obj@results$deconvolution$propMat <- propMat
+    SpaCET_obj
+  }
 }
 
 
@@ -54,10 +91,9 @@ inferMal_cor <- function(st.matrix.data, cancerType)
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
   }
 
-  st.matrix.data <- as.matrix(st.matrix.data)
-  st.matrix.data.diff <- t(t(st.matrix.data)*1e6/colSums(st.matrix.data))
-  st.matrix.data.diff <- log2(st.matrix.data.diff+1)
-  st.matrix.data.diff <- st.matrix.data.diff-rowMeans(st.matrix.data.diff)
+  st.matrix.data.diff <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
+  st.matrix.data.diff@x <- log2(st.matrix.data.diff@x+1)
+  st.matrix.data.diff <- st.matrix.data.diff-Matrix::rowMeans(st.matrix.data.diff)
 
   if(ncol(st.matrix.data.diff) < 20000)
   {
@@ -156,7 +192,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     if(malFlag)
     {
       spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
-      malRef <- rowMeans( t( t(st.matrix.data[,spotMal])*1e6/colSums(st.matrix.data[,spotMal]) ) )
+      malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,spotMal])*1e6/Matrix::colSums(st.matrix.data[,spotMal]) ) )
 
       sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
       sig <- matrix(sig)
@@ -191,10 +227,22 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
     sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
-    cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+    subNo <- ceiling(ncol(st.matrix.data.diff)/5000)
+    malProp <- c()
+    for(x in 1:subNo)
+    {
+      if(x!=subNo)
+      {
+        cor_sig <- corMat(as.matrix(st.matrix.data.diff[,(5000*(x-1)+1):(5000*x)]),sig)
+      }else{
+        cor_sig <- corMat(as.matrix(st.matrix.data.diff[,(5000*(x-1)+1):ncol(st.matrix.data.diff)]),sig)
+      }
 
-    malProp <- cor_sig[,"cor_r"]
-    names(malProp) <- rownames(cor_sig)
+      malPropSub <- cor_sig[,"cor_r"]
+      names(malPropSub) <- rownames(cor_sig)
+
+      malProp <- c(malProp, malPropSub)
+    }
 
     malPropSorted <- sort(malProp)
     top5p <- round(length(malPropSorted)*0.02)
@@ -207,12 +255,10 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
 
 
-    malRef <- rowMeans( t( t(st.matrix.data[,malProp==1])*1e6/colSums(st.matrix.data[,malProp==1]) ) )
+    malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,malProp>=1])*1e6/Matrix::colSums(st.matrix.data[,malProp>=1]) ) )
 
     list("malRef"=malRef,"malProp"=malProp)
   }
-
-
 
 }
 
@@ -237,7 +283,7 @@ SpatialDeconv <- function(
   ST <- ST[olpGenes,]
   Reference <- Reference[olpGenes,]
 
-  ST <- t( t(ST)*1e6/colSums(ST) )
+  ST <- Matrix::t( Matrix::t(ST)*1e6/Matrix::colSums(ST) )
   Reference <- t( t(Reference)*1e6/colSums(Reference) )
 
   ST <- ST[,!is.nan(ST[1,])]
@@ -251,7 +297,7 @@ SpatialDeconv <- function(
       ST <- ST[olpGenes,]
       malRef <- malRef[olpGenes,]
 
-      ST <- t( t(ST)*1e6/colSums(ST) )
+      ST <- Matrix::t( Matrix::t(ST)*1e6/Matrix::colSums(ST) )
       malRef <- t( t(malRef)*1e6/colSums(malRef) )
 
       ST <- ST[,!is.nan(ST[1,])]
