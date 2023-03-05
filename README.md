@@ -8,8 +8,8 @@ datasets to estimate cell lineage and intercellular interactions in
 tumor microenvironment. Briefly, SpaCET first infers cancer cell
 abundance by integrating a gene pattern dictionary of common
 malignancies. SpaCET then uses a constrained regression model to
-calibrate local tissue densities and determine stromal and immune cell
-lineage fraction. Further, SpaCET can reveal putative cell-cell
+calibrate local tissue densities and determine the fraction of stromal
+and immune cell lineages. Further, SpaCET can reveal putative cell-cell
 interactions in tumor microenvironment. Additionally, although SpaCET
 does not require any input cell references to analyze tumor ST data,
 SpaCET can still accept a matched scRNA-seq dataset as customized
