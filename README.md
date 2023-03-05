@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaCET (Spatial Cellular Estimator for Tumors) <img src="man/figures/sticker.png" width="16%" align="right"/>
+# SpaCET (Spatial Cellular Estimator for Tumors) <img src="man/figures/sticker.png" align="right" alt="" width="120" />
 
 SpaCET is an R package for analyzing cancer spatial transcriptomics (ST)
 datasets to estimate cell lineage and intercellular interactions in
