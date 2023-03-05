@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 # SpaCET (Spatial Cellular Estimator for Tumors) 
 
-<img src="man/figures/sticker.png" width="18%" align="right" />
+<img src="man/figures/sticker.png" width="16%" align="right" />
 
 SpaCET is an R package for analyzing cancer spatial transcriptomics (ST) datasets to estimate cell lineage and intercellular interactions in tumor microenvironment. Briefly, SpaCET first estimates cancer cell abundance by integrating a gene pattern dictionary of common malignancies. SpaCET then uses a constrained regression model to calibrate local tissue densities and determine stromal and immune cell lineage fraction. Further, SpaCET can reveal putative cell-cell interactions in tumor microenvironment. Additionally, although SpaCET does not require any input cell reference profile to process tumor ST data, SpaCET can still accept a matched scRNA-seq dataset as customized references to carry out cell type deconvolution.
 
