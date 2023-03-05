@@ -143,10 +143,10 @@ SpaCET.visualize.spatialFeature(
 ```
 <img src="img/visualizeDeconvolution2.png" width="100%" style="border:none" />
 
-## Identify cell-cell interaction
+## Estimate cell-cell interactions
 After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.
 
-### Find the co-localized cell-type pairs
+### Find co-localized cell-type pairs
 
 SpaCET provides `SpaCET.CCI.colocalization` and `SpaCET.visualize.colocalization` to compute and visualize the co-localized cell-type pairs.
 
