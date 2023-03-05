@@ -13,7 +13,7 @@ lineage fraction. Further, SpaCET can reveal putative cell-cell
 interactions in tumor microenvironment. Additionally, although SpaCET
 does not require any input cell references to analyze tumor ST data,
 SpaCET can still accept a matched scRNA-seq dataset as customized
-references to conduct cell type deconvolution.
+references to conduct cell type deconvolution of ST data.
 
 <img src="man/figures/workflow.png" width="100%" />
 
