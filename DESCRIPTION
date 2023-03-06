@@ -9,11 +9,11 @@ BugReports: https://github.com/data2intelligence/SpaCET/issues
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Depends:
-    R (>= 3.5.0),
-    ggplot2
+    R (>= 3.5.0)
 Imports: 
     Matrix,
     jsonlite,
+    ggplot2,
     reshape2,
     patchwork,
     png,
