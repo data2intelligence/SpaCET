@@ -1,3 +1,3 @@
-# SpaCE 1.0.0
+# SpaCET 1.0.0
 
 * Release SpaCET package.
