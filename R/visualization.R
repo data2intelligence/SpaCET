@@ -26,6 +26,7 @@ SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
     spatialType = c("QualityControl","GeneExpr","CellFraction","LRNetworkScore"),
     spatialFeatures = NULL,
+    sameScaleForFraction = TRUE,
     pointSize = 1,
     nrow = 1,
     imageBg = TRUE
@@ -66,7 +67,13 @@ SpaCET.visualize.spatialFeature <- function(
     scaleType="color-continuous"
     colors = c("blue", "yellow", "red")
     legendName = "Fraction"
-    limits = c(0,1)
+
+    if(sameScaleForFraction)
+    {
+      limits = c(0,1)
+    }else{
+      limits = NULL
+    }
   }else if(spatialType == "LRNetworkScore"){
     if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
     {
@@ -132,7 +139,7 @@ SpaCET.visualize.spatialFeature <- function(
 
   pp <- pp + patchwork::plot_layout(nrow = nrow)
 
-  if(spatialType == "CellFraction")
+  if(sameScaleForFraction)
   {
     pp <- pp + patchwork::plot_layout(guides = "collect")
   }

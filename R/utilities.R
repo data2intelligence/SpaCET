@@ -51,7 +51,12 @@ create.SpaCET.object.10X <- function(visiumPath)
   st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
   st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
 
-  rownames(st.matrix.data) <- st.matrix.gene[,2]
+  if(ncol(st.matrix.gene)==1)
+  {
+    rownames(st.matrix.data) <- st.matrix.gene[,1]
+  }else{
+    rownames(st.matrix.data) <- st.matrix.gene[,2]
+  }
   colnames(st.matrix.data) <- st.matrix.anno[,1]
 
 
