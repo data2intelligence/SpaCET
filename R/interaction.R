@@ -93,6 +93,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
       ctOrder <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
     }
   }
+  ctOrder <- unique(ctOrder)
 
   summary_df <- summary_df[summary_df[,1]%in%ctOrder,]
   summary_df <- summary_df[summary_df[,2]%in%ctOrder,]
