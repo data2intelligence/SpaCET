@@ -83,7 +83,7 @@ create.SpaCET.object.10X <- function(visiumPath)
     barcode[["pxl_col"]] <- round(barcode[,"pxl_col_in_fullres"]*jsonFile$tissue_hires_scalef,3)
   }
 
-  spotCoordinates <- barcode[match(colnames(st.matrix.data),barcode[,"barcode"]),c("pxl_row","pxl_col")]
+  spotCoordinates <- barcode[match(colnames(st.matrix.data),barcode[,"barcode"]),c("pxl_row","pxl_col","barcode")]
   colnames(st.matrix.data) <- rownames(spotCoordinates)
 
   SpaCET_obj <- create.SpaCET.object(
