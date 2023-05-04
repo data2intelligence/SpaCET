@@ -27,7 +27,7 @@ SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
     spatialType = c("QualityControl","GeneExpr","CellFraction","LRNetworkScore"),
     spatialFeatures = NULL,
-    sameScaleForFraction = TRUE,
+    sameScaleForFraction = FALSE,
     pointSize = 1,
     nrow = 1,
     imageBg = TRUE
