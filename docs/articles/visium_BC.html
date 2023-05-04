@@ -245,10 +245,13 @@ the spatial distribution of cell types.</p>
 <span>  <span class="va">SpaCET_obj</span>, </span>
 <span>  spatialType <span class="op">=</span> <span class="st">"CellFraction"</span>, </span>
 <span>  spatialFeatures<span class="op">=</span><span class="st">"All"</span>, </span>
+<span>  sameScaleForFraction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  pointSize <span class="op">=</span> <span class="fl">0.1</span>, </span>
 <span>  nrow<span class="op">=</span><span class="fl">5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution2.png" width="100%" style="border:none"></p>
+<p>Since some cell types have relatively low abundance, use can get a
+better vision by setting <code>sameScaleForFraction = FALSE</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="estimate-cell-cell-interactions">Estimate cell-cell interactions<a class="anchor" aria-label="anchor" href="#estimate-cell-cell-interactions"></a>

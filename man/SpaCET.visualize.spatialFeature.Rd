@@ -8,6 +8,7 @@ SpaCET.visualize.spatialFeature(
   SpaCET_obj,
   spatialType = c("QualityControl", "GeneExpr", "CellFraction", "LRNetworkScore"),
   spatialFeatures = NULL,
+  sameScaleForFraction = TRUE,
   pointSize = 1,
   nrow = 1,
   imageBg = TRUE
@@ -19,6 +20,8 @@ SpaCET.visualize.spatialFeature(
 \item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.}
 
 \item{spatialFeatures}{A vector of spatial features.}
+
+\item{sameScaleForFraction}{Indicate whether all cell types have the same scale for cell fraction.}
 
 \item{nrow}{Row number of the combined panel for multiple spatial features.}
 

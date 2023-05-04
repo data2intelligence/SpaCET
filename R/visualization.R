@@ -3,6 +3,7 @@
 #' @param SpaCET_obj An SpaCET object.
 #' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
+#' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
 #' @param nrow Row number of the combined panel for multiple spatial features.
 #' @param imageBg logical: should the image be shown?
 #' @return A ggplot2 object.
