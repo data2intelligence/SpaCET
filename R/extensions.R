@@ -181,8 +181,20 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_anno
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
 
-  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
-  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
+  if(!identical(rownames(sc_annotation),as.character(sc_annotation[,"cellID"])))
+  {
+    rownames(sc_annotation) <- as.character(sc_annotation[,"cellID"])
+  }
+
+  if(ncol(sc_counts)!=nrow(sc_annotation))
+  {
+    stop("The cell number in the count and annotation matrix is not identical.")
+  }
+
+  if(!identical(sort(colnames(sc_counts)), sort(rownames(sc_annotation))))
+  {
+    stop("The cell IDs in the count and annotation matrix are not matched.")
+  }
 
   if(length(sc_lineageTree)==0)
   {
@@ -223,6 +235,9 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_anno
   )
 
   print("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
+
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
   propMat <- SpatialDeconv(
     ST=st.matrix.data,

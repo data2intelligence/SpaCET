@@ -75,7 +75,7 @@ str(SpaCET_obj)
 We provide `SpaCET.deconvolution.matched.scRNAseq` to deconvolve an SpaCET object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
 
 1) single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data must be in the format of matrix with gene name (row) x cell ID (column).
-2) cell annotation information. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
+2) cell annotation information. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell. The name of row should be same as the column cellID.
 3) Hierarchical tree of cell types. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 
 ``` r
