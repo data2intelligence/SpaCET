@@ -45,20 +45,24 @@ create.SpaCET.object.10X <- function(visiumPath)
     stop("The visiumPath does not exist. Please input the correct path.")
   }
 
-  st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")) #dgT
-  st.matrix.data <- methods::as(st.matrix.data, "dgCMatrix")
-
-  st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
-  st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
-
-  if(ncol(st.matrix.gene)==1)
+  if(file.exists(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")))
   {
-    rownames(st.matrix.data) <- st.matrix.gene[,1]
-  }else{
-    rownames(st.matrix.data) <- st.matrix.gene[,2]
-  }
-  colnames(st.matrix.data) <- st.matrix.anno[,1]
+    st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")) #dgT
+    st.matrix.data <- methods::as(st.matrix.data, "dgCMatrix")
 
+    st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
+    st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
+
+    if(ncol(st.matrix.gene)==1)
+    {
+      rownames(st.matrix.data) <- st.matrix.gene[,1]
+    }else{
+      rownames(st.matrix.data) <- st.matrix.gene[,2]
+    }
+    colnames(st.matrix.data) <- st.matrix.anno[,1]
+  }else{
+    st.matrix.data <- Seurat::Read10X_h5(filename = paste0(visiumPath,"/filtered_feature_bc_matrix.h5"))
+  }
 
   jsonFile <- jsonlite::fromJSON(paste0(visiumPath,"/spatial/scalefactors_json.json"))
 
