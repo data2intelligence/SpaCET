@@ -25,7 +25,7 @@
 #' @export
 SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
-    spatialType = c("QualityControl","GeneExpr","CellFraction","LRNetworkScore"),
+    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore"),
     spatialFeatures = NULL,
     sameScaleForFraction = FALSE,
     pointSize = 1,
@@ -33,6 +33,12 @@ SpaCET.visualize.spatialFeature <- function(
     imageBg = TRUE
 )
 {
+  if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore"))
+  {
+    stop("Please set spatialType as one of four spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, and LRNetworkScore.")
+  }
+
+
   if(spatialType == "QualityControl")
   {
     if(is.null(SpaCET_obj@results$metrics))
@@ -51,9 +57,18 @@ SpaCET.visualize.spatialFeature <- function(
     mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
     mat@x <- log2(mat@x+1)
 
+    geneFlag <- spatialFeatures%in%rownames(mat)
+    if(sum(geneFlag)!=length(geneFlag))
+    {
+      excluded <- spatialFeatures[!geneFlag]
+      print("The following genes are excluded because they are not official gene symbols.")
+      print(excluded)
+      spatialFeatures <- spatialFeatures[geneFlag]
+    }
+
     scaleType="color-continuous"
     colors = c("#4d9221", "yellow", "#c51b7d")
-    legendName = "Expr"
+    legendName = "Log2TPM"
     limits = NULL
   }else if(spatialType == "CellFraction"){
     if(is.null(SpaCET_obj@results$deconvolution$propMat))
