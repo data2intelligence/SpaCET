@@ -6,9 +6,10 @@
 \usage{
 SpaCET.visualize.spatialFeature(
   SpaCET_obj,
-  spatialType = c("QualityControl", "GeneExpr", "CellFraction", "LRNetworkScore"),
+  spatialType = c("QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore"),
   spatialFeatures = NULL,
-  sameScaleForFraction = TRUE,
+  scaleTypeForGeneExpression = "LogTPM",
+  sameScaleForFraction = FALSE,
   pointSize = 1,
   nrow = 1,
   imageBg = TRUE
@@ -20,6 +21,8 @@ SpaCET.visualize.spatialFeature(
 \item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.}
 
 \item{spatialFeatures}{A vector of spatial features.}
+
+\item{scaleTypeForGeneExpression}{Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".}
 
 \item{sameScaleForFraction}{Indicate whether all cell types have the same scale for cell fraction.}
 
