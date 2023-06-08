@@ -3,6 +3,7 @@
 #' @param SpaCET_obj An SpaCET object.
 #' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
+#' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
 #' @param nrow Row number of the combined panel for multiple spatial features.
 #' @param imageBg logical: should the image be shown?
@@ -27,6 +28,7 @@ SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
     spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore"),
     spatialFeatures = NULL,
+    scaleTypeForGeneExpression = "LogTPM",
     sameScaleForFraction = FALSE,
     pointSize = 1,
     nrow = 1,
@@ -54,8 +56,24 @@ SpaCET.visualize.spatialFeature <- function(
     limits = NULL
   }else if(spatialType == "GeneExpression"){
     mat <- SpaCET_obj@input$counts
-    mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
-    mat@x <- log2(mat@x+1)
+
+    if(scaleTypeForGeneExpression=="RawCounts")
+    {
+      legendName = "Counts"
+    }else if(scaleTypeForGeneExpression=="LogRawCounts"){
+      mat@x <- log2(mat@x+1)
+      legendName = "LogCounts"
+    }else if(scaleTypeForGeneExpression=="LogTPM/10"){
+      mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
+      mat@x <- log2(mat@x+1)
+      legendName = "LogTPM/10"
+    }else if(scaleTypeForGeneExpression=="LogTPM"){
+      mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
+      mat@x <- log2(mat@x+1)
+      legendName = "LogTPM"
+    }else{
+      stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
+    }
 
     geneFlag <- spatialFeatures%in%rownames(mat)
     if(sum(geneFlag)!=length(geneFlag))
@@ -68,7 +86,6 @@ SpaCET.visualize.spatialFeature <- function(
 
     scaleType="color-continuous"
     colors = c("#4d9221", "yellow", "#c51b7d")
-    legendName = "Log2TPM"
     limits = NULL
   }else if(spatialType == "CellFraction"){
     if(is.null(SpaCET_obj@results$deconvolution$propMat))
