@@ -1,7 +1,7 @@
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj An SpaCET object.
-#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.
+#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", LRNetworkScore", and "Interface". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
@@ -26,7 +26,7 @@
 #' @export
 SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
-    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore"),
+    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"),
     spatialFeatures = NULL,
     scaleTypeForGeneExpression = "LogTPM",
     sameScaleForFraction = FALSE,
@@ -35,9 +35,9 @@ SpaCET.visualize.spatialFeature <- function(
     imageBg = TRUE
 )
 {
-  if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore"))
+  if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"))
   {
-    stop("Please set spatialType as one of four spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, and LRNetworkScore.")
+    stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, and Interface.")
   }
 
 
