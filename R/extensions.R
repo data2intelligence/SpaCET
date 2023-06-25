@@ -165,6 +165,8 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 #' @title Deconvolve ST data set with matched scRNAseq data
 #' @description Estimate the fraction of cell lineage and sub lineage.
 #' @param SpaCET_obj An SpaCET object.
+#' @param sc_includeMalignant Logical. Indicate whether the single cell data includes malignant cells. If no, please input a cancer type and then SpaCET will predict the malignant cell fraction based on its build-in reference.
+#' @param cancerType Cancer type of the current tumor ST dataset.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
 #' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
@@ -176,7 +178,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 #'
 #' @rdname SpaCET.deconvolution.matched.scRNAseq
 #' @export
-SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
 {
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
@@ -236,18 +238,38 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_counts, sc_anno
 
   print("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
 
-  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
-  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
+  st.matrix.data <- SpaCET_obj@input$counts
+  st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]
 
-  propMat <- SpatialDeconv(
-    ST=st.matrix.data,
-    Ref=Ref,
-    malProp=rep(0,ncol(st.matrix.data)),
-    malRef=NULL,
-    mode="deconvWithSC",
-    Unidentifiable=TRUE,
-    coreNo=coreNo
-  )
+  if(sc_includeMalignant)
+  {
+    propMat <- SpatialDeconv(
+      ST=st.matrix.data,
+      Ref=Ref,
+      malProp=rep(0,ncol(st.matrix.data)),
+      malRef=NULL,
+      mode="deconvWithSC",
+      Unidentifiable=TRUE,
+      MacrophageOther=FALSE,
+      coreNo=coreNo
+    )
+  }else{
+    print("Stage 1. Infer malignant cell fraction.")
+    malRes <- inferMal_cor(st.matrix.data,cancerType)
+
+    print("Stage 2. Deconvolve non-malignant cell fracton.")
+    propMat <- SpatialDeconv(
+      ST=st.matrix.data,
+      Ref=Ref,
+      malProp=malRes$malProp,
+      malRef=malRes$malRef,
+      mode="deconvWithSC_alt",
+      Unidentifiable=TRUE,
+      MacrophageOther=FALSE,
+      coreNo=coreNo
+    )
+
+  }
 
   SpaCET_obj@results$deconvolution$Ref <- Ref
   SpaCET_obj@results$deconvolution$propMat <- propMat

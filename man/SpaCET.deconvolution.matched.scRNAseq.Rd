@@ -6,6 +6,8 @@
 \usage{
 SpaCET.deconvolution.matched.scRNAseq(
   SpaCET_obj,
+  sc_includeMalignant = TRUE,
+  cancerType,
   sc_counts,
   sc_annotation,
   sc_lineageTree,
@@ -15,6 +17,10 @@ SpaCET.deconvolution.matched.scRNAseq(
 }
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
+
+\item{sc_includeMalignant}{Logical. Indicate whether the single cell data includes malignant cells. If no, please input a cancer type and then SpaCET will predict the malignant cell fraction based on its build-in reference.}
+
+\item{cancerType}{Cancer type of the current tumor ST dataset.}
 
 \item{sc_counts}{Single cell count matrix with gene name (row) x cell ID (column).}
 

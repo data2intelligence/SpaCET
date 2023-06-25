@@ -70,7 +70,8 @@ SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 SpaCET.visualize.spatialFeature(
   SpaCET_obj, 
   spatialType = "QualityControl", 
-  spatialFeatures=c("UMI","Gene")
+  spatialFeatures=c("UMI","Gene"),
+  imageBg = TRUE
 )
 
 ```
@@ -144,7 +145,7 @@ SpaCET.visualize.spatialFeature(
 ```
 <img src="img/visualizeDeconvolution2.png" width="100%" style="border:none" />
 
-Since some cell types have relatively low abundance, use can get a better vision by setting `sameScaleForFraction = FALSE`.
+Since some cell types have relatively low abundance, user can get a better vision by setting `sameScaleForFraction = FALSE`.
 
 ## Estimate cell-cell interactions
 After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.

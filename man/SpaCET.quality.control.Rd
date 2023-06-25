@@ -7,9 +7,9 @@
 SpaCET.quality.control(SpaCET_obj, min.genes = 1)
 }
 \arguments{
-\item{min.genes}{Minimum number of expressed genes. Default: 1.}
+\item{SpaCET_obj}{An SpaCET object.}
 
-\item{SpaCET}{An SpaCET object.}
+\item{min.genes}{Minimum number of expressed genes. Default: 1.}
 }
 \value{
 An SpaCET object.

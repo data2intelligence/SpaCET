@@ -66,6 +66,8 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">SpaCET.deconvolution.matched.scRNAseq</span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>,</span>
+<span>  sc_includeMalignant <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">cancerType</span>,</span>
 <span>  <span class="va">sc_counts</span>,</span>
 <span>  <span class="va">sc_annotation</span>,</span>
 <span>  <span class="va">sc_lineageTree</span>,</span>
@@ -78,6 +80,14 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>SpaCET_obj</dt>
 <dd><p>An SpaCET object.</p></dd>
+
+
+<dt>sc_includeMalignant</dt>
+<dd><p>Logical. Indicate whether the single cell data includes malignant cells. If no, please input a cancer type and then SpaCET will predict the malignant cell fraction based on its build-in reference.</p></dd>
+
+
+<dt>cancerType</dt>
+<dd><p>Cancer type of the current tumor ST dataset.</p></dd>
 
 
 <dt>sc_counts</dt>

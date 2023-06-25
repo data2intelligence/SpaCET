@@ -164,7 +164,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
         stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
         stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
         stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-        stat.df[i,"wilcoxTestG0"] <- wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value
+        stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
       }
 
       clusterMal <- which(
@@ -267,7 +267,7 @@ SpatialDeconv <- function(
     Ref,
     malProp,
     malRef,
-    mode=c("standard","deconvMal","deconvWithSC"),
+    mode=c("standard","deconvMal","deconvWithSC","deconvWithSC_alt"),
     Unidentifiable=TRUE,
     MacrophageOther=TRUE,
     coreNo
@@ -385,7 +385,7 @@ SpatialDeconv <- function(
     colnames(propMat) <- colnames(mixture)
     rownames(propMat) <- colnames(Reference)
 
-    if(mode=="standard")
+    if(mode%in%c("standard","deconvWithSC_alt"))
     {
       propMat <- rbind(Malignant=malProp, propMat)
     }
@@ -395,7 +395,12 @@ SpatialDeconv <- function(
       if(mode=="standard")
       {
         propMat <- rbind(propMat, Unidentifiable=1-colSums(propMat))
-      }else{
+      }else if(mode=="deconvWithSC_alt"){
+        propMat_nonMal <- propMat[-1,]
+        propMat_nonMal <- t( t(propMat_nonMal)/colSums(propMat_nonMal) )
+        propMat_nonMal <- t( t(propMat_nonMal)*(1-propMat[1,]) )
+        propMat[-1,] <- propMat_nonMal
+      }else{ # deconvWithSC
         propMat <- t( t(propMat)/colSums(propMat) )
       }
     }
@@ -413,9 +418,9 @@ SpatialDeconv <- function(
     print("Stage 2 - Level 2. Estimate the sub lineage.")
   }
 
-    ###### level 2 deconv ######
-    for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
-    {
+  ###### level 2 deconv ######
+  for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
+  {
       if(!cellSpe%in%rownames(propMatLevel1)) next
 
       cellsub <- Tree[[cellSpe]]
@@ -494,23 +499,20 @@ SpatialDeconv <- function(
       colnames(propMat) <- colnames(mixture)
       rownames(propMat) <- colnames(Reference)
 
-      if(cellSpe=="Macrophage")
+      if(mode=="standard"&MacrophageOther&cellSpe=="Macrophage")
       {
-        if(MacrophageOther&mode=="standard")
-        {
-          propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
-        }
+        propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
       }
 
       propMatLevel1 <- rbind(propMatLevel1, propMat)
-    }
+  }
 
-    propMat <- propMatLevel1
+  propMat <- propMatLevel1
 
-    propMat[propMat<0] <- 0
-    propMat[propMat>1] <- 1
+  propMat[propMat<0] <- 0
+  propMat[propMat>1] <- 1
 
-    propMat
+  propMat
 }
 
 

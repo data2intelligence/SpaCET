@@ -66,9 +66,11 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>,</span>
-<span>  spatialType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"QualityControl"</span>, <span class="st">"GeneExpr"</span>, <span class="st">"CellFraction"</span>, <span class="st">"LRNetworkScore"</span><span class="op">)</span>,</span>
+<span>  spatialType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"QualityControl"</span>, <span class="st">"GeneExpression"</span>, <span class="st">"CellFraction"</span>, <span class="st">"LRNetworkScore"</span>,</span>
+<span>    <span class="st">"Interface"</span><span class="op">)</span>,</span>
 <span>  spatialFeatures <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sameScaleForFraction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  scaleTypeForGeneExpression <span class="op">=</span> <span class="st">"LogTPM"</span>,</span>
+<span>  sameScaleForFraction <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  pointSize <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  imageBg <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -82,11 +84,15 @@
 
 
 <dt>spatialType</dt>
-<dd><p>Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.</p></dd>
+<dd><p>Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", LRNetworkScore", and "Interface". See ‘details’ for more information.</p></dd>
 
 
 <dt>spatialFeatures</dt>
 <dd><p>A vector of spatial features.</p></dd>
+
+
+<dt>scaleTypeForGeneExpression</dt>
+<dd><p>Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".</p></dd>
 
 
 <dt>sameScaleForFraction</dt>

@@ -131,7 +131,7 @@ SpaCET.visualize.spatialFeature <- function(
 
     spatialFeatures = c("interface")
     scaleType="color-discrete"
-    colors = colors=c("black","darkgrey","#f3c300")
+    colors=c("black","darkgrey","#f3c300")
     legendName = "Spot"
     limits = NULL
   }
@@ -162,6 +162,7 @@ SpaCET.visualize.spatialFeature <- function(
       legendName=legendName,
       imageBg=imageBg)
 
+    library(patchwork)
     if(exists("pp"))
     {
       pp <- pp + p

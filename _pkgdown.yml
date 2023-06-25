@@ -24,6 +24,10 @@ reference:
     - create.SpaCET.object
     - create.SpaCET.object.10X
     - SpaCET.quality.control
+    - SpaCET.quality.control
+    - SpaCET.quality.control
+    - convert.Seurat
+    - addTo.Seurat
 
   - title: Deconvolution of ST data
     contents:

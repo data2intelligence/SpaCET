@@ -408,7 +408,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
   if(is.na(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]))
   {
-    print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    stop("Please run SpaCET.CCI.cellTypePair first.")
   }else{
 
     rho <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_rho"]
@@ -422,16 +422,26 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
     Content <- unlist(groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)])
     visiualVector <- Content
     names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
-    p2 <- visualSpatial(
+
+    if(which(sort(unique(visiualVector))=="Both")==1)
+    {
+      icolors <- c("green","red","blue")
+    }else if(which(sort(unique(visiualVector))=="Both")==2){
+      icolors <- c("red","green","blue")
+    }else{
+      icolors <- c("red","blue","green")
+    }
+
+    p1 <- visualSpatial(
       visiualVector,
       SpaCET_obj@input$image,
       SpaCET_obj@input$platform,
       scaleType="color-discrete",
-      c("green","red","blue"),
+      colors=icolors,
       pointSize=1,
       pointAlpha=1,
       limits,
-      "",
+      "Spatial distribution of two cell-types",
       "Spot",
       imageBg=TRUE
     ) + theme(legend.position = "none")
@@ -446,15 +456,14 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
       y=res_deconv[cellTypePair[2],]
     ))
     fg.df <- cbind(fg.df,group=Content)
-    fg.df <- fg.df[order(fg.df[,3],decreasing=T),]
+    fg.df[,3] <- factor(fg.df[,3],levels=c("Both",cellTypePair,"Other"))
 
-    p1 <- ggplot(fg.df,aes(x=x, y=y)) +
+    p2 <- ggplot(fg.df,aes(x=x, y=y)) +
       geom_point(aes(colour=group),size=0.5)+
       scale_colour_manual(values=c("green","red","blue","grey"))+
       ggtitle(paste0("Spearman Rho = ",rho,", P ",pv1))+
       xlab(paste0("Cell fraction (",cellTypePair[1],")"))+
       ylab(paste0("Cell fraction (",cellTypePair[2],")"))+
-      guides(colour=guide_legend(title=""))+
       theme_bw()+
       theme(
         plot.background = element_blank(),
@@ -462,7 +471,8 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
         plot.title = element_text(size=14,hjust = 0.5),
         axis.title = element_text(size=14,colour = "black"),
         axis.text = element_text(size=13,colour = "black"),
-        legend.position=c(.8,.85)
+        legend.title=element_blank(),
+        legend.position=c(.75,.85)
       )+
       geom_smooth(method = "lm", formula = "y ~ x", color="orange")
 
@@ -470,6 +480,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
     # boxplot
 
     LRNetworkScoreMat <- SpaCET_obj@results$CCI$LRNetworkScore
+    LRNetworkScoreMat[2,LRNetworkScoreMat[2,]> 2] <- 2
 
     fg.df <- data.frame(group=Content,value=LRNetworkScoreMat[2,],stringsAsFactors=FALSE)
     fg.df <- fg.df[!fg.df[,"group"]%in%"Other",]
@@ -481,7 +492,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
     p3 <- ggplot(fg.df,aes(x=group, y=value)) +
       geom_jitter(aes(colour = group),size=0.3)+
       geom_boxplot(aes(colour = group), outlier.shape = NA, alpha = 0.8,size=0.8)+
-      scale_colour_manual(values=c("green","purple"))+
+      scale_colour_manual(values=c("green","magenta"))+
       xlab(xlab)+
       ylab(ylab)+
       ggtitle(paste0("Cohen's d=",cd1,", P=",pv2))+

@@ -158,11 +158,12 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
 
 #' @title Filter spatial spots and calculate the QC metrics
 #' @description Spots with less than `min.genes` expressed genes would be removed.
-#' @param SpaCET An SpaCET object.
+#' @param SpaCET_obj An SpaCET object.
 #' @param min.genes Minimum number of expressed genes. Default: 1.
 #' @return An SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
 #' @rdname SpaCET.quality.control
 #' @export
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
@@ -187,6 +188,78 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
   )
 
   SpaCET_obj
+}
+
+
+#' @title Convert Seurat to SpaCET
+#' @description Convert an Seurat object to an SpaCET object.
+#' @param Seurat_obj An Seurat object.
+#' @return An SpaCET object.
+#' @examples
+#' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
+#' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
+#' SpaCET_obj <- convert.Seurat(Seurat_obj)
+#' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+#' @rdname convert.Seurat
+#' @export
+convert.Seurat  <- function(Seurat_obj)
+{
+  st.matrix.data <- Seurat_obj@assays$Spatial@counts
+  st.matrix.data <- rm_duplicates(st.matrix.data)
+
+  spotCoordinates <- data.frame(
+    pxl_row=Seurat_obj@images$slice1@coordinates$imagerow * Seurat_obj@images$slice1@scale.factors$lowres,
+    pxl_col=Seurat_obj@images$slice1@coordinates$imagecol * Seurat_obj@images$slice1@scale.factors$lowres,
+    barcode=colnames(st.matrix.data)
+  )
+
+  colnames(st.matrix.data) <- paste0(
+    Seurat_obj@images$slice1@coordinates$row,"x",
+    Seurat_obj@images$slice1@coordinates$col
+  )
+
+  rownames(spotCoordinates) <- colnames(st.matrix.data)
+
+  rg <- grid::rasterGrob(Seurat_obj@images$slice1@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
+
+  SpaCET_obj <- methods::new("SpaCET",
+    input=list(
+      counts=st.matrix.data,
+      spotCoordinates=spotCoordinates,
+      image=list(path="FromSeurat",grob=rg),
+      platform="Visium"
+    )
+  )
+
+  SpaCET_obj
+}
+
+
+#' @title Add SpaCET to Seurat
+#' @description Add deconvolution results from an SpaCET object to an Seurat object as a new assay.
+#' @param SpaCET_obj An SpaCET object.
+#' @param Seurat_obj An Seurat object.
+#' @return An Seurat object.
+#' @examples
+#' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
+#' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
+#' SpaCET_obj <- convert.Seurat(Seurat_obj)
+#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+#' Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
+#' Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
+#' Seurat::SpatialFeaturePlot(Seurat_obj, features = c("CAF", "Macrophage"))
+#' @rdname addTo.Seurat
+#' @export
+addTo.Seurat  <- function(SpaCET_obj, Seurat_obj)
+{
+  propMat <- SpaCET_obj@results$deconvolution$propMat
+  colnames(propMat) <- SpaCET_obj@input$spotCoordinates[,"barcode"]
+
+  if(ncol(propMat)!=nrow(Seurat_obj@meta.data)) stop("SpaCET_obj and Seurat_obj have different spot number.")
+
+  Seurat_obj[["propMatFromSpaCET"]] <- Seurat::CreateAssayObject(data=propMat)
+  Seurat_obj
 }
 
 
