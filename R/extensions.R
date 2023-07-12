@@ -226,7 +226,7 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
   sc_counts <- sc_counts[,unlist(c_keep)]
   sc_annotation <- sc_annotation[unlist(c_keep),]
 
-  sc_counts <- sc_counts[rowSums(sc_counts)>0,]
+  sc_counts <- sc_counts[Matrix::rowSums(sc_counts) > 0, ]
 
   print("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
@@ -284,7 +284,9 @@ generateRef <- function(
     coreNo = coreNo
 )
 {
-  sc.matrix.data.norm <- t(t(sc.matrix.data)*1e5/colSums(sc.matrix.data))
+  sc.matrix.data.norm <- Matrix::t(
+    Matrix::t(sc.matrix.data) * 1e5 / Matrix::colSums(sc.matrix.data)
+  )
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
 
   cellTypes_level_1 <- names(sc.matrix.tree)

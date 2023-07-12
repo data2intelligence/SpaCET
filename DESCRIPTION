@@ -1,5 +1,5 @@
 Package: SpaCET
-Version: 1.0.0
+Version: 1.0.0.9000
 Title: Spatial Cellular Estimator for Tumors
 Description: Estimation of cell lineages in tumors from spatial transcriptomics data.
 Authors@R: c(person(given = "Beibei",family = "Ru", role = c("aut", "cre"), email = "beibei.ru@nih.gov"),person(given = "Peng",family = "Jiang", role = c("aut"), email = "peng.jiang@nih.gov"))
