@@ -297,15 +297,17 @@ generateRef <- function(
 
   for(cellType in cellTypes_level_1)
   {
-    refProfiles[rownames(sc.matrix.data.norm),cellType] <- apply(
-      sc.matrix.data.norm[,sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]],drop=F],
-      1,mean)
+    refProfiles[rownames(sc.matrix.data.norm), cellType] <- apply(
+      sc.matrix.data.norm[, sc.matrix.anno[, 2] %in% sc.matrix.tree[[cellType]] , drop=FALSE],
+      1,
+      mean
+    )
 
     run_limma <- function(cellTypeOther)
     {
       library(limma)
-      TT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]])
-      WT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellTypeOther]])
+      TT <- as.numeric(sc.matrix.anno[, 2] %in% sc.matrix.tree[[cellType]])
+      WT <- as.numeric(sc.matrix.anno[, 2] %in% sc.matrix.tree[[cellTypeOther]])
       design <- cbind(TT,WT)
       fit <- lmFit(sc.matrix.data.log2,design)
       cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
@@ -330,13 +332,15 @@ generateRef <- function(
 
       for(cellTypeSub in cellTypeSubs)
       {
-        refProfiles[rownames(sc.matrix.data.norm),cellTypeSub] <- apply(
-          sc.matrix.data.norm[,sc.matrix.anno[,"bio_celltype"]%in%cellTypeSub,drop=F],
-          1,mean)
+        refProfiles[rownames(sc.matrix.data.norm), cellTypeSub] <- apply(
+          sc.matrix.data.norm[,sc.matrix.anno[, 2] %in% cellTypeSub, drop = FALSE],
+          1,
+          mean
+        )
 
         library(limma)
-        TT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%cellTypeSub)
-        WT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%setdiff(sc.matrix.tree[[cellType]],cellTypeSub))
+        TT <- as.numeric(sc.matrix.anno[, 2] %in% cellTypeSub)
+        WT <- as.numeric(sc.matrix.anno[, 2] %in% setdiff(sc.matrix.tree[[cellType]], cellTypeSub))
         design <- cbind(TT,WT)
         fit <- lmFit(sc.matrix.data.log2,design)
         cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
