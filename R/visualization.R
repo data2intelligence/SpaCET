@@ -95,7 +95,28 @@ SpaCET.visualize.spatialFeature <- function(
 
     mat <- SpaCET_obj@results$deconvolution$propMat
 
-    if("All"%in%spatialFeatures) spatialFeatures <- rownames(SpaCET_obj@results$deconvolution$propMat)
+    if(!is.list(spatialFeatures))
+    {
+      if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
+
+    }else{
+      if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
+      {
+        stop("Please asign a name for each element of your cell-type list.")
+      }
+
+      for(i in names(spatialFeatures))
+      {
+        if( sum( spatialFeatures[[i]]%in%rownames(mat) ) != length(spatialFeatures[[i]]) )
+        {
+          wrongCellTypes <- paste0( spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
+          stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
+        }
+        mat <- rbind(mat,i=colSums(mat[spatialFeatures[[i]],,drop=F]))
+        rownames(mat)[nrow(mat)] <- i
+      }
+      spatialFeatures <- names(spatialFeatures)
+    }
 
     scaleType="color-continuous"
     colors = c("blue", "yellow", "red")
