@@ -102,7 +102,7 @@ SpaCET.visualize.spatialFeature <- function(
     }else{
       if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
       {
-        stop("Please asign a name for each element of your cell-type list.")
+        stop("Please assign a name for each element of your cell-type list.")
       }
 
       for(i in names(spatialFeatures))
