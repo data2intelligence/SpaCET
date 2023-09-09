@@ -205,34 +205,87 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @export
 convert.Seurat  <- function(Seurat_obj)
 {
-  st.matrix.data <- Seurat_obj@assays$Spatial@counts
-  st.matrix.data <- rm_duplicates(st.matrix.data)
+  sliceNum <- length(Seurat_obj@images)
 
-  spotCoordinates <- data.frame(
-    pxl_row=Seurat_obj@images$slice1@coordinates$imagerow * Seurat_obj@images$slice1@scale.factors$lowres,
-    pxl_col=Seurat_obj@images$slice1@coordinates$imagecol * Seurat_obj@images$slice1@scale.factors$lowres,
-    barcode=colnames(st.matrix.data)
-  )
+  if(sliceNum==1)
+  {
+    st.matrix.data <- Seurat_obj@assays$Spatial@counts
+    st.matrix.data <- rm_duplicates(st.matrix.data)
 
-  colnames(st.matrix.data) <- paste0(
-    Seurat_obj@images$slice1@coordinates$row,"x",
-    Seurat_obj@images$slice1@coordinates$col
-  )
+    slice <- Seurat_obj@images[[1]]
 
-  rownames(spotCoordinates) <- colnames(st.matrix.data)
-
-  rg <- grid::rasterGrob(Seurat_obj@images$slice1@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
-
-  SpaCET_obj <- methods::new("SpaCET",
-    input=list(
-      counts=st.matrix.data,
-      spotCoordinates=spotCoordinates,
-      image=list(path="FromSeurat",grob=rg),
-      platform="Visium"
+    spotCoordinates <- data.frame(
+      pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
+      pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
+      barcode=colnames(st.matrix.data)
     )
-  )
 
-  SpaCET_obj
+    colnames(st.matrix.data) <- paste0(
+      slice@coordinates$row,"x",
+      slice@coordinates$col
+    )
+
+    rownames(spotCoordinates) <- colnames(st.matrix.data)
+
+    rg <- grid::rasterGrob(slice@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
+
+    SpaCET_obj <- methods::new("SpaCET",
+      input=list(
+        counts=st.matrix.data,
+        spotCoordinates=spotCoordinates,
+        image=list(path="FromSeurat",grob=rg),
+        platform="Visium"
+      )
+    )
+
+    SpaCET_obj
+  }else{
+
+    SpaCET_obj_list <- list()
+    spotNum <- c(0)
+    for(i in 1:sliceNum)
+    {
+      slice <- Seurat_obj@images[[i]]
+      spotNum <- c(spotNum, nrow(slice@coordinates))
+
+      spot_start <- sum(spotNum[1:i])+1
+      spot_end <- spot_start+ nrow(slice@coordinates) - 1
+
+      st.matrix.data <- Seurat_obj@assays$Spatial@counts[,spot_start:spot_end]
+      colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
+
+      st.matrix.data <- rm_duplicates(st.matrix.data)
+
+
+      spotCoordinates <- data.frame(
+        pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
+        pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
+        barcode=colnames(st.matrix.data)
+      )
+
+      colnames(st.matrix.data) <- paste0(
+        slice@coordinates$row,"x",
+        slice@coordinates$col
+      )
+
+      rownames(spotCoordinates) <- colnames(st.matrix.data)
+
+      rg <- grid::rasterGrob(slice@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
+
+      SpaCET_obj <- methods::new("SpaCET",
+                                 input=list(
+                                   counts=st.matrix.data,
+                                   spotCoordinates=spotCoordinates,
+                                   image=list(path="FromSeurat",grob=rg),
+                                   platform="Visium"
+                                 )
+      )
+
+      SpaCET_obj_list[[i]] <- SpaCET_obj
+    }
+
+    SpaCET_obj_list
+  }
 }
 
 
@@ -245,6 +298,7 @@ convert.Seurat  <- function(Seurat_obj)
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
 #' SpaCET_obj <- convert.Seurat(Seurat_obj)
+#' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 #' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 #' Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
 #' Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
@@ -253,13 +307,36 @@ convert.Seurat  <- function(Seurat_obj)
 #' @export
 addTo.Seurat  <- function(SpaCET_obj, Seurat_obj)
 {
-  propMat <- SpaCET_obj@results$deconvolution$propMat
-  colnames(propMat) <- SpaCET_obj@input$spotCoordinates[,"barcode"]
+  sliceNum <- length(SpaCET_obj)
 
-  if(ncol(propMat)!=nrow(Seurat_obj@meta.data)) stop("SpaCET_obj and Seurat_obj have different spot number.")
+  if(sliceNum==1)
+  {
+    propMat <- SpaCET_obj@results$deconvolution$propMat
+    colnames(propMat) <- SpaCET_obj@input$spotCoordinates[,"barcode"]
 
-  Seurat_obj[["propMatFromSpaCET"]] <- Seurat::CreateAssayObject(data=propMat)
-  Seurat_obj
+    if(ncol(propMat)!=nrow(Seurat_obj@meta.data)) stop("SpaCET_obj and Seurat_obj have different spot number.")
+
+    Seurat_obj[["propMatFromSpaCET"]] <- Seurat::CreateAssayObject(data=propMat)
+    Seurat_obj
+
+  }else{
+
+    for(i in 1:length(SpaCET_obj))
+    {
+      propMat <- SpaCET_obj[[i]]@results$deconvolution$propMat
+
+      if(i==1)
+      {
+        propMatComb <- propMat
+      }else{
+        propMatComb <- cbind(propMatComb,propMat)
+      }
+
+    }
+    colnames(propMatComb) <- colnames(Seurat_obj@assays$Spatial@counts)
+    Seurat_obj[["propMatFromSpaCET"]] <- Seurat::CreateAssayObject(data=propMatComb)
+    Seurat_obj
+  }
 }
 
 
