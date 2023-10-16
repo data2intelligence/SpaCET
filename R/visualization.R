@@ -168,7 +168,9 @@ SpaCET.visualize.spatialFeature <- function(
     }
 
     visiualVector <- mat[spatialFeature,]
-    names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
+    names(visiualVector) <- paste0(
+      SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
+      SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
 
     p <- visualSpatial(
       visiualVector,

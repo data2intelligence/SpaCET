@@ -306,7 +306,13 @@ SpatialDeconv <- function(
       malRef <- malRef[rownames(ST)]
       malRef <- malRef*1e6/sum(malRef)
       mixtureMal <- matrix(malRef,ncol=1)%*%matrix(malProp,nrow=1)
+      colnames(mixtureMal) <- names(malProp)
     }
+
+    olpSpots <- intersect(colnames(ST), colnames(mixtureMal))
+    ST <- ST[,olpSpots]
+    mixtureMal <- mixtureMal[,olpSpots]
+
     mixtureMinusMal <- ST - mixtureMal
   }else{
     mixtureMinusMal <- ST
@@ -387,7 +393,7 @@ SpatialDeconv <- function(
 
     if(mode%in%c("standard","deconvWithSC_alt"))
     {
-      propMat <- rbind(Malignant=malProp, propMat)
+      propMat <- rbind(Malignant=malProp[colnames(propMat)], propMat)
     }
 
     if(Unidentifiable==TRUE)
