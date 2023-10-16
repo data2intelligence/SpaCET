@@ -492,7 +492,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
     p3 <- ggplot(fg.df,aes(x=group, y=value)) +
       geom_jitter(aes(colour = group),size=0.3)+
       geom_boxplot(aes(colour = group), outlier.shape = NA, alpha = 0.8,size=0.8)+
-      scale_colour_manual(values=c("green","magenta"))+
+      scale_colour_manual(values=c("green","purple"))+
       xlab(xlab)+
       ylab(ylab)+
       ggtitle(paste0("Cohen's d=",cd1,", P=",pv2))+
