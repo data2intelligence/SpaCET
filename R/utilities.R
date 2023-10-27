@@ -48,7 +48,7 @@ create.SpaCET.object.10X <- function(visiumPath)
   if(file.exists(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")))
   {
     st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")) #dgT
-    st.matrix.data <- methods::as(st.matrix.data, "dgCMatrix")
+    st.matrix.data <- methods::as(st.matrix.data, "CsparseMatrix")
 
     st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
     st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
