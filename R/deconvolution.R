@@ -28,7 +28,7 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
   print("Stage 1. Infer malignant cell fraction.")
   malRes <- inferMal_cor(st.matrix.data,cancerType)
 
-  print("Stage 2. Hierarchically deconvolve non-malignant cell fracton.")
+  print("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
 
   if(ncol(st.matrix.data) <= 20000)
   {
