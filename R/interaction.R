@@ -402,14 +402,14 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
   }
   cellTypePair <- sort(cellTypePair)
 
-  res_deconv <- SpaCET_obj@results$deconvolution$propMat
-  groupMat <- SpaCET_obj@results$CCI$interaction$groupMat
-  testRes <- SpaCET_obj@results$CCI$interaction$testRes
 
-  if(is.na(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]))
+  if(!paste0(cellTypePair[1],"_",cellTypePair[2])%in%rownames(SpaCET_obj@results$CCI$interaction$testRes))
   {
     stop("Please run SpaCET.CCI.cellTypePair first.")
   }else{
+    res_deconv <- SpaCET_obj@results$deconvolution$propMat
+    groupMat <- SpaCET_obj@results$CCI$interaction$groupMat
+    testRes <- SpaCET_obj@results$CCI$interaction$testRes
 
     rho <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_rho"]
     pv1 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"colocalization_pv"]
@@ -421,6 +421,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
     Content <- unlist(groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)])
     visiualVector <- Content
+    spotID <- names(visiualVector)
     names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
     if(which(sort(unique(visiualVector))=="Both")==1)
@@ -443,7 +444,8 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
       limits,
       "Spatial distribution of two cell-types",
       "Spot",
-      imageBg=TRUE
+      imageBg=TRUE,
+      spotID
     ) + theme(legend.position = "none")
 
 
@@ -512,8 +514,8 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 }
 
 
-#' @title Tumor-Stroma Interface
-#' @description Visualize the cell-type pair colocalization.
+#' @title Identify tumor-stroma interface
+#' @description Identify the spots at the tumor-stroma interface.
 #' @param SpaCET_obj An SpaCET object.
 #' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
 #' @param MalignantCutoff Malignant cell fraction cutoff for tumor boundary. Default: 0.5.
@@ -595,11 +597,76 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
 
   SpaCET_obj@results$CCI$interface <- matrix(
     Content_new, nrow=1, byrow=TRUE,
-    dimnames = list("interface",colnames(res_deconv))
+    dimnames = list("Interface",colnames(res_deconv))
     )
 
   SpaCET_obj
 }
+
+
+
+#' @title Combine interaction spots to interface
+#' @description Demonstrate the spatial position of interaction spots at the tumor microenvironment.
+#' @param SpaCET_obj An SpaCET object.
+#' @param cellTypePair A pair of cell types.
+#' @return An SpaCET object.
+#' @examples
+#' SpaCET_obj <- SpaCET.combine.interface(SpaCET_obj,cellTypePair=c("CAF", "Macrophage M2"))
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface", spatialFeature = "Interaction")
+#'
+#' @rdname SpaCET.combine.interface
+#' @export
+#'
+SpaCET.combine.interface <- function(SpaCET_obj, cellTypePair)
+{
+  if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
+  {
+    stop("This function is only applicable to 10X Visium data.")
+  }
+
+  if(length(cellTypePair)!=2)
+  {
+    stop("Please input a pair of cell-types.")
+  }
+
+  if(sum(cellTypePair%in%rownames(SpaCET_obj@results$deconvolution$propMat))!=2)
+  {
+    stop("Please input the correct cell-type name. Of note, R language is case sensitive generally.")
+  }
+  cellTypePair <- sort(cellTypePair)
+
+  if(!"Interface"%in%rownames(SpaCET_obj@results$CCI$interface))
+  {
+    stop("Please run SpaCET.identify.interface first.")
+  }
+
+  if(!paste0(cellTypePair[1],"_",cellTypePair[2])%in%rownames(SpaCET_obj@results$CCI$interaction$testRes))
+  {
+    stop("Please run SpaCET.CCI.cellTypePair first.")
+  }else{
+    M2CAF <- SpaCET_obj@results$CCI$interaction$groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),]
+    M2CAF <- names(M2CAF)[M2CAF%in%c("Both")]
+
+    stromal <- colnames(SpaCET_obj@results$CCI$interface)[SpaCET_obj@results$CCI$interface["Interface",]=="Stroma"]
+    M2CAF <- M2CAF[M2CAF%in%stromal]
+
+    Content_new_new <- SpaCET_obj@results$CCI$interface["Interface",]
+    Content_new_new[names(Content_new_new)%in%M2CAF] <- "Interaction"
+
+    gname <- paste0("Interface&",cellTypePair[1],"_",cellTypePair[2])
+    if(gname%in%rownames(SpaCET_obj@results$CCI$interface))
+    {
+      SpaCET_obj@results$CCI$interface[gname,] <- Content_new_new
+    }else{
+      SpaCET_obj@results$CCI$interface <- rbind(SpaCET_obj@results$CCI$interface,Content_new_new)
+      rownames(SpaCET_obj@results$CCI$interface)[nrow(SpaCET_obj@results$CCI$interface)] <- gname
+    }
+
+    SpaCET_obj
+  }
+
+}
+
 
 
 #' @title Distance to tumor border

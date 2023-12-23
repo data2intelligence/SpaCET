@@ -145,7 +145,12 @@ SpaCET.visualize.spatialFeature(
 ```
 <img src="img/visualizeDeconvolution2.png" width="100%" style="border:none" />
 
-Since some cell types have relatively low abundance, user can get a better vision by setting `sameScaleForFraction = FALSE`.
+Since some cell types have relatively low abundance, user can get a better vision by setting `sameScaleForFraction = FALSE`. In addition, you can open up an interactive visualization panel by setting `interactive=TRUE` to browse the deconvolution results.
+
+``` r
+SpaCET.visualize.spatialFeature(SpaCET_obj,interactive=TRUE)
+```
+<img src="img/visualizeDeconvolution3.png" width="94%" style="border:none" />
 
 ## Estimate cell-cell interactions
 After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.
@@ -208,17 +213,28 @@ SpaCET.visualize.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
 SpaCET_obj <- SpaCET.identify.interface(SpaCET_obj)
 
 # Visualize the Interface
-SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface")
+SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface", spatialFeature = "Interface")
 
 ```
 <img src="img/cancerInterface1.png" width="50%" style="border:none" />
+
+``` r
+# Combine the interface and interaction spots
+SpaCET_obj <- SpaCET.combine.interface(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
+
+# Visualize the Interface. The spatialFeature should be formated as "Interface&celltype1_celltype2". Celltype 1 and 2 is in the order of alphabet.
+SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface", spatialFeature = "Interface&CAF_Macrophage M2")
+
+```
+<img src="img/cancerInterface2.png" width="52%" style="border:none" />
+
 
 ``` r
 # Compute the distance of CAF-M2 to tumor border
 SpaCET.distance.to.interface(SpaCET_obj, cellTypePair=c("CAF", "Macrophage M2"))
 
 ``` 
-<img src="img/cancerInterface2.png" width="60%" style="border:none" />
+<img src="img/cancerInterface3.png" width="60%" style="border:none" />
 
 ## Explore cancer cell states
 The gene expression profiles of tumor cells (i.e., cancer cell states) are determined by both tumor cells’ genetic background and cell-cell interactions from the surrounding environment. As an explorative extension, SpaCET can automatically explore the spatial distribution of different cancer cell states.

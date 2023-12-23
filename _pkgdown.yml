@@ -44,6 +44,7 @@ reference:
   - title: Tumor-Stroma Interface
     contents:
     - SpaCET.identify.interface
+    - SpaCET.combine.interface
     - SpaCET.distance.to.interface
 
   - title: Visualization

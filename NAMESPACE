@@ -3,6 +3,7 @@
 export(SpaCET.CCI.LRNetworkScore)
 export(SpaCET.CCI.cellTypePair)
 export(SpaCET.CCI.colocalization)
+export(SpaCET.combine.interface)
 export(SpaCET.deconvolution)
 export(SpaCET.deconvolution.malignant)
 export(SpaCET.deconvolution.matched.scRNAseq)

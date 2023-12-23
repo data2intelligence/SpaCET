@@ -2,7 +2,7 @@
 % Please edit documentation in R/interaction.R
 \name{SpaCET.identify.interface}
 \alias{SpaCET.identify.interface}
-\title{Tumor-Stroma Interface}
+\title{Identify tumor-stroma interface}
 \usage{
 SpaCET.identify.interface(
   SpaCET_obj,
@@ -21,7 +21,7 @@ SpaCET.identify.interface(
 An SpaCET object.
 }
 \description{
-Visualize the cell-type pair colocalization.
+Identify the spots at the tumor-stroma interface.
 }
 \examples{
 SpaCET_obj <- SpaCET.identify.interface(SpaCET_obj)

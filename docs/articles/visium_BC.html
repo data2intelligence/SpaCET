@@ -252,7 +252,12 @@ the spatial distribution of cell types.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/visualizeDeconvolution2.png" width="100%" style="border:none"></p>
 <p>Since some cell types have relatively low abundance, user can get a
-better vision by setting <code>sameScaleForFraction = FALSE</code>.</p>
+better vision by setting <code>sameScaleForFraction = FALSE</code>. In
+addition, you can open up an interactive visualization panel by setting
+<code>interactive=TRUE</code> to browse the deconvolution results.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>,interactive<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="img/visualizeDeconvolution3.png" width="94%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="estimate-cell-cell-interactions">Estimate cell-cell interactions<a class="anchor" aria-label="anchor" href="#estimate-cell-cell-interactions"></a>
@@ -271,7 +276,7 @@ the co-localized cell-type pairs.</p>
 <p>SpaCET provides <code>SpaCET.CCI.colocalization</code> and
 <code>SpaCET.visualize.colocalization</code> to compute and visualize
 the co-localized cell-type pairs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the cell-cell colocalization.</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.colocalization.html">SpaCET.CCI.colocalization</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
 <span></span>
@@ -301,7 +306,7 @@ networks while preserving directed degree distributions. For a spot, an
 L-R network score is defined as the sum of expression products between
 all L-R pairs, divided by the average random value from 1,000 randomized
 networks.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># calculate the L-R network score across ST spots.</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.LRNetworkScore.html">SpaCET.CCI.LRNetworkScore</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>,coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
@@ -322,7 +327,7 @@ categories: CAF-M2 colocalized, CAF or M2 dominated, and others (see the
 left and middle panels in the following figure). We found that CAF-M2
 colocalized spots have more substantial L-R interaction network scores
 than CAF/M2-dominated spots (right panel).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Ligand-Receptor analysis for a co-localized cell-type pair</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.CCI.cellTypePair.html">SpaCET.CCI.cellTypePair</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## [1] "CAF and Macrophage M2 have potential intercellular interaction in the current tissue."</span></span>
@@ -344,17 +349,24 @@ the same number of spots as CAF-M2 spots from the non-malignant regions
 and calculated their distances to the border as the null distribution.
 The result showed that CAF-M2 interaction spots are significantly closer
 to the tumor-immune boundaries.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Identify the Tumor-Stroma Interface</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.identify.interface.html">SpaCET.identify.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Visualize the Interface</span></span>
-<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"Interface"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"Interface"</span>, spatialFeature <span class="op">=</span> <span class="st">"Interface"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/cancerInterface1.png" width="50%" style="border:none"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Combine the interface and interaction spots</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.combine.interface.html">SpaCET.combine.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>,<span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Visualize the Interface. The spatialFeature should be formated as "Interface&amp;celltype1_celltype2". Celltype 1 and 2 is in the order of alphabet.</span></span>
+<span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"Interface"</span>, spatialFeature <span class="op">=</span> <span class="st">"Interface&amp;CAF_Macrophage M2"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="img/cancerInterface2.png" width="52%" style="border:none"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute the distance of CAF-M2 to tumor border</span></span>
 <span><span class="fu"><a href="../reference/SpaCET.distance.to.interface.html">SpaCET.distance.to.interface</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cellTypePair<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CAF"</span>, <span class="st">"Macrophage M2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="img/cancerInterface2.png" width="60%" style="border:none"></p>
+<p><img src="img/cancerInterface3.png" width="60%" style="border:none"></p>
 </div>
 <div class="section level2">
 <h2 id="explore-cancer-cell-states">Explore cancer cell states<a class="anchor" aria-label="anchor" href="#explore-cancer-cell-states"></a>
@@ -377,7 +389,7 @@ cancer cell state.</p>
 sublineages, the overall malignant cell fraction would be decomposed to
 multiple cancer cell states. Thus, the sum fraction of cancer cell
 states equals to the malignant cell fraction for each spot.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># further deconvolve malignant cell states</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.malignant.html">SpaCET.deconvolution.malignant</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, coreNo <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>

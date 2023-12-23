@@ -1,7 +1,7 @@
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj An SpaCET object.
-#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", LRNetworkScore", and "Interface". See ‘details’ for more information.
+#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", and "Interface". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
@@ -32,176 +32,432 @@ SpaCET.visualize.spatialFeature <- function(
     sameScaleForFraction = FALSE,
     pointSize = 1,
     nrow = 1,
-    imageBg = TRUE
+    imageBg = TRUE,
+    interactive = FALSE
 )
 {
-  if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"))
+  if(interactive==FALSE)
   {
-    stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, and Interface.")
-  }
-
-
-  if(spatialType == "QualityControl")
-  {
-    if(is.null(SpaCET_obj@results$metrics))
+    if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"))
     {
-      stop("Please run SpaCET.quality.control first.")
+      stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, and Interface.")
     }
 
-    mat <- SpaCET_obj@results$metrics
 
-    scaleType="color-continuous"
-    colors = c("lightblue", "blue", "darkblue")
-    legendName = "Count"
-    limits = NULL
-  }else if(spatialType == "GeneExpression"){
-    mat <- SpaCET_obj@input$counts
-
-    if(scaleTypeForGeneExpression=="RawCounts")
+    if(spatialType == "QualityControl")
     {
-      legendName = "Counts"
-    }else if(scaleTypeForGeneExpression=="LogRawCounts"){
-      mat@x <- log2(mat@x+1)
-      legendName = "LogCounts"
-    }else if(scaleTypeForGeneExpression=="LogTPM/10"){
-      mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
-      mat@x <- log2(mat@x+1)
-      legendName = "LogTPM/10"
-    }else if(scaleTypeForGeneExpression=="LogTPM"){
-      mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
-      mat@x <- log2(mat@x+1)
-      legendName = "LogTPM"
-    }else{
-      stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
-    }
-
-    geneFlag <- spatialFeatures%in%rownames(mat)
-    if(sum(geneFlag)!=length(geneFlag))
-    {
-      excluded <- spatialFeatures[!geneFlag]
-      print("The following genes are excluded because they are not official gene symbols.")
-      print(excluded)
-      spatialFeatures <- spatialFeatures[geneFlag]
-    }
-
-    scaleType="color-continuous"
-    colors = c("#4d9221", "yellow", "#c51b7d")
-    limits = NULL
-  }else if(spatialType == "CellFraction"){
-    if(is.null(SpaCET_obj@results$deconvolution$propMat))
-    {
-      stop("Please run cell type deconvolution first.")
-    }
-
-    mat <- SpaCET_obj@results$deconvolution$propMat
-
-    if(!is.list(spatialFeatures))
-    {
-      if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
-
-    }else{
-      if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
+      if(is.null(SpaCET_obj@results$metrics))
       {
-        stop("Please assign a name for each element of your cell-type list.")
+        stop("Please run SpaCET.quality.control first.")
       }
 
-      for(i in names(spatialFeatures))
+      mat <- SpaCET_obj@results$metrics
+
+      scaleType="color-continuous"
+      colors = c("lightblue", "blue", "darkblue")
+      legendName = "Count"
+      limits = NULL
+    }else if(spatialType == "GeneExpression"){
+      mat <- SpaCET_obj@input$counts
+
+      if(scaleTypeForGeneExpression=="RawCounts")
       {
-        if( sum( spatialFeatures[[i]]%in%rownames(mat) ) != length(spatialFeatures[[i]]) )
+        legendName = "Counts"
+      }else if(scaleTypeForGeneExpression=="LogRawCounts"){
+        mat@x <- log2(mat@x+1)
+        legendName = "LogCounts"
+      }else if(scaleTypeForGeneExpression=="LogTPM/10"){
+        mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
+        mat@x <- log2(mat@x+1)
+        legendName = "LogTPM/10"
+      }else if(scaleTypeForGeneExpression=="LogTPM"){
+        mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
+        mat@x <- log2(mat@x+1)
+        legendName = "LogTPM"
+      }else{
+        stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
+      }
+
+      geneFlag <- spatialFeatures%in%rownames(mat)
+      if(sum(geneFlag)!=length(geneFlag))
+      {
+        excluded <- spatialFeatures[!geneFlag]
+        print("The following genes are excluded because they are not official gene symbols.")
+        print(excluded)
+        spatialFeatures <- spatialFeatures[geneFlag]
+      }
+
+      scaleType="color-continuous"
+      colors = c("#4d9221", "yellow", "#c51b7d")
+      limits = NULL
+    }else if(spatialType == "CellFraction"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      if(!is.list(spatialFeatures))
+      {
+        if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
+
+      }else{
+        if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
         {
-          wrongCellTypes <- paste0( spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
-          stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
+          stop("Please assign a name for each element of your cell-type list.")
         }
-        mat <- rbind(mat,i=colSums(mat[spatialFeatures[[i]],,drop=F]))
-        rownames(mat)[nrow(mat)] <- i
+
+        for(i in names(spatialFeatures))
+        {
+          if( sum( spatialFeatures[[i]]%in%rownames(mat) ) != length(spatialFeatures[[i]]) )
+          {
+            wrongCellTypes <- paste0( spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
+            stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
+          }
+          mat <- rbind(mat,i=colSums(mat[spatialFeatures[[i]],,drop=F]))
+          rownames(mat)[nrow(mat)] <- i
+        }
+        spatialFeatures <- names(spatialFeatures)
       }
-      spatialFeatures <- names(spatialFeatures)
+
+      scaleType="color-continuous"
+      colors = c("blue", "yellow", "red")
+      legendName = "Fraction"
+
+      if(sameScaleForFraction)
+      {
+        limits = c(0,1)
+      }else{
+        limits = NULL
+      }
+    }else if(spatialType == "LRNetworkScore"){
+      if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
+      {
+        stop("Please run SpaCET.CCI.LRNetworkScore first.")
+      }
+
+      mat <- SpaCET_obj@results$CCI$LRNetworkScore
+      mat[2,mat[2,]> 1.5] <- 1.5
+      mat[2,mat[2,]< 0.5] <- 0.5
+      mat[3,] <- -log10(mat[3,])
+
+      scaleType="color-continuous"
+      colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
+      limits = NULL
+    }else{
+      if(is.null(SpaCET_obj@results$CCI$interface))
+      {
+        stop("Please run SpaCET.identify.interface first.")
+      }
+
+      mat <- SpaCET_obj@results$CCI$interface
+
+      scaleType="color-discrete"
+      legendName = "Spot"
+      limits = NULL
     }
 
-    scaleType="color-continuous"
-    colors = c("blue", "yellow", "red")
-    legendName = "Fraction"
+    for(spatialFeature in spatialFeatures)
+    {
+      if(spatialType == "LRNetworkScore"){
+        if(spatialFeature == "Network_Score"){
+          legendName = "Score"
+        }else{
+          legendName = "-log10pv"
+        }
+      }
+
+      if(spatialType == "Interface"){
+        if(spatialFeature == "Interface"){
+          colors=c("black","darkgrey","#f3c300")
+        }else{
+          colors=c("green","black","darkgrey","#f3c300")
+        }
+      }
+
+
+      visiualVector <- mat[spatialFeature,]
+      spotID <- names(visiualVector)
+      names(visiualVector) <- paste0(
+        SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
+        SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+
+      p <- visualSpatial(
+        visiualVector,
+        image=SpaCET_obj@input$image,
+        platform=SpaCET_obj@input$platform,
+        scaleType=scaleType,
+        colors=colors,
+        pointSize=pointSize,
+        pointAlpha=1,
+        limits=limits,
+        titleName=spatialFeature,
+        legendName=legendName,
+        imageBg=imageBg,
+        spotID=spotID)
+
+      library(patchwork)
+      if(exists("pp"))
+      {
+        pp <- pp + p
+      }else{
+        pp <- p
+      }
+    }
+
+    pp <- pp + patchwork::plot_layout(nrow = nrow)
 
     if(sameScaleForFraction)
     {
-      limits = c(0,1)
-    }else{
-      limits = NULL
-    }
-  }else if(spatialType == "LRNetworkScore"){
-    if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
-    {
-      stop("Please run SpaCET.CCI.LRNetworkScore first.")
+      pp <- pp + patchwork::plot_layout(guides = "collect")
     }
 
-    mat <- SpaCET_obj@results$CCI$LRNetworkScore
-    mat[2,mat[2,]> 1.5] <- 1.5
-    mat[2,mat[2,]< 0.5] <- 0.5
-    mat[3,] <- -log10(mat[3,])
+    pp
 
-    scaleType="color-continuous"
-    colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
-    limits = NULL
   }else{
-    if(is.null(SpaCET_obj@results$CCI$interface))
+    if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
     {
-      stop("Please run SpaCET.identify.interface first.")
+      stop("This function is only applicable to 10X Visium data.")
     }
 
-    mat <- SpaCET_obj@results$CCI$interface
+    library(shiny)
+    library(plotly)
 
-    spatialFeatures = c("interface")
-    scaleType="color-discrete"
-    colors=c("black","darkgrey","#f3c300")
-    legendName = "Spot"
-    limits = NULL
-  }
+    app <- list(
+      ui=fluidPage(
 
-  for(spatialFeature in spatialFeatures)
-  {
-    if(spatialType == "LRNetworkScore"){
-      if(spatialFeature == "Network_Score"){
-        legendName = "Score"
-      }else{
-        legendName = "-log10pv"
+        titlePanel("Interactive visualization from SpaCET"),
+
+        sidebarLayout(
+
+          sidebarPanel(
+            p("1. Select a spatial feature.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            selectInput("spatialType", p("Spatial Feature Type:",style="color:black; text-align:center"), ""),
+            selectInput("spatialFeature", p("Spatial Feature:",style="color:black; text-align:center"), ""),
+            br(),
+            p("2. Adjust the style of spots.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.1),
+            br(),
+            sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
+            br(),
+            style="background-color:papayawhip;border-left:8px solid orange",
+            width = 3
+          ),
+
+          mainPanel(
+            column(
+              br(),
+              plotlyOutput("overlayPlotly"),
+              br(),
+              width = 7,
+              style="border:1px solid darkgrey; height:592px; border-right:18px"
+            ),
+            column(
+              br(),
+              DT::dataTableOutput("se"),
+              br(),
+              width = 5,
+              style="border:1px solid darkgrey; height:592px"
+            )
+          )
+
+        )
+
+      ),
+
+      server=function(input, output, session) {
+
+        observe({
+          spatialTypes <- c("CellFraction","QualityControl","LRNetworkScore","Interface")
+
+          if(is.null(SpaCET_obj@results$deconvolution$propMat))
+          {
+            spatialTypes <- setdiff(spatialTypes,"CellFraction")
+          }
+          if(is.null(SpaCET_obj@results$metrics))
+          {
+            spatialTypes <- setdiff(spatialTypes,"QualityControl")
+          }
+          if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
+          {
+            spatialTypes <- setdiff(spatialTypes,"LRNetworkScore")
+          }
+          if(is.null(SpaCET_obj@results$CCI$interface))
+          {
+            spatialTypes <- setdiff(spatialTypes,"Interface")
+          }
+          updateSelectInput(session, "spatialType", choices = spatialTypes, selected=spatialTypes[1])
+        })
+
+        observe({
+          if(input$spatialType=="QualityControl"){
+            spatialFeatures <- rownames(SpaCET_obj@results$metrics)
+          }else if(input$spatialType=="CellFraction"){
+            spatialFeatures <- rownames(SpaCET_obj@results$deconvolution$propMat)
+          }else if(input$spatialType=="LRNetworkScore"){
+            spatialFeatures <- rownames(SpaCET_obj@results$CCI$LRNetworkScore)[2:3]
+          }else if(input$spatialType=="Interface"){
+            spatialFeatures <- rownames(SpaCET_obj@results$CCI$interface)
+          }else{
+            spatialFeatures <- c()
+          }
+          updateSelectInput(session, "spatialFeature", choices = spatialFeatures, selected=spatialFeatures[1])
+        })
+
+        output$overlayPlotly <- renderPlotly({
+          pointSize <- input$pointSize
+          pointAlpha <- input$pointAlpha
+
+          if(input$spatialType=="QualityControl"){
+            mat <- SpaCET_obj@results$metrics
+            scaleType="color-continuous"
+            colors = c("lightblue", "blue", "darkblue")
+            legendName = "Count"
+            limits = NULL
+          }else if(input$spatialType=="CellFraction"){
+            mat <- SpaCET_obj@results$deconvolution$propMat
+            scaleType="color-continuous"
+            colors = c("blue", "yellow", "red")
+            legendName = "Fraction"
+            limits = NULL
+          }else if(input$spatialType=="LRNetworkScore"){
+            mat <- SpaCET_obj@results$CCI$LRNetworkScore
+            mat[2,mat[2,]> 1.5] <- 1.5
+            mat[2,mat[2,]< 0.5] <- 0.5
+            mat[3,] <- -log10(mat[3,])
+
+            scaleType="color-continuous"
+            colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
+
+            if(input$spatialFeature == "Network_Score"){
+              legendName = "Score"
+            }else{
+              legendName = "-log10pv"
+            }
+
+            limits = NULL
+          }else{
+            mat <- SpaCET_obj@results$CCI$interface
+
+            scaleType="color-discrete"
+
+            if(input$spatialFeature == "Interface"){
+              colors=c("black","darkgrey","#f3c300")
+            }else{
+              colors=c("green","black","darkgrey","#f3c300")
+            }
+
+            legendName = "Spot"
+            limits = NULL
+          }
+
+          if( input$spatialFeature%in%rownames(mat) )
+          {
+            visiualVector <- mat[input$spatialFeature,]
+            spotID <- names(visiualVector)
+            names(visiualVector) <- paste0(
+              SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
+              SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+
+            g <- visualSpatial(
+              visiualVector,
+              image=SpaCET_obj@input$image,
+              platform=SpaCET_obj@input$platform,
+              scaleType=scaleType,
+              colors=colors,
+              pointSize=pointSize,
+              pointAlpha=pointAlpha,
+              limits=limits,
+              titleName=input$spatialFeature,
+              legendName=legendName,
+              imageBg=TRUE,
+              spotID=spotID
+              )
+
+            ggplotly(g,layerData=1,height=555) %>%
+              plotly::layout(
+                dragmode = "lasso",
+                images=list(
+                  list(
+                    source = base64enc::dataURI(file = SpaCET_obj@input$image$path),
+                    xref = "paper",
+                    yref = "paper",
+                    x= 0,
+                    y= 1,
+                    sizex = 1,
+                    sizey = 1,
+                    opacity = 0.5,
+                    sizing = "stretch",
+                    layer = "bottom"
+                  )
+                )
+              )
+          }
+        })
+
+
+        output$se <- DT::renderDataTable(server = FALSE,{
+
+          if(input$spatialType=="QualityControl")
+          {
+            mat <- SpaCET_obj@results$metrics
+          }else if(input$spatialType=="CellFraction"){
+            mat <- SpaCET_obj@results$deconvolution$propMat
+          }else if(input$spatialType=="LRNetworkScore"){
+            mat <- SpaCET_obj@results$CCI$LRNetworkScore
+            mat[2,mat[2,]> 1.5] <- 1.5
+            mat[2,mat[2,]< 0.5] <- 0.5
+            mat[3,] <- -log10(mat[3,])
+          }else{
+            mat <- SpaCET_obj@results$CCI$interface
+          }
+
+          if( input$spatialFeature%in%rownames(mat) )
+          {
+            visiualVector <- mat[input$spatialFeature,]
+            spotID <- names(visiualVector)
+            names(visiualVector) <- paste0(
+              SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
+              SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+
+            d <- event_data("plotly_selected")
+
+            if(!is.null(d))
+            {
+              d <- cbind(d, xy="a")
+              d <- cbind(d, SpotID="b")
+              d <- cbind(d, Value="c")
+              d[,3] <- round(d[,3],3)
+              d[,4] <- round(d[,4],3)
+              d[,"xy"] <- paste0(600-d[,4],"x",d[,3])
+              d[,"SpotID"] <- spotID[names(visiualVector)%in%d[,"xy"]]
+              d[,"Value"] <- visiualVector[names(visiualVector)%in%d[,"xy"]]
+              d <- d[,c("SpotID","Value")]
+
+              DT::datatable(d, caption = "Your selected spots in the middle panel.",
+                            extensions = "Buttons",
+                            options = list(paging = TRUE,
+                                           scrollX=TRUE,
+                                           searching = TRUE,
+                                           ordering = TRUE,
+                                           dom = 'Bfrtip',
+                                           buttons = c('csv', 'excel'),
+                                           pageLength=10,
+                                           lengthMenu=c(10,20,50) ))
+            }else{
+              DT::datatable(data.frame("The selected spots in the middle panel will be listed here."),rownames = FALSE, colnames=NULL)
+            }
+          }
+
+        })
+
+
       }
-    }
 
-    visiualVector <- mat[spatialFeature,]
-    names(visiualVector) <- paste0(
-      SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
-      SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
-
-    p <- visualSpatial(
-      visiualVector,
-      image=SpaCET_obj@input$image,
-      platform=SpaCET_obj@input$platform,
-      scaleType=scaleType,
-      colors=colors,
-      pointSize=pointSize,
-      pointAlpha=1,
-      limits=limits,
-      titleName=spatialFeature,
-      legendName=legendName,
-      imageBg=imageBg)
-
-    library(patchwork)
-    if(exists("pp"))
-    {
-      pp <- pp + p
-    }else{
-      pp <- p
-    }
+    )
+    shiny::runApp(app)
   }
-
-  pp <- pp + patchwork::plot_layout(nrow = nrow)
-
-  if(sameScaleForFraction)
-  {
-    pp <- pp + patchwork::plot_layout(guides = "collect")
-  }
-
-  pp
 }
 
 
@@ -216,7 +472,8 @@ visualSpatial <- function(
     pointAlpha,
     titleName,
     legendName,
-    imageBg
+    imageBg,
+    spotID
 )
 {
   library(ggplot2)
@@ -237,12 +494,13 @@ visualSpatial <- function(
     fig.df <- data.frame(
       x=xDiml-coordi[,1],
       y=coordi[,2],
-      value=visiualVector
+      value=visiualVector,
+      spotID=spotID
     )
     rownames(fig.df) <- names(visiualVector)
 
     # 1. initiate plot
-    p <- ggplot(fig.df,aes(x=x,y=y))
+    p <- ggplot(fig.df,aes(x=x,y=y,text=spotID))
 
     # 2. add image
     if(imageBg & !is.na(image$path))
