@@ -7,10 +7,10 @@ SpaCET is an R package desighed for analyzing cancer spatial
 transcriptomics (ST) datasets to estimate cell lineages and
 intercellular interactions within the tumor microenvironment. In a
 nutshell, SpaCET first infers cancer cell abundance by integrating a
-gene pattern dictionary of common malignancies. SpaCET then employs a
-constrained linear regression model to calibrate local tissue densities
-and determine stromal and immune cell lineage fractions based on a
-comprehensive non-malignant cell atlas. Furthermore, SpaCET has the
+gene pattern dictionary of common malignancies. Subsequently, SpaCET
+employs a constrained linear regression model to calibrate local tissue
+densities and determine stromal and immune cell lineage fractions based
+on a comprehensive non-malignant cell atlas. Furthermore, SpaCET has the
 capability to unveil putative cell-cell interactions within the tumor
 microenvironment, particularly at the tumor-immune interface. Of note,
 although SpaCET does not require any input cell references for the
