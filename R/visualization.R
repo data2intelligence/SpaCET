@@ -30,6 +30,7 @@ SpaCET.visualize.spatialFeature <- function(
     spatialFeatures = NULL,
     scaleTypeForGeneExpression = "LogTPM",
     sameScaleForFraction = FALSE,
+    colors = NULL,
     pointSize = 1,
     nrow = 1,
     imageBg = TRUE,
@@ -54,7 +55,7 @@ SpaCET.visualize.spatialFeature <- function(
       mat <- SpaCET_obj@results$metrics
 
       scaleType="color-continuous"
-      colors = c("lightblue", "blue", "darkblue")
+      if(is.null(colors)) colors = c("lightblue", "blue", "darkblue")
       legendName = "Count"
       limits = NULL
     }else if(spatialType == "GeneExpression"){
@@ -88,7 +89,7 @@ SpaCET.visualize.spatialFeature <- function(
       }
 
       scaleType="color-continuous"
-      colors = c("#4d9221", "yellow", "#c51b7d")
+      if(is.null(colors)) colors = c("#4d9221", "yellow", "#c51b7d")
       limits = NULL
     }else if(spatialType == "CellFraction"){
       if(is.null(SpaCET_obj@results$deconvolution$propMat))
@@ -122,7 +123,7 @@ SpaCET.visualize.spatialFeature <- function(
       }
 
       scaleType="color-continuous"
-      colors = c("blue", "yellow", "red")
+      if(is.null(colors)) colors = c("blue", "yellow", "red")
       legendName = "Fraction"
 
       if(sameScaleForFraction)
@@ -131,6 +132,7 @@ SpaCET.visualize.spatialFeature <- function(
       }else{
         limits = NULL
       }
+
     }else if(spatialType == "LRNetworkScore"){
       if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
       {
@@ -143,8 +145,9 @@ SpaCET.visualize.spatialFeature <- function(
       mat[3,] <- -log10(mat[3,])
 
       scaleType="color-continuous"
-      colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
+      if(is.null(colors)) colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
       limits = NULL
+
     }else{
       if(is.null(SpaCET_obj@results$CCI$interface))
       {
@@ -170,9 +173,9 @@ SpaCET.visualize.spatialFeature <- function(
 
       if(spatialType == "Interface"){
         if(spatialFeature == "Interface"){
-          colors=c("black","darkgrey","#f3c300")
+          if(is.null(colors)) colors=c("black","darkgrey","#f3c300")
         }else{
-          colors=c("green","black","darkgrey","#f3c300")
+          if(is.null(colors)) colors=c("green","black","darkgrey","#f3c300")
         }
       }
 

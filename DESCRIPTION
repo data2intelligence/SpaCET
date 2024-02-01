@@ -3,7 +3,6 @@ Version: 1.1.0
 Title: Spatial Cellular Estimator for Tumors
 Description: Estimation of cell lineages in tumors from spatial transcriptomics data.
 Authors@R: c(person(given = "Beibei",family = "Ru", role = c("aut", "cre"), email = "beibei.ru@nih.gov"),person(given = "Peng",family = "Jiang", role = c("aut"), email = "peng.jiang@nih.gov"))
-Citation: Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. Nature Communications 14, 568 (2023).
 License: file LICENSE
 URL: https://github.com/data2intelligence/SpaCET
 BugReports: https://github.com/data2intelligence/SpaCET/issues
