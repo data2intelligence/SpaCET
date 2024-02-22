@@ -212,6 +212,8 @@ convert.Seurat  <- function(Seurat_obj)
     if(class(Seurat_obj@assays$Spatial)=="Assay5")
     {
       st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
+      colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
+      rownames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@features)
     }else{
       st.matrix.data <- Seurat_obj@assays$Spatial@counts
     }
@@ -258,11 +260,14 @@ convert.Seurat  <- function(Seurat_obj)
 
       if(class(Seurat_obj@assays$Spatial)=="Assay5")
       {
-        st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts[,spot_start:spot_end]
+        st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
+        colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
+        rownames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@features)
       }else{
-        st.matrix.data <- Seurat_obj@assays$Spatial@counts[,spot_start:spot_end]
+        st.matrix.data <- Seurat_obj@assays$Spatial@counts
       }
 
+      st.matrix.data <- st.matrix.data[,spot_start:spot_end]
       colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
 
       st.matrix.data <- rm_duplicates(st.matrix.data)
