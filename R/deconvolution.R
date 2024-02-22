@@ -14,6 +14,11 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
 {
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
 
   st.matrix.data <- SpaCET_obj@input$counts
   st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]

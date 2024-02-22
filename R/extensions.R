@@ -12,6 +12,14 @@
 #' @export
 SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=8)
 {
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
+
   if(length(SpaCET_obj@results$deconvolution$Ref$lineageTree[[Malignant]])>1)
   {
     stop("Your deconvolution results have included multiple malignant cell states. We do not recommend deconvolve malignant cell fraction further.")
@@ -38,10 +46,6 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   {
     stop("Please input a value within 0~1 for the cutoff of malignant spots.")
   }
-
-  coreNoDect <- parallel::detectCores()
-  if(coreNoDect<coreNo) coreNo <- coreNoDect
-
 
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
@@ -182,6 +186,11 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
 {
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
 
   if(!identical(rownames(sc_annotation),as.character(sc_annotation[,"cellID"])))
   {

@@ -169,7 +169,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #' @param coreNo Core number in parallel computation.
 #' @return An SpaCET object.
 #' @examples
-#' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj)
+#' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=8)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 #'
 #' @rdname SpaCET.CCI.LRNetworkScore
@@ -177,6 +177,14 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #'
 SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=8)
 {
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
+
   st.matrix.data <- SpaCET_obj@input$counts
 
   st.matrix.data <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
