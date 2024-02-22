@@ -209,7 +209,12 @@ convert.Seurat  <- function(Seurat_obj)
 
   if(sliceNum==1)
   {
-    st.matrix.data <- Seurat_obj@assays$Spatial@counts
+    if(class(Seurat_obj@assays$Spatial)=="Assay5")
+    {
+      st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
+    }else{
+      st.matrix.data <- Seurat_obj@assays$Spatial@counts
+    }
     st.matrix.data <- rm_duplicates(st.matrix.data)
 
     slice <- Seurat_obj@images[[1]]
@@ -251,7 +256,13 @@ convert.Seurat  <- function(Seurat_obj)
       spot_start <- sum(spotNum[1:i])+1
       spot_end <- spot_start+ nrow(slice@coordinates) - 1
 
-      st.matrix.data <- Seurat_obj@assays$Spatial@counts[,spot_start:spot_end]
+      if(class(Seurat_obj@assays$Spatial)=="Assay5")
+      {
+        st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts[,spot_start:spot_end]
+      }else{
+        st.matrix.data <- Seurat_obj@assays$Spatial@counts[,spot_start:spot_end]
+      }
+
       colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
 
       st.matrix.data <- rm_duplicates(st.matrix.data)
