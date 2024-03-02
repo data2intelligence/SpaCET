@@ -367,12 +367,14 @@ generateRef <- function(
 #' @title Calculate gene set score for each spot.
 #' @description Calculate spots' gene set score from the in-house or user-defined gene sets.
 #' @param SpaCET_obj An SpaCET object.
-#' @param GeneSets A character string for in-house gene sets, or a list object for user-defined gene sets. See details.
+#' @param GeneSets A string for in-house gene sets, or a list object for user-defined gene sets. See details.
 #' @return An SpaCET object
 #' @details
 #' 1) Set `GeneSets` as "Hallmark", "CancerCellState", or "TLS" to use the in-house gene sets.
 #' "Hallmark": https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp#H
+#'
 #' "CancerCellState": https://www.nature.com/articles/s41588-022-01141-9
+#'
 #' "TLS": https://www.researchsquare.com/article/rs-3921508
 #'
 #' 2) Set `GeneSets` as a list to use the user-defined gene sets. Each entry should be a vector of gene symbols.
