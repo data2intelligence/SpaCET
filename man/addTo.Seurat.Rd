@@ -26,4 +26,5 @@ SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
 Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
 Seurat::SpatialFeaturePlot(Seurat_obj, features = c("CAF", "Macrophage"))
+
 }

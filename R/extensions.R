@@ -362,3 +362,95 @@ generateRef <- function(
   Ref <- list(refProfiles=refProfiles, sigGenes=sigGenes, lineageTree=sc.matrix.tree)
   Ref
 }
+
+
+#' @title Calculate gene set score for each spot.
+#' @description Calculate spots' gene set score from the in-house or user-defined gene sets.
+#' @param SpaCET_obj An SpaCET object.
+#' @param GeneSets A character string for in-house gene sets, or a list object for user-defined gene sets. See details.
+#' @return An SpaCET object
+#' @details
+#' 1) Set `GeneSets` as "Hallmark", "CancerCellState", or "TLS" to use the in-house gene sets.
+#' "Hallmark": https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp#H
+#' "CancerCellState": https://www.nature.com/articles/s41588-022-01141-9
+#' "TLS": https://www.researchsquare.com/article/rs-3921508
+#'
+#' 2) Set `GeneSets` as a list to use the user-defined gene sets. Each entry should be a vector of gene symbols.
+#'
+#' The function `ScoreSignatures_UCell` from `UCell` is used to calculate gene-set scores.
+#' https://bioconductor.org/packages/release/bioc/html/UCell.html.
+#'
+#' @examples
+#' SpaCET_obj <- SpaCET.GeneSetScore(SpaCET_obj, GeneSets="Hallmark")
+#'
+#' @rdname SpaCET.GeneSetScore
+#' @export
+SpaCET.GeneSetScore <- function(SpaCET_obj, GeneSets)
+{
+  if(is.list(GeneSets))
+  {
+    gmt <- GeneSets
+  }else{
+    if(GeneSets%in%c("Hallmark","CancerCellState","TLS"))
+    {
+      dataPath <- file.path(system.file(package = "SpaCET"), "extdata/GeneSets/")
+      gmt <- read.gmt(paste0(dataPath,GeneSets,".gmt"))
+    }else{
+      stop("Make sure set GeneSets as a list or one of three string 'Hallmark', 'CancerCellState', and 'TLS'. " )
+    }
+  }
+
+  res <- t(UCell::ScoreSignatures_UCell(SpaCET_obj@input$counts, gmt, name=""))
+
+  if(is.null(SpaCET_obj@results$GeneSetScore))
+  {
+    SpaCET_obj@results$GeneSetScore <- res
+  }else{
+    SpaCET_obj@results$GeneSetScore <- rbind(SpaCET_obj@results$GeneSetScore, res)
+  }
+
+  SpaCET_obj
+}
+
+#' @title Read a gmt file.
+#' @description Read a gmt file as a gene set list.
+#' @param gmtPath Path to a gmt file.
+#' @return A gene set list
+#' @examples
+#' gmt <- read.gmt(gmtPath)
+#'
+#' @rdname read.gmt
+#' @export
+read.gmt <- function(gmtPath)
+{
+  gmtPre <- readLines(gmtPath)
+  gmt <- list()
+
+  for(i in 1:length(gmtPre))
+  {
+    vect <- unlist(strsplit(gmtPre[i],"\t"))
+    gmt[[vect[1]]] <- vect[3:length(vect)]
+  }
+
+  gmt
+}
+
+#' @title Write a gmt file.
+#' @description Write a gene set list as a gmt file.
+#' @param gmt A gene set list.
+#' @param gmtPath Path to a gmt file.
+#' @return NULL
+#' @examples
+#' write.gmt(gmt, gmtPath)
+#'
+#' @rdname write.gmt
+#' @export
+write.gmt <- function(gmt, gmtPath)
+{
+  comb <- c()
+  for(i in 1:length(gmt))
+  {
+    comb <- c(comb,paste0(names(gmt)[i],"\t\t",paste0(gmt[[i]],collapse="\t")))
+  }
+  writeLines(comb,gmtPath)
+}

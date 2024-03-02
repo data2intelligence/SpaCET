@@ -164,6 +164,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
 #' @examples
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+#'
 #' @rdname SpaCET.quality.control
 #' @export
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
@@ -201,6 +202,7 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' SpaCET_obj <- convert.Seurat(Seurat_obj)
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+#'
 #' @rdname convert.Seurat
 #' @export
 convert.Seurat  <- function(Seurat_obj)
@@ -319,6 +321,7 @@ convert.Seurat  <- function(Seurat_obj)
 #' Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
 #' Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
 #' Seurat::SpatialFeaturePlot(Seurat_obj, features = c("CAF", "Macrophage"))
+#'
 #' @rdname addTo.Seurat
 #' @export
 addTo.Seurat  <- function(SpaCET_obj, Seurat_obj)

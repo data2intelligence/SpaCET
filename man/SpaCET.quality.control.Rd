@@ -20,4 +20,5 @@ Spots with less than `min.genes` expressed genes would be removed.
 \examples{
 SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+
 }

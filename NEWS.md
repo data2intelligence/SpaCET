@@ -1,3 +1,10 @@
+## SpaCET 1.2.0
+
+*2024-03-01*
+
+* Add a new function `SpaCET.GeneSetScore` to calculate gene set score.
+* Update `convert.Seurat` and `addTo.Seurat` to be compatible with Seurat v5.
+
 ## SpaCET 1.1.0
 
 *2023-12-28*

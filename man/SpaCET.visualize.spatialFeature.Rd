@@ -7,10 +7,11 @@
 SpaCET.visualize.spatialFeature(
   SpaCET_obj,
   spatialType = c("QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore",
-    "Interface"),
+    "Interface", "GeneSetScore"),
   spatialFeatures = NULL,
   scaleTypeForGeneExpression = "LogTPM",
   sameScaleForFraction = FALSE,
+  colors = NULL,
   pointSize = 1,
   nrow = 1,
   imageBg = TRUE,
@@ -20,7 +21,7 @@ SpaCET.visualize.spatialFeature(
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
-\item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", and "Interface". See ‘details’ for more information.}
+\item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.}
 
 \item{spatialFeatures}{A vector of spatial features.}
 

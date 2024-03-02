@@ -40,7 +40,7 @@ install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ## Dependencies
 
 * R version >= 4.2.0. 
-* R packages: Matrix, jsonlite, ggplot2, reshape2, patchwork, png, shiny, plotly, DT, MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire, limma.
+* R packages: Matrix, jsonlite, ggplot2, reshape2, patchwork, png, shiny, plotly, DT, MUDAN, factoextra, NbClust, cluster, parallel, psych, BiRewire, limma, UCell.
 
 ## Example
 
@@ -72,6 +72,7 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 ## Tutorial
 * [Cell type deconvolution and interaction analysis](https://data2intelligence.github.io/SpaCET/articles/visium_BC.html)  
 * [Deconvolution with a matched scRNA-seq data set](https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html)
+* [Gene set score calculation for spatial spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
 
 ## Citation
 Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. **Nature Communications** 14, 568 (2023). [<a href="https://www.nature.com/articles/s41467-023-36062-6" target="_blank">Link</a>]

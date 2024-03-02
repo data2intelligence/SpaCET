@@ -14,6 +14,8 @@ navbar:
         href: articles/visium_BC.html
       - text: Deconvolution with a matched scRNA-seq data set
         href: articles/oldST_PDAC.html
+      - text: Gene set score calculation for spatial spots
+        href: articles/GeneSetScore.html
     - text: News
       href: news/index.html
 
@@ -52,3 +54,9 @@ reference:
     - SpaCET.visualize.spatialFeature
     - SpaCET.visualize.colocalization
     - SpaCET.visualize.cellTypePair
+
+  - title: Gene set score calculation
+    contents:
+    - SpaCET.GeneSetScore
+    - read.gmt
+    - write.gmt

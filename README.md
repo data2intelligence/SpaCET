@@ -43,7 +43,7 @@ install.packages("Path_to_the_source_code", repos = NULL, type="source")
 -   R version \>= 4.2.0.
 -   R packages: Matrix, jsonlite, ggplot2, reshape2, patchwork, png,
     shiny, plotly, DT, MUDAN, factoextra, NbClust, cluster, parallel,
-    psych, BiRewire, limma.
+    psych, BiRewire, limma, UCell.
 
 ## Example
 
@@ -78,6 +78,8 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
     analysis](https://data2intelligence.github.io/SpaCET/articles/visium_BC.html)  
 -   [Deconvolution with a matched scRNA-seq data
     set](https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html)
+-   [Gene set score calculation for spatial
+    spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
 
 ## Citation
 

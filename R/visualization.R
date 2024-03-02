@@ -1,7 +1,7 @@
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj An SpaCET object.
-#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", and "Interface". See ‘details’ for more information.
+#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
@@ -26,7 +26,7 @@
 #' @export
 SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
-    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"),
+    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface","GeneSetScore"),
     spatialFeatures = NULL,
     scaleTypeForGeneExpression = "LogTPM",
     sameScaleForFraction = FALSE,
@@ -39,9 +39,9 @@ SpaCET.visualize.spatialFeature <- function(
 {
   if(interactive==FALSE)
   {
-    if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface"))
+    if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface","GeneSetScore"))
     {
-      stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, and Interface.")
+      stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, and GeneSetScore.")
     }
 
 
@@ -148,7 +148,7 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
       limits = NULL
 
-    }else{
+    }else if(spatialType == "Interface"){
       if(is.null(SpaCET_obj@results$CCI$interface))
       {
         stop("Please run SpaCET.identify.interface first.")
@@ -158,6 +158,18 @@ SpaCET.visualize.spatialFeature <- function(
 
       scaleType="color-discrete"
       legendName = "Spot"
+      limits = NULL
+    }else{
+      if(is.null(SpaCET_obj@results$GeneSetScore))
+      {
+        stop("Please run SpaCET.GeneSetScore first.")
+      }
+
+      mat <- SpaCET_obj@results$GeneSetScore
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
+      legendName = "Score"
       limits = NULL
     }
 

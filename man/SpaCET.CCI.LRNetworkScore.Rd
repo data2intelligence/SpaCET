@@ -18,7 +18,7 @@ An SpaCET object.
 Calculate the overall intensity of L-R interactions within ST spots.
 }
 \examples{
-SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj)
+SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=8)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 
 }

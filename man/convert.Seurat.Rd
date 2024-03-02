@@ -21,4 +21,5 @@ Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
 SpaCET_obj <- convert.Seurat(Seurat_obj)
 SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+
 }
