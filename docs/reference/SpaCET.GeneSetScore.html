@@ -75,7 +75,7 @@
 
 
 <dt>GeneSets</dt>
-<dd><p>A character string for in-house gene sets, or a list object for user-defined gene sets. See details.</p></dd>
+<dd><p>A string for in-house gene sets, or a list object for user-defined gene sets. See details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -87,9 +87,9 @@
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>1) Set `GeneSets` as "Hallmark", "CancerCellState", or "TLS" to use the in-house gene sets.
-"Hallmark": https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp#H
-"CancerCellState": https://www.nature.com/articles/s41588-022-01141-9
-"TLS": https://www.researchsquare.com/article/rs-3921508</p>
+"Hallmark": https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp#H</p>
+<p>"CancerCellState": https://www.nature.com/articles/s41588-022-01141-9</p>
+<p>"TLS": https://www.researchsquare.com/article/rs-3921508</p>
 <p>2) Set `GeneSets` as a list to use the user-defined gene sets. Each entry should be a vector of gene symbols.</p>
 <p>The function `ScoreSignatures_UCell` from `UCell` is used to calculate gene-set scores.
 https://bioconductor.org/packages/release/bioc/html/UCell.html.</p>
