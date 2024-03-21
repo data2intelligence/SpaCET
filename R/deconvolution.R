@@ -96,6 +96,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   }
 
   st.matrix.data.diff <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
+  st.matrix.data.diff[is.na(st.matrix.data.diff)] <- 0
   st.matrix.data.diff@x <- log2(st.matrix.data.diff@x+1)
   st.matrix.data.diff <- st.matrix.data.diff-Matrix::rowMeans(st.matrix.data.diff)
 
