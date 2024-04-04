@@ -396,7 +396,7 @@ SpaCET.GeneSetScore <- function(SpaCET_obj, GeneSets)
     if(GeneSets%in%c("Hallmark","CancerCellState","TLS"))
     {
       dataPath <- file.path(system.file(package = "SpaCET"), "extdata/GeneSets/")
-      gmt <- read.gmt(paste0(dataPath,GeneSets,".gmt"))
+      gmt <- read.gmt(paste0(dataPath,"/",GeneSets,".gmt"))
     }else{
       stop("Make sure set GeneSets as a list or one of three string 'Hallmark', 'CancerCellState', and 'TLS'. " )
     }
