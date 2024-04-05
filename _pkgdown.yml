@@ -10,10 +10,13 @@ navbar:
       href: reference/index.html
     - text: Tutorials
       menu:
+      - text: Core
       - text: Cell type deconvolution and interaction analysis
         href: articles/visium_BC.html
       - text: Deconvolution with a matched scRNA-seq data set
         href: articles/oldST_PDAC.html
+      - text: ----
+      - text: Misc
       - text: Gene set score calculation for spatial spots
         href: articles/GeneSetScore.html
     - text: News
