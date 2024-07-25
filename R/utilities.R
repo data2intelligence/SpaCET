@@ -17,7 +17,7 @@ setClass("SpaCET",
 #' @details
 #' If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
 #' Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-#' which have both `filtered_feature_bc_matrix` and `spatial` folders.
+#' which has either (1) both `filtered_feature_bc_matrix` and `spatial` folders
 #'
 #' The "filtered_feature_bc_matrix" folder includes \cr
 #' "barcodes.tsv.gz": spot level barcodes; \cr
@@ -28,6 +28,8 @@ setClass("SpaCET",
 #' “tissue_positions_list.csv” : barcodes and spatial information; \cr
 #' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
 #' “scalefactors_json.json” : scaling factors for adjusting the coordinates.
+#'
+#' or (2) `filtered_feature_bc_matrix.h5` file.
 #'
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
@@ -169,6 +171,9 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
 #' @export
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 {
+  print("Removing spots with less than ",min.genes," expressed genes.")
+  print("......")
+
   st.matrix.data <- SpaCET_obj@input$counts
   expressed.genes<- Matrix::colSums(st.matrix.data>0)
 
