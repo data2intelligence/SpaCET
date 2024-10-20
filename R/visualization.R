@@ -26,7 +26,7 @@
 #' @export
 SpaCET.visualize.spatialFeature <- function(
     SpaCET_obj,
-    spatialType = c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface","GeneSetScore"),
+    spatialType,
     spatialFeatures = NULL,
     scaleTypeForGeneExpression = "LogTPM",
     sameScaleForFraction = FALSE,
@@ -34,16 +34,12 @@ SpaCET.visualize.spatialFeature <- function(
     pointSize = 1,
     nrow = 1,
     imageBg = TRUE,
+    legend.position = "right",
     interactive = FALSE
 )
 {
   if(interactive==FALSE)
   {
-    if(!spatialType%in%c("QualityControl","GeneExpression","CellFraction","LRNetworkScore","Interface","GeneSetScore"))
-    {
-      stop("Please set spatialType as one of five spatial feature types, i.e.,  QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, and GeneSetScore.")
-    }
-
 
     if(spatialType == "QualityControl")
     {
@@ -159,7 +155,7 @@ SpaCET.visualize.spatialFeature <- function(
       scaleType="color-discrete"
       legendName = "Spot"
       limits = NULL
-    }else{
+    }else if(spatialType == "GeneSetScore"){
       if(is.null(SpaCET_obj@results$GeneSetScore))
       {
         stop("Please run SpaCET.GeneSetScore first.")
@@ -171,7 +167,29 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
       legendName = "Score"
       limits = NULL
+    }else if(spatialType == "SignalingDomain"){
+      if(is.null(SpaCET_obj@results$domain))
+      {
+        stop("Please run SecAct.signaling.domain first.")
+      }
+
+      mat <- SpaCET_obj@results$domain$sumSignal
+
+      if("All"%in%spatialFeatures)
+      {
+        spatialFeatures <- rownames(mat)
+      }else{
+        spatialFeatures <- as.character(spatialFeatures)
+      }
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
+      legendName = "Signal"
+      limits = NULL
+    }else{
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, and SignalingDomain.")
     }
+
 
     for(spatialFeature in spatialFeatures)
     {
@@ -209,6 +227,7 @@ SpaCET.visualize.spatialFeature <- function(
         limits=limits,
         titleName=spatialFeature,
         legendName=legendName,
+        legend.position=legend.position,
         imageBg=imageBg,
         spotID=spotID)
 
@@ -386,6 +405,7 @@ SpaCET.visualize.spatialFeature <- function(
               limits=limits,
               titleName=input$spatialFeature,
               legendName=legendName,
+              legend.position=legend.position,
               imageBg=TRUE,
               spotID=spotID
               )
@@ -487,6 +507,7 @@ visualSpatial <- function(
     pointAlpha,
     titleName,
     legendName,
+    legend.position,
     imageBg,
     spotID
 )
@@ -546,7 +567,8 @@ visualSpatial <- function(
         axis.title = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
-        panel.border = element_blank()
+        panel.border = element_blank(),
+        legend.position = legend.position
       )+coord_flip()
 
     # 6. set color scale

@@ -235,7 +235,7 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
   sc_counts <- sc_counts[,unlist(c_keep)]
   sc_annotation <- sc_annotation[unlist(c_keep),]
 
-  sc_counts <- sc_counts[rowSums(sc_counts)>0,]
+  sc_counts <- sc_counts[Matrix::rowSums(sc_counts)>0,]
 
   print("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
@@ -293,7 +293,8 @@ generateRef <- function(
     coreNo = coreNo
 )
 {
-  sc.matrix.data.norm <- t(t(sc.matrix.data)*1e5/colSums(sc.matrix.data))
+  sc.matrix.data.norm <- Matrix::t(Matrix::t(sc.matrix.data)*1e5/Matrix::colSums(sc.matrix.data))
+
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
 
   cellTypes_level_1 <- names(sc.matrix.tree)
@@ -305,14 +306,14 @@ generateRef <- function(
   for(cellType in cellTypes_level_1)
   {
     refProfiles[rownames(sc.matrix.data.norm),cellType] <- apply(
-      sc.matrix.data.norm[,sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]],drop=F],
+      sc.matrix.data.norm[,sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]],drop=F],
       1,mean)
 
     run_limma <- function(cellTypeOther)
     {
       library(limma)
-      TT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellType]])
-      WT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%sc.matrix.tree[[cellTypeOther]])
+      TT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]])
+      WT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellTypeOther]])
       design <- cbind(TT,WT)
       fit <- lmFit(sc.matrix.data.log2,design)
       cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
@@ -338,12 +339,12 @@ generateRef <- function(
       for(cellTypeSub in cellTypeSubs)
       {
         refProfiles[rownames(sc.matrix.data.norm),cellTypeSub] <- apply(
-          sc.matrix.data.norm[,sc.matrix.anno[,"bio_celltype"]%in%cellTypeSub,drop=F],
+          sc.matrix.data.norm[,sc.matrix.anno[,2]%in%cellTypeSub,drop=F],
           1,mean)
 
         library(limma)
-        TT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%cellTypeSub)
-        WT <- as.numeric(sc.matrix.anno[,"bio_celltype"]%in%setdiff(sc.matrix.tree[[cellType]],cellTypeSub))
+        TT <- as.numeric(sc.matrix.anno[,2]%in%cellTypeSub)
+        WT <- as.numeric(sc.matrix.anno[,2]%in%setdiff(sc.matrix.tree[[cellType]],cellTypeSub))
         design <- cbind(TT,WT)
         fit <- lmFit(sc.matrix.data.log2,design)
         cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
