@@ -25,6 +25,18 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
 
   # filter the matrix with ref genes in case the matrix is too big
   load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
+
+  if(cancerType=="LIHC")
+  {
+    load( system.file("extdata",'Ref_Normal_LIHC.rda',package = 'SpaCET') )
+
+    olp <- intersect(rownames(Ref$refProfiles), rownames(Ref_Normal$refProfiles))
+
+    Ref$refProfiles <- cbind(Ref$refProfiles[olp,], Ref_Normal$refProfiles[olp,])
+    Ref$sigGenes <- append(Ref$sigGenes, Ref_Normal$sigGenes)
+    Ref$lineageTree <- append(Ref$lineageTree, Ref_Normal$lineageTree)
+  }
+
   if(ncol(st.matrix.data) > 20000)
   {
     st.matrix.data <- st.matrix.data[rownames(st.matrix.data)%in%rownames(Ref$refProfiles),]
