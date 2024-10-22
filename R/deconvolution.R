@@ -2,6 +2,7 @@
 #' @description Estimate the cell fraction of cell lineages and sub lineages.
 #' @param SpaCET_obj An SpaCET object.
 #' @param cancerType Cancer type of the current tumor ST dataset.
+#' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
 #' @param coreNo Core number in parallel computation.
 #' @return An SpaCET object.
 #' @examples
@@ -10,7 +11,7 @@
 #' @rdname SpaCET.deconvolution
 #' @export
 #'
-SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
+SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, coreNo=8)
 {
   coreNoDect <- parallel::detectCores()
   if(coreNoDect<coreNo) coreNo <- coreNoDect
@@ -42,8 +43,18 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, coreNo=8)
     st.matrix.data <- st.matrix.data[rownames(st.matrix.data)%in%rownames(Ref$refProfiles),]
   }
 
-  print("Stage 1. Infer malignant cell fraction.")
-  malRes <- inferMal_cor(st.matrix.data,cancerType)
+  if(adjacentNormal==TRUE)
+  {
+    print("Stage 1. Infer malignant cell fraction (skip).")
+
+    malProp <- rep(0,dim(st.matrix.data)[2])
+    names(malProp) <- colnames(st.matrix.data)
+
+    malRes <- list("malRef"=NULL,"malProp"=malProp)
+  }else{
+    print("Stage 1. Infer malignant cell fraction.")
+    malRes <- inferMal_cor(st.matrix.data,cancerType)
+  }
 
   print("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
 
