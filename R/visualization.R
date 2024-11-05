@@ -167,13 +167,13 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
       legendName = "Score"
       limits = NULL
-    }else if(spatialType == "SignalingDomain"){
-      if(is.null(SpaCET_obj@results$domain))
+    }else if(spatialType == "SignalingPattern"){
+      if(is.null(SpaCET_obj@results$pattern))
       {
-        stop("Please run SecAct.signaling.domain first.")
+        stop("Please run SecAct.signaling.pattern first.")
       }
 
-      mat <- SpaCET_obj@results$domain$sumSignal
+      mat <- SpaCET_obj@results$pattern$sumSignal
 
       if("All"%in%spatialFeatures)
       {
@@ -187,7 +187,7 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = "Signal"
       limits = NULL
     }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, and SignalingDomain.")
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, and SignalingPattern.")
     }
 
 
