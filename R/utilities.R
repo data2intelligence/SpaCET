@@ -142,7 +142,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
     }
   }
 
-  st.matrix.data <- methods::as(counts, "dgCMatrix")
+  st.matrix.data <- methods::as(counts, "CsparseMatrix")
   st.matrix.data <- rm_duplicates(st.matrix.data)
 
   SpaCET_obj <- methods::new("SpaCET",
