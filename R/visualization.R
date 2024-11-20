@@ -129,6 +129,18 @@ SpaCET.visualize.spatialFeature <- function(
         limits = NULL
       }
 
+    }else if(spatialType == "MostAbundantCellType"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      scaleType="color-discrete"
+      legendName = "Cell Type"
+      limits = NULL
+
     }else if(spatialType == "LRNetworkScore"){
       if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
       {
@@ -202,6 +214,11 @@ SpaCET.visualize.spatialFeature <- function(
       }
 
       if(spatialType == "Interface"){
+        if(is.null(spatialFeature))
+        {
+          stop("Please set spatialFeature.")
+        }
+
         if(spatialFeature == "Interface"){
           if(is.null(colors)) colors=c("black","darkgrey","#f3c300")
         }else{
@@ -209,8 +226,41 @@ SpaCET.visualize.spatialFeature <- function(
         }
       }
 
+      if(spatialType == "MostAbundantCellType")
+      {
+        if(!spatialFeature%in%c("MajorLineage","SubLineage"))
+        {
+          stop("Please set spatialFeature as MajorLineage or SubLineage")
+        }else{
+          if(spatialFeature == "MajorLineage")
+          {
+            allCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+            {
+              allCellTypes <- c("Malignant",allCellTypes)
+            }
+          }else{
+            allCellTypes <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+            {
+              allCellTypes <- c("Malignant",allCellTypes)
+            }
+          }
 
-      visiualVector <- mat[spatialFeature,]
+          res_deconv_level <- mat[allCellTypes,]
+
+          Content <- sapply(1:dim(res_deconv_level)[2],function(x) names(sort(res_deconv_level[,x],decreasing=T))[1])
+          names(Content) <- colnames(res_deconv_level)
+
+          Content <- Content[order(match(Content,allCellTypes))]
+
+          visiualVector <- Content
+        }
+
+      }else{
+        visiualVector <- sort(mat[spatialFeature,])
+      }
+
       spotID <- names(visiualVector)
       names(visiualVector) <- paste0(
         SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
@@ -597,7 +647,7 @@ visualSpatial <- function(
 
       ggplot(fig.df,aes(x=x,y=y))+
         annotation_custom(rg)+  # add background image
-        geom_point(aes(colour=value), size=pointSize)+
+        geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)+
         scale_colour_gradientn(name=legendName, colours = colors,limits=limits)+
         scale_x_continuous(limits = c(0, pix_x), expand = c(0, 0)) +
         scale_y_continuous(limits = c(0, pix_y), expand = c(0, 0)) +
@@ -619,9 +669,8 @@ visualSpatial <- function(
         value=visiualVector
       )
 
-      ggplot(fig.df,aes(x=x,y=y))+
-        geom_point(aes(colour=value), size=pointSize)+
-        scale_colour_gradientn(name=legendName, colours = colors, limits=limits)+
+      p <- ggplot(fig.df,aes(x=x,y=y))+
+        geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)+
         ggtitle(titleName)+
         theme_bw()+
         theme(
@@ -632,6 +681,14 @@ visualSpatial <- function(
           panel.grid = element_blank(),
           panel.border = element_blank()
         )
+
+      if(scaleType=="color-continuous")
+      {
+        p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
+      }else{
+        p+scale_colour_manual(name=legendName,values=colors)
+      }
+
     }
 
 

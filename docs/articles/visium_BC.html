@@ -52,6 +52,7 @@
     <h6 class="dropdown-header" data-toc-skip>Core</h6>
     <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/hiresST_CRC.html">Application to high resolution spatial transcriptomics data</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Misc</h6>
     <a class="dropdown-item" href="../articles/GeneSetScore.html">Gene set score calculation for spatial spots</a>
@@ -95,7 +96,8 @@
     
 <p>This tutorial demonstrates how to run SpaCET to estimate cell
 identities and cell-cell interactions by using a breast cancer spatial
-transcriptomics (ST) data set from <a href="https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0" target="_blank" class="external-link">10x Visium</a>. Before running the tutorial, make sure
+transcriptomics (ST) data set from <a href="https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0" target="_blank" class="external-link">10x Visium</a>. Each spot is 55 µm in diameter covering
+<a href="https://kb.10xgenomics.com/hc/en-us/articles/360035487952-How-many-cells-are-captured-in-a-single-spot" target="_blank" class="external-link">1-10 cells</a>. Before running the tutorial, make sure
 that the SpaCET package and its dependencies have been installed.</p>
 <div class="section level2">
 <h2 id="create-spacet-object">Create SpaCET object<a class="anchor" aria-label="anchor" href="#create-spacet-object"></a>
@@ -150,8 +152,8 @@ presents the overall UMI counts within a spot while the “Gene” option
 represents the number of expressed genes (i.e., genes with at least one
 UMI count) in a particular spot.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># calculate the QC metrics</span></span>
-<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.quality.control.html">SpaCET.quality.control</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># filter low-quality spots and calculate the QC metrics</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.quality.control.html">SpaCET.quality.control</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, min.genes<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># plot the QC metrics</span></span>
 <span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>

@@ -15,6 +15,8 @@ navbar:
         href: articles/visium_BC.html
       - text: Deconvolution with a matched scRNA-seq data set
         href: articles/oldST_PDAC.html
+      - text: Application to high resolution spatial transcriptomics data
+        href: articles/hiresST_CRC.html
       - text: ----
       - text: Misc
       - text: Gene set score calculation for spatial spots

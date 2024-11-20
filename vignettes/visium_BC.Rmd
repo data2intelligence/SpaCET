@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial demonstrates how to run SpaCET to estimate cell identities and cell-cell interactions by using a breast cancer spatial transcriptomics (ST) data set from [10x Visium](https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0){target="_blank"}. Before running the tutorial, make sure that the SpaCET package and its dependencies have been installed.
+This tutorial demonstrates how to run SpaCET to estimate cell identities and cell-cell interactions by using a breast cancer spatial transcriptomics (ST) data set from [10x Visium](https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0){target="_blank"}. Each spot is 55 µm in diameter covering [1-10 cells](https://kb.10xgenomics.com/hc/en-us/articles/360035487952-How-many-cells-are-captured-in-a-single-spot){target="_blank"}. Before running the tutorial, make sure that the SpaCET package and its dependencies have been installed.
 
 ## Create SpaCET object
 
@@ -63,8 +63,8 @@ SpaCET_obj@input$counts[1:8,1:6]
 After creating the SpaCET object, you can use `SpaCET.visualize.spatialFeature` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
 
 ``` r
-# calculate the QC metrics
-SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
+# filter low-quality spots and calculate the QC metrics
+SpaCET_obj <- SpaCET.quality.control(SpaCET_obj, min.genes=1)
 
 # plot the QC metrics
 SpaCET.visualize.spatialFeature(

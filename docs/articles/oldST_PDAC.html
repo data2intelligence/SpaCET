@@ -52,6 +52,7 @@
     <h6 class="dropdown-header" data-toc-skip>Core</h6>
     <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/hiresST_CRC.html">Application to high resolution spatial transcriptomics data</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Misc</h6>
     <a class="dropdown-item" href="../articles/GeneSetScore.html">Gene set score calculation for spatial spots</a>
@@ -98,7 +99,8 @@ matched scRNA-seq data from the same sample, SpaCET does not require
 malignant, stromal and immune cell reference. However, SpaCET can still
 accept a customized reference to carry out cell type deconvolution. This
 tutorial demonstrates how to run SpaCET with a matched scRNA-seq dataset
-by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from <a href="https://www.nature.com/articles/s41587-019-0392-8" target="_blank" class="external-link">Moncada et al, 2020</a>.</p>
+by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from <a href="https://www.nature.com/articles/s41587-019-0392-8" target="_blank" class="external-link">Moncada et al, 2020</a>. Each spot is 100 µm in
+diameter.</p>
 <div class="section level2">
 <h2 id="create-spacet-object">Create SpaCET object<a class="anchor" aria-label="anchor" href="#create-spacet-object"></a>
 </h2>
@@ -113,7 +115,7 @@ folders.</p>
 <p>Here, since the PDAC ST data set was generated from the original ST
 technology, user need <code>create.SpaCET.object</code> to create an
 SpaCET object by preparing four types of input data referring to a tumor
-ST dataset.</p>
+ST sample.</p>
 <ol style="list-style-type: decimal">
 <li>spatial transcriptomics count data. The spatial transcriptomics
 count data must be in the format of matrix with gene name (row) x spot
@@ -123,13 +125,13 @@ format of matrix with spot ID (row) x coordinates (column). This 1st and
 2nd columns represent X and Y coordinates, respectively.</li>
 <li>path to the H&amp;E image file. The image path can be NA if
 unavailable.</li>
-<li>platform</li>
+<li>platform.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">PDAC_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCET'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">PDAC_Path</span>,<span class="st">"/st_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">oldST_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCET'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">oldST_Path</span>,<span class="st">"/st_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show count matrix</span></span>
 <span><span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
@@ -185,8 +187,8 @@ itself.</li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load sc data</span></span>
-<span><span class="va">PDAC_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCET'</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">PDAC_Path</span>,<span class="st">"/sc_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">oldST_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'oldST_PDAC'</span>, package <span class="op">=</span> <span class="st">'SpaCET'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">oldST_Path</span>,<span class="st">"/sc_PDAC.rda"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show count matrix</span></span>
 <span><span class="va">sc_counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>

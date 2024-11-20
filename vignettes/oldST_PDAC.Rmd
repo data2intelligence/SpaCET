@@ -20,23 +20,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCET does not require malignant, stromal and immune cell reference. However, SpaCET can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCET with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}.
+Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCET does not require malignant, stromal and immune cell reference. However, SpaCET can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCET with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}. Each spot is 100 µm in diameter.
 
 ## Create SpaCET object
 To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
-Here, since the PDAC ST data set was generated from the original ST technology, user need  `create.SpaCET.object` to create an SpaCET object by preparing four types of input data referring to a tumor ST dataset. 
+Here, since the PDAC ST data set was generated from the original ST technology, user need `create.SpaCET.object` to create an SpaCET object by preparing four types of input data referring to a tumor ST sample. 
 
 1) spatial transcriptomics count data. The spatial transcriptomics count data must be in the format of matrix with gene name (row) x spot ID (column).
 2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
 3) path to the H&E image file. The image path can be NA if unavailable.
-4) platform
+4) platform.
 
 ``` r
 library(SpaCET)
 
-PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
-load(paste0(PDAC_Path,"/st_PDAC.rda"))
+oldST_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
+load(paste0(oldST_Path,"/st_PDAC.rda"))
 
 # show count matrix
 counts[1:6,1:5]
@@ -80,8 +80,8 @@ We provide `SpaCET.deconvolution.matched.scRNAseq` to deconvolve an SpaCET objec
 
 ``` r
 # load sc data
-PDAC_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
-load(paste0(PDAC_Path,"/sc_PDAC.rda"))
+oldST_Path <- system.file("extdata", 'oldST_PDAC', package = 'SpaCET')
+load(paste0(oldST_Path,"/sc_PDAC.rda"))
 
 # show count matrix
 sc_counts[1:6,1:5]

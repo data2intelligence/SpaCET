@@ -4,12 +4,19 @@
 \alias{SpaCET.deconvolution}
 \title{Deconvolve tumor ST data set}
 \usage{
-SpaCET.deconvolution(SpaCET_obj, cancerType, coreNo = 8)
+SpaCET.deconvolution(
+  SpaCET_obj,
+  cancerType,
+  adjacentNormal = FALSE,
+  coreNo = 8
+)
 }
 \arguments{
 \item{SpaCET_obj}{An SpaCET object.}
 
 \item{cancerType}{Cancer type of the current tumor ST dataset.}
+
+\item{adjacentNormal}{Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.}
 
 \item{coreNo}{Core number in parallel computation.}
 }

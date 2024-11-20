@@ -33,6 +33,7 @@
     <h6 class="dropdown-header" data-toc-skip>Core</h6>
     <a class="dropdown-item" href="../articles/visium_BC.html">Cell type deconvolution and interaction analysis</a>
     <a class="dropdown-item" href="../articles/oldST_PDAC.html">Deconvolution with a matched scRNA-seq data set</a>
+    <a class="dropdown-item" href="../articles/hiresST_CRC.html">Application to high resolution spatial transcriptomics data</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Misc</h6>
     <a class="dropdown-item" href="../articles/GeneSetScore.html">Gene set score calculation for spatial spots</a>
@@ -87,7 +88,7 @@
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
 Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-which have both `filtered_feature_bc_matrix` and `spatial` folders.</p>
+which has either (1) both `filtered_feature_bc_matrix` and `spatial` folders</p>
 <p>The "filtered_feature_bc_matrix" folder includes <br>
 "barcodes.tsv.gz": spot level barcodes; <br>
 "features.tsv.gz": list of genes; <br>
@@ -96,6 +97,7 @@ which have both `filtered_feature_bc_matrix` and `spatial` folders.</p>
 “tissue_positions_list.csv” : barcodes and spatial information; <br>
 “tissue_lowres_image.png” : hematoxylin and eosin (H&amp;E) image; <br>
 “scalefactors_json.json” : scaling factors for adjusting the coordinates.</p>
+<p>or (2) `filtered_feature_bc_matrix.h5` file.</p>
     </div>
 
     <div class="section level2">

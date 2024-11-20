@@ -6,8 +6,7 @@
 \usage{
 SpaCET.visualize.spatialFeature(
   SpaCET_obj,
-  spatialType = c("QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore",
-    "Interface", "GeneSetScore"),
+  spatialType,
   spatialFeatures = NULL,
   scaleTypeForGeneExpression = "LogTPM",
   sameScaleForFraction = FALSE,
@@ -15,6 +14,7 @@ SpaCET.visualize.spatialFeature(
   pointSize = 1,
   nrow = 1,
   imageBg = TRUE,
+  legend.position = "right",
   interactive = FALSE
 )
 }
