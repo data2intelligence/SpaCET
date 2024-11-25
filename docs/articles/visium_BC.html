@@ -108,8 +108,9 @@ using <code>create.SpaCET.object</code> or
 analyzing an ST dataset from 10x Visium, they only need to input
 “visiumPath” by using <code>create.SpaCET.object.10X</code>. Please make
 sure that “visiumPath” points to the standard output folders of 10x
-Space Ranger, which has both “filtered_feature_bc_matrix” and “spatial”
-folders.</p>
+Space Ranger, which includes both (1) sequencing data, i.e.,
+“filtered_feature_bc_matrix.h5” file or “filtered_feature_bc_matrix”
+folder, and (2) image folder “spatial”.</p>
 <p>Here, we create an SpaCET object for the current breast cancer visium
 dataset. In this step, if there are duplicated gene symbols, the gene
 with the highest total counts remains and all other duplicated genes are

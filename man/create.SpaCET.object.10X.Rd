@@ -18,19 +18,19 @@ Read an ST dataset to create an SpaCET object.
 \details{
 If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
 Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-which has either (1) both `filtered_feature_bc_matrix` and `spatial` folders
+which has both (1) sequencing data, i.e., `filtered_feature_bc_matrix.h5` file or `filtered_feature_bc_matrix` folder,
 
 The "filtered_feature_bc_matrix" folder includes \cr
 "barcodes.tsv.gz": spot level barcodes; \cr
 "features.tsv.gz": list of genes; \cr
 "matrix.mtx.gz": (sparse) matrix of counts.
 
+and (2) image folder `spatial`.
+
 The "spatial" folder includes \cr
 “tissue_positions_list.csv” : barcodes and spatial information; \cr
 “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
 “scalefactors_json.json” : scaling factors for adjusting the coordinates.
-
-or (2) `filtered_feature_bc_matrix.h5` file.
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")

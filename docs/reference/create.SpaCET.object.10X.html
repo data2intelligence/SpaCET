@@ -88,16 +88,16 @@
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
 Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-which has either (1) both `filtered_feature_bc_matrix` and `spatial` folders</p>
+which has both (1) sequencing data, i.e., `filtered_feature_bc_matrix.h5` file or `filtered_feature_bc_matrix` folder,</p>
 <p>The "filtered_feature_bc_matrix" folder includes <br>
 "barcodes.tsv.gz": spot level barcodes; <br>
 "features.tsv.gz": list of genes; <br>
 "matrix.mtx.gz": (sparse) matrix of counts.</p>
+<p>and (2) image folder `spatial`.</p>
 <p>The "spatial" folder includes <br>
 “tissue_positions_list.csv” : barcodes and spatial information; <br>
 “tissue_lowres_image.png” : hematoxylin and eosin (H&amp;E) image; <br>
 “scalefactors_json.json” : scaling factors for adjusting the coordinates.</p>
-<p>or (2) `filtered_feature_bc_matrix.h5` file.</p>
     </div>
 
     <div class="section level2">
