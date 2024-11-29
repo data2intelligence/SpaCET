@@ -1,15 +1,16 @@
 #' @title Deconvolve malignant cell fraction
 #' @description Explore different malignant cell states in tumor ST dataset.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
 #' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells. Default: 0.7.
 #' @param coreNo Core number in parallel.
-#' @return An SpaCET object
+#' @return A SpaCET object
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj)
 #'
 #' @rdname SpaCET.deconvolution.malignant
 #' @export
+#'
 SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=8)
 {
   coreNoDect <- parallel::detectCores()
@@ -51,7 +52,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
   st.matrix.data.mal <- st.matrix.data[,res_deconv[Malignant,]>=malignantCutoff]
-  st.matrix.data.mal.CPM <- t( t(st.matrix.data.mal)*1e5/colSums(st.matrix.data.mal) )
+  st.matrix.data.mal.CPM <- sweep(st.matrix.data.mal, 2, Matrix::colSums(st.matrix.data.mal), "/") *1e5
   st.matrix.data.mal.log <- log2(st.matrix.data.mal.CPM+1)
 
   # clustering
@@ -137,7 +138,142 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   lineageTree[[Malignant]] <- paste0("Malignant cell state ",states)
   Refnew <- list(refProfiles=refProfiles, sigGenes=sigGenes, lineageTree=lineageTree)
 
-  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
+
+  knownCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+  knownCellTypes <- setdiff(knownCellTypes,Malignant)
+
+  if("Unidentifiable"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+  {
+    knownCellFractions <- c(knownCellTypes,"Unidentifiable")
+  }else{
+    knownCellFractions <- knownCellTypes
+  }
+
+  propMat <- SpatialDeconv(
+    ST=st.matrix.data,
+    Ref=Refnew,
+    malProp=res_deconv[knownCellFractions,],
+    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellFractions],
+    mode="deconvMal",
+    coreNo=coreNo
+  )
+
+  propMat<- rbind(res_deconv,propMat[!rownames(propMat)%in%"Malignant",])
+  SpaCET_obj@results$deconvolution$propMat <- propMat
+
+  SpaCET_obj
+}
+
+
+#' @title Deconvolve malignant fraction with customized scRNAseq data
+#' @description Explore different malignant cell states in tumor ST dataset.
+#' @param SpaCET_obj A SpaCET object.
+#' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
+#' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
+#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
+#' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
+#' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
+#' @param coreNo Core number in parallel.
+#' @return A SpaCET object
+#' @examples
+#' SpaCET_obj <- SpaCET.deconvolution.malignant.customized.scRNAseq(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+#'
+#' @rdname SpaCET.deconvolution.malignant.customized.scRNAseq
+#' @export
+#'
+SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+{
+  coreNoDect <- parallel::detectCores()
+  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
+
+  if(length(SpaCET_obj@results$deconvolution$Ref$lineageTree[[Malignant]])>1)
+  {
+    stop("Your deconvolution results have included multiple malignant cell states. We do not recommend deconvolve malignant cell fraction further.")
+  }
+
+  if(is.null(SpaCET_obj@results$deconvolution$propMat))
+  {
+    stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
+  }else{
+    res_deconv <- SpaCET_obj@results$deconvolution$propMat
+  }
+
+  if(length(Malignant)>1 | length(Malignant)==0)
+  {
+    stop("Please input the only one major malignant cell type.")
+  }else{
+    if(!Malignant%in%rownames(res_deconv))
+    {
+      stop("The input malignant cell type does not exist in the deconvolution results. Please check whether you input correct the name of malignant cell type. Of note, R language is case sensitive generally.")
+    }
+  }
+
+
+  if(!identical(rownames(sc_annotation),as.character(sc_annotation[,"cellID"])))
+  {
+    rownames(sc_annotation) <- as.character(sc_annotation[,"cellID"])
+  }
+
+  if(ncol(sc_counts)!=nrow(sc_annotation))
+  {
+    stop("The cell number in the count and annotation matrix is not identical.")
+  }
+
+  if(!identical(sort(colnames(sc_counts)), sort(rownames(sc_annotation))))
+  {
+    stop("The cell IDs in the count and annotation matrix are not matched.")
+  }
+
+  if(length(sc_lineageTree)==0)
+  {
+    stop("Your lineage tree is empty. Please build a lineage tree as a list.")
+  }
+
+  if(length(sc_lineageTree)!=1)
+  {
+    stop("Please assign a item for sc_lineageTree list.")
+  }
+
+  allCellTypes <- unlist(sc_lineageTree)
+  allCellTypes_flag <- allCellTypes%in%unique(sc_annotation[,2])
+  if(sum(!allCellTypes_flag)>0)
+  {
+    stop(paste0(
+      "These cell types (i.e., ",
+      paste0(allCellTypes[!allCellTypes_flag], collapse = ", "),
+      ") in the lineage tree do not match with the cell typpes in sc_annotation. Please double-check your lineage tree."
+    ))
+  }
+
+  set.seed(123)
+  idx <- split(sc_annotation[,1], sc_annotation[,2])
+  c_keep <- lapply(idx, function(i) {
+    n <- length(i)
+    if (n > sc_nCellEachLineage)
+      n <- sc_nCellEachLineage
+    sample(i, n)
+  })
+
+  sc_counts <- sc_counts[,unlist(c_keep)]
+  sc_annotation <- sc_annotation[unlist(c_keep),]
+
+  sc_counts <- sc_counts[Matrix::rowSums(sc_counts)>0,]
+
+  print("1. Generate the reference from the input scRNAseq data.")
+  Refnew <- generateRef(
+    sc.matrix.data = sc_counts,
+    sc.matrix.anno = sc_annotation,
+    sc.matrix.tree = sc_lineageTree,
+    coreNo=coreNo
+  )
+
+  st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
+  st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
 
   knownCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
@@ -154,13 +290,14 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
     ST=st.matrix.data,
     Ref=Refnew,
     malProp=res_deconv[knownCellFractions,],
-    malRef=Ref$refProfiles[,knownCellTypes],
+    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellFractions],
     mode="deconvMal",
     coreNo=coreNo
   )
 
-  propMat<- rbind(res_deconv,propMat[!rownames(propMat)%in%"Malignant",])
+  propMat<- rbind(res_deconv,propMat[!rownames(propMat)%in%names(sc_lineageTree),])
   SpaCET_obj@results$deconvolution$propMat <- propMat
+  SpaCET_obj@results$deconvolution$malRef <- Refnew
 
   SpaCET_obj
 }
@@ -168,15 +305,15 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 
 #' @title Deconvolve ST data set with matched scRNAseq data
 #' @description Estimate the fraction of cell lineage and sub lineage.
-#' @param SpaCET_obj An SpaCET object.
-#' @param sc_includeMalignant Logical. Indicate whether the single cell data includes malignant cells. If no, please input a cancer type and then SpaCET will predict the malignant cell fraction based on its build-in reference.
-#' @param cancerType Cancer type of the current tumor ST dataset.
+#' @param SpaCET_obj A SpaCET object.
+#' @param sc_includeMalignant Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its build-in reference.
+#' @param cancerType Cancer type of the current tumor ST sample.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
 #' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
 #' @param coreNo Core number.
-#' @return An SpaCET object
+#' @return A SpaCET object
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(SpaCET_obj, sc_counts, sc_annotation, sc_lineageTree)
 #'
@@ -293,7 +430,7 @@ generateRef <- function(
     coreNo = coreNo
 )
 {
-  sc.matrix.data.norm <- Matrix::t(Matrix::t(sc.matrix.data)*1e5/Matrix::colSums(sc.matrix.data))
+  sc.matrix.data.norm <- sweep(sc.matrix.data, 2, Matrix::colSums(sc.matrix.data), "/") *1e5
 
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
 
@@ -326,11 +463,13 @@ generateRef <- function(
       rownames(res)[res[,"logFC"]>0.25&res[,"adj.P.Val"]<0.01]
     }
 
-    markers <- parallel::mclapply(setdiff(cellTypes_level_1,cellType), run_limma, mc.cores=coreNo)
-    temp <- table(unlist(markers))
+    if(length(cellTypes_level_1) > 1) # if only one major lineage, do not need markers
+    {
+      markers <- parallel::mclapply(setdiff(cellTypes_level_1,cellType), run_limma, mc.cores=coreNo)
+      temp <- table(unlist(markers))
 
-    sigGenes[[cellType]] <- names(temp)[temp>=length(cellTypes_level_1)-1]
-
+      sigGenes[[cellType]] <- names(temp)[temp>=length(cellTypes_level_1)-1]
+    }
 
     if(cellType%in%cellTypes_level_1_toBeSplit)
     {
@@ -365,11 +504,11 @@ generateRef <- function(
 }
 
 
-#' @title Calculate gene set score for each spot.
+#' @title Calculate gene set score for each spot
 #' @description Calculate spots' gene set score from the in-house or user-defined gene sets.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param GeneSets A string for in-house gene sets, or a list object for user-defined gene sets. See details.
-#' @return An SpaCET object
+#' @return A SpaCET object
 #' @details
 #' 1) Set `GeneSets` as "Hallmark", "CancerCellState", or "TLS" to use the in-house gene sets.
 #' "Hallmark": https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp#H
@@ -415,7 +554,7 @@ SpaCET.GeneSetScore <- function(SpaCET_obj, GeneSets)
   SpaCET_obj
 }
 
-#' @title Read a gmt file.
+#' @title Read a gmt file
 #' @description Read a gmt file as a gene set list.
 #' @param gmtPath Path to a gmt file.
 #' @return A gene set list
@@ -438,7 +577,7 @@ read.gmt <- function(gmtPath)
   gmt
 }
 
-#' @title Write a gmt file.
+#' @title Write a gmt file
 #' @description Write a gene set list as a gmt file.
 #' @param gmt A gene set list.
 #' @param gmtPath Path to a gmt file.

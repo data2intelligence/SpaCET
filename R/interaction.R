@@ -1,7 +1,7 @@
 #' @title Cell-cell colocalization analysis
 #' @description Calculate the cell-type pair colocalization by using Spearman correlation analysis.
-#' @param SpaCET_obj An SpaCET object.
-#' @return An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.CCI.colocalization(SpaCET_obj)
 #'
@@ -67,7 +67,7 @@ SpaCET.CCI.colocalization <- function(SpaCET_obj)
 
 #' @title Cell-cell colocalization visualization
 #' @description Visualize the cell-type pair colocalization.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @return A ggplot object.
 #' @examples
 #' SpaCET.visualize.colocalization(SpaCET_obj)
@@ -165,9 +165,9 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 
 #' @title Ligand-Receptor interaction enrichment analysis
 #' @description Calculate the overall intensity of L-R interactions within ST spots.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param coreNo Core number in parallel computation.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=8)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
@@ -284,9 +284,9 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=8)
 
 #' @title Ligand-Receptor analysis for a co-localized cell-type pair
 #' @description Test the co-expression of ligands and receptors within the same ST spot for the co-localized cell-type pairs.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param cellTypePair A pair of cell-types.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.CCI.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
 #'
@@ -388,7 +388,7 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
 #' @title Cell-type pair visualization
 #' @description Visualize the interaction analysis of a co-localized cell-type pair.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param cellTypePair A pair of cell types.
 #' @return A ggplot object.
 #' @examples
@@ -524,10 +524,10 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
 #' @title Identify tumor-stroma interface
 #' @description Identify the spots at the tumor-stroma interface.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
 #' @param MalignantCutoff Malignant cell fraction cutoff for tumor boundary. Default: 0.5.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.identify.interface(SpaCET_obj)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface")
@@ -615,9 +615,9 @@ SpaCET.identify.interface <- function(SpaCET_obj, Malignant="Malignant", Maligna
 
 #' @title Combine interaction spots to interface
 #' @description Demonstrate the spatial position of interaction spots at the tumor microenvironment.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param cellTypePair A pair of cell types.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.combine.interface(SpaCET_obj,cellTypePair=c("CAF", "Macrophage M2"))
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "Interface", spatialFeature = "Interaction")
@@ -679,7 +679,7 @@ SpaCET.combine.interface <- function(SpaCET_obj, cellTypePair)
 
 #' @title Distance to tumor border
 #' @description Calculate the distance of cell-cell interactions to tumor-immune interface.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param cellTypePair A pair of cell types.
 #' @param nPermutation Permutation number.
 #' @return A ggplot object.

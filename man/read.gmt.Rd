@@ -2,7 +2,7 @@
 % Please edit documentation in R/extensions.R
 \name{read.gmt}
 \alias{read.gmt}
-\title{Read a gmt file.}
+\title{Read a gmt file}
 \usage{
 read.gmt(gmtPath)
 }

@@ -23,9 +23,9 @@ knitr::opts_chunk$set(
 Since most tumor spatial transcriptomics (ST) data do not have matched scRNA-seq data from the same sample, SpaCET does not require malignant, stromal and immune cell reference. However, SpaCET can still accept a customized reference to carry out cell type deconvolution. This tutorial demonstrates how to run SpaCET with a matched scRNA-seq dataset by using a pancreatic ductal adenocarcinoma (PDAC) ST data set from [Moncada et al, 2020](https://www.nature.com/articles/s41587-019-0392-8){target="_blank"}. Each spot is 100 µm in diameter.
 
 ## Create SpaCET object
-To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
+To read your ST data into R, user can create a SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x SpaCET Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
-Here, since the PDAC ST data set was generated from the original ST technology, user need `create.SpaCET.object` to create an SpaCET object by preparing four types of input data referring to a tumor ST sample. 
+Here, since the PDAC ST data set was generated from the original ST technology, user need `create.SpaCET.object` to create a SpaCET object by preparing four types of input data referring to a tumor ST sample. 
 
 1) spatial transcriptomics count data. The spatial transcriptomics count data must be in the format of matrix with gene name (row) x spot ID (column).
 2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
@@ -59,7 +59,7 @@ spotCoordinates[1:5,]
 ## 10x15 10 15
 ## 10x16 10 16
 
-# load ST data to create an SpaCET object.
+# load ST data to create a SpaCET object.
 SpaCET_obj <- create.SpaCET.object(
   counts=counts,
   spotCoordinates=spotCoordinates,
@@ -71,8 +71,9 @@ SpaCET_obj <- create.SpaCET.object(
 str(SpaCET_obj)
 
 ```
+
 ## Deconvolve cell lineage
-We provide `SpaCET.deconvolution.matched.scRNAseq` to deconvolve an SpaCET object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
+We provide `SpaCET.deconvolution.matched.scRNAseq` to deconvolve a SpaCET object with a customized scRNA-seq data. User need to prepare three types of input data referring to the matched scRNA-seq dataset.
 
 1) single cell RNA-seq (scRNA-seq) count data. The scRNA-seq count data must be in the format of matrix with gene name (row) x cell ID (column).
 2) cell annotation information. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell. The name of row should be same as the column cellID.

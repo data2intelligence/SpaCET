@@ -10,10 +10,10 @@ setClass("SpaCET",
 )
 
 
-#' @title Create an SpaCET object from 10X Visium
-#' @description Read an ST dataset to create an SpaCET object.
+#' @title Create a SpaCET object from 10X Visium
+#' @description Read an ST dataset to create a SpaCET object.
 #' @param visiumPath Path to the Space Ranger output folder. See ‘details’ for more information.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @details
 #' If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
 #' Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
@@ -104,15 +104,15 @@ create.SpaCET.object.10X <- function(visiumPath)
 }
 
 
-#' @title Create an SpaCET object
-#' @description Read an ST dataset to create an SpaCET object.
+#' @title Create a SpaCET object
+#' @description Read an ST dataset to create a SpaCET object.
 #' @param counts Count matrix with gene name (row) x spot ID (column).
 #' @param spotCoordinates Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
 #' @param imagePath Path to the H&E image file. Can be NA if it is not available.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @details
-#' To create an SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
+#' To create a SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
 #' However, if analyzing the Visium data, it is more easy to use `create.SpaCET.object.10X` to read ST data.
 #'
 #' @examples
@@ -161,9 +161,9 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
 
 #' @title Filter spatial spots and calculate the QC metrics
 #' @description Spots with less than `min.genes` expressed genes would be removed.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param min.genes Minimum number of expressed genes. Default: 1.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
@@ -198,9 +198,9 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 
 
 #' @title Convert Seurat to SpaCET
-#' @description Convert an Seurat object to an SpaCET object.
+#' @description Convert an Seurat object to a SpaCET object.
 #' @param Seurat_obj An Seurat object.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
@@ -313,9 +313,9 @@ convert.Seurat  <- function(Seurat_obj)
 
 
 #' @title Add SpaCET to Seurat
-#' @description Add deconvolution results from an SpaCET object to an Seurat object as a new assay.
-#' @param SpaCET_obj An SpaCET object.
-#' @param Seurat_obj An Seurat object.
+#' @description Add deconvolution results from a SpaCET object to an Seurat object as a new assay.
+#' @param SpaCET_obj A SpaCET object.
+#' @param Seurat_obj A Seurat object.
 #' @return An Seurat object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")

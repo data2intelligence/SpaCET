@@ -24,7 +24,7 @@ This tutorial demonstrates how to apply SpaCET to a colorectal cancer Slide-seq 
 
 ## Create SpaCET object
 
-User need `create.SpaCET.object` to create an SpaCET object by preparing four types of input data referring to a tumor ST sample.
+User need `create.SpaCET.object` to create a SpaCET object by preparing four types of input data referring to a tumor ST sample.
 
 1) spatial transcriptomics count data. The spatial transcriptomics count data must be in the format of matrix with gene name (row) x spot ID (column).
 2) spatial location information. The spot coordinates should be in the format of matrix with spot ID (row) x coordinates (column). This 1st and 2nd columns represent X and Y coordinates, respectively.
@@ -65,7 +65,7 @@ head(spotCoordinates)
 ## 2274.22x2982.525  2274.220 2982.525
 ## 2986.945x1603.68  2986.945 1603.680
 
-# create an SpaCET object.
+# create a SpaCET object.
 SpaCET_obj <- create.SpaCET.object(
   counts=counts,
   spotCoordinates=spotCoordinates,

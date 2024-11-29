@@ -1,6 +1,6 @@
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".

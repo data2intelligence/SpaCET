@@ -2,7 +2,7 @@
 % Please edit documentation in R/extensions.R
 \name{SpaCET.GeneSetScore}
 \alias{SpaCET.GeneSetScore}
-\title{Calculate gene set score for each spot.}
+\title{Calculate gene set score for each spot}
 \usage{
 SpaCET.GeneSetScore(SpaCET_obj, GeneSets)
 }

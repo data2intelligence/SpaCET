@@ -2,7 +2,7 @@
 % Please edit documentation in R/extensions.R
 \name{write.gmt}
 \alias{write.gmt}
-\title{Write a gmt file.}
+\title{Write a gmt file}
 \usage{
 write.gmt(gmt, gmtPath)
 }

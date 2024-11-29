@@ -1,10 +1,10 @@
 #' @title Deconvolve tumor ST data set
 #' @description Estimate the cell fraction of cell lineages and sub lineages.
-#' @param SpaCET_obj An SpaCET object.
+#' @param SpaCET_obj A SpaCET object.
 #' @param cancerType Cancer type of the current tumor ST dataset.
 #' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
 #' @param coreNo Core number in parallel computation.
-#' @return An SpaCET object.
+#' @return A SpaCET object.
 #' @examples
 #' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
 #'
@@ -320,7 +320,7 @@ SpatialDeconv <- function(
 
   if(sum(malProp)>0)
   {
-    if(is.matrix(malRef))
+    if(is.matrix(malRef)|is.data.frame(malRef))
     {
       olpGenes <- intersect(rownames(ST), rownames(malRef))
 
@@ -446,7 +446,7 @@ SpatialDeconv <- function(
 
   }else{
     propMatLevel1 <- matrix(1-colSums(malProp),nrow=1)
-    rownames(propMatLevel1) <- "Malignant"
+    rownames(propMatLevel1) <- Level1
     colnames(propMatLevel1) <- colnames(malProp)
   }
 
