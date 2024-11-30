@@ -58,7 +58,7 @@ SpaCET_obj@input$counts[1:8,1:6]
 ## AL732372.1       .     .     .     .     .     .
 ```
 
-## Show key quality control metrics
+## Show quality control metrics
 
 After creating the SpaCET object, you can use `SpaCET.visualize.spatialFeature` to show both UMI and gene counts across all ST spots, respectively. Specifically, the "UMI" option presents the overall UMI counts within a spot while the "Gene" option represents the number of expressed genes (i.e., genes with at least one UMI count) in a particular spot.
 
@@ -205,7 +205,7 @@ SpaCET.visualize.cellTypePair(SpaCET_obj, cellTypePair=c("CAF","Macrophage M2"))
 <img src="img/CAF-M2.png" width="100%" style="border:none" />
 
 
-## Enrich cell-cell interactions at the tumor-immune interface
+## Analyze the tumor-immune interface
  Interestingly, besides the interaction significance, we found an enrichment of CAF-M2 interactions close to boundaries between tumor and immune/stromal regions. The distance between CAF-M2 and the tumor-immune border was calculated by averaging the distances between each CAF-M2 interaction spot and its nearest tumor border spot. We randomly selected the same number of spots as CAF-M2 spots from the non-malignant regions and calculated their distances to the border as the null distribution. The result showed that CAF-M2 interaction spots are significantly closer to the tumor-immune boundaries.
 
 ``` r
