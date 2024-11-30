@@ -179,13 +179,25 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
       legendName = "Score"
       limits = NULL
+    }else if(spatialType == "SecretedProteinActivity"){
+      if(is.null(SpaCET_obj@results$SecretedProteinActivity))
+      {
+        stop("Please run SecAct.signaling.inference first.")
+      }
+
+      mat <- SpaCET_obj@results$SecretedProteinActivity$zscore
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
+      legendName = "Activity"
+      limits = NULL
     }else if(spatialType == "SignalingPattern"){
       if(is.null(SpaCET_obj@results$pattern))
       {
         stop("Please run SecAct.signaling.pattern first.")
       }
 
-      mat <- SpaCET_obj@results$pattern$sumSignal
+      mat <- SpaCET_obj@results$pattern$signal.H
 
       if("All"%in%spatialFeatures)
       {
@@ -199,7 +211,7 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = "Signal"
       limits = NULL
     }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, and SignalingPattern.")
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
     }
 
 
