@@ -272,6 +272,8 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
     coreNo=coreNo
   )
 
+  print("2. Deconvolve malignant cells.")
+
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
