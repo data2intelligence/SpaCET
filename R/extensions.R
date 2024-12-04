@@ -153,7 +153,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
     ST=st.matrix.data,
     Ref=Refnew,
     malProp=res_deconv[knownCellFractions,],
-    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellFractions],
+    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellTypes],
     mode="deconvMal",
     coreNo=coreNo
   )
@@ -290,7 +290,7 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
     ST=st.matrix.data,
     Ref=Refnew,
     malProp=res_deconv[knownCellFractions,],
-    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellFractions],
+    malRef=SpaCET_obj@results$deconvolution$Ref$refProfiles[,knownCellTypes],
     mode="deconvMal",
     coreNo=coreNo
   )
