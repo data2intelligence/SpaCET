@@ -210,8 +210,20 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
       legendName = "Signal"
       limits = NULL
+    }else if(spatialType == "InputFeature"){
+
+      mat <- t(SpaCET_obj@input$spotCoordinates)
+
+      if(length(spatialFeatures) > 1)
+      {
+        stop("Please input one feature once.")
+      }
+
+      scaleType="color-discrete"
+      legendName = spatialFeatures
+      limits = NULL
     }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
     }
 
 

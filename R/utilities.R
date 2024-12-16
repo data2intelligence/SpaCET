@@ -121,7 +121,7 @@ create.SpaCET.object.10X <- function(visiumPath)
 #' @rdname create.SpaCET.object
 #' @export
 #'
-create.SpaCET.object <- function(counts, spotCoordinates, imagePath, platform)
+create.SpaCET.object <- function(counts, spotCoordinates, imagePath=NA, platform)
 {
   if(!identical(colnames(counts),rownames(spotCoordinates)))
   {
