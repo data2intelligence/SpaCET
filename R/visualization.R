@@ -210,9 +210,9 @@ SpaCET.visualize.spatialFeature <- function(
       if(is.null(colors)) colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
       legendName = "Signal"
       limits = NULL
-    }else if(spatialType == "InputFeature"){
+    }else if(spatialType == "metaData"){
 
-      mat <- t(SpaCET_obj@input$spotCoordinates)
+      mat <- t(SpaCET_obj@input$metaData)
 
       if(length(spatialFeatures) > 1)
       {

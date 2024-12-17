@@ -121,7 +121,7 @@ create.SpaCET.object.10X <- function(visiumPath)
 #' @rdname create.SpaCET.object
 #' @export
 #'
-create.SpaCET.object <- function(counts, spotCoordinates, imagePath=NA, platform)
+create.SpaCET.object <- function(counts, spotCoordinates, metaData=NA, imagePath=NA, platform)
 {
   if(!identical(colnames(counts),rownames(spotCoordinates)))
   {
@@ -150,6 +150,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, imagePath=NA, platform
     input=list(
       counts=st.matrix.data,
       spotCoordinates=spotCoordinates,
+      metaData=metaData,
       image=list(path=imagePath,grob=rg),
       platform=platform
     )
@@ -187,6 +188,7 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 
   SpaCET_obj@input$counts <- st.matrix.data
   SpaCET_obj@input$spotCoordinates <- SpaCET_obj@input$spotCoordinates[colnames(st.matrix.data),]
+  SpaCET_obj@input$metaData <- SpaCET_obj@input$metaData[colnames(st.matrix.data),]
 
   SpaCET_obj@results$metrics <- rbind(
     UMI=Matrix::colSums(st.matrix.data),
