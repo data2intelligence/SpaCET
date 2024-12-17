@@ -10,7 +10,7 @@ Encoding: UTF-8
 RoxygenNote: 7.2.3
 Depends:
     R (>= 3.5.0)
-Imports: 
+Imports:
     Matrix,
     jsonlite,
     ggplot2,
