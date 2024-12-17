@@ -282,7 +282,12 @@ SpaCET.visualize.spatialFeature <- function(
         }
 
       }else{
-        visiualVector <- sort(mat[spatialFeature,])
+        if(spatialType == "GeneExpression")
+        {
+          visiualVector <- sort(mat[spatialFeature,])
+        }else{
+          visiualVector <- mat[spatialFeature,]
+        }
       }
 
       spotID <- names(visiualVector)

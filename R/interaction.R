@@ -447,15 +447,15 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
       SpaCET_obj@input$platform,
       scaleType="color-discrete",
       colors=icolors,
+      limits=NULL,
       pointSize=1,
       pointAlpha=1,
-      limits,
-      "Spatial distribution of two cell-types",
-      "Spot",
+      titleName="Spatial distribution of two cell-types",
+      legendName="Spot",
+      legend.position="none",
       imageBg=TRUE,
-      spotID
-    ) + theme(legend.position = "none")
-
+      spotID=spotID
+    )
 
     # scatter plot
 
