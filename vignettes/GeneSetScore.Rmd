@@ -83,7 +83,7 @@ SpaCET.visualize.spatialFeature(
 <img src="img/GS2.png" width="100%" style="border:none" />
 
 ## Calculate TLS score
-User just need to set `GeneSets` as "TLS" to calculate tertiary lymphoid structure score. We collected a 30-gene TLS signature from this [study](https://www.researchsquare.com/article/rs-3921508){target="_blank"}.
+User just need to set `GeneSets` as "TLS" to calculate tertiary lymphoid structure score. We collected a 30-gene TLS signature from this [study](https://www.nature.com/articles/s41467-024-54145-w){target="_blank"}.
 
 ``` r
 # run gene set calculation
