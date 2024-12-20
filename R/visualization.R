@@ -197,7 +197,7 @@ SpaCET.visualize.spatialFeature <- function(
         stop("Please run SecAct.signaling.pattern first.")
       }
 
-      mat <- SpaCET_obj@results$pattern$signal.H
+      mat <- SpaCET_obj @results $SecAct_output $pattern $signal.H
 
       if("All"%in%spatialFeatures)
       {
