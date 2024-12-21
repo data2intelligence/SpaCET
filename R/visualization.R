@@ -192,7 +192,7 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = "Activity"
       limits = NULL
     }else if(spatialType == "SignalingPattern"){
-      if(is.null(SpaCET_obj@results$pattern))
+      if(is.null(SpaCET_obj @results $SecAct_output $pattern))
       {
         stop("Please run SecAct.signaling.pattern first.")
       }
