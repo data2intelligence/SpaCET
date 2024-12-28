@@ -261,5 +261,8 @@ SpaCET.visualize.spatialFeature(
   nrow=1
 )
 
-``` 
+```
+
 <img src="img/cancerCellState.png" width="100%" style="border:none" />
+
+In order to annotate the identified Cancer Cell States, you can follow this [tutorial](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html#calculate-cancer-cell-state-score) to calculate the known cancer cell state score across spots, and then compare them.

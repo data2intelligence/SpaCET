@@ -382,7 +382,7 @@ SpaCET.visualize.spatialFeature <- function(
       server=function(input, output, session) {
 
         observe({
-          spatialTypes <- c("CellFraction","QualityControl","LRNetworkScore","Interface")
+          spatialTypes <- c("CellFraction","QualityControl","SignalingPattern","LRNetworkScore","Interface")
 
           if(is.null(SpaCET_obj@results$deconvolution$propMat))
           {
@@ -391,6 +391,10 @@ SpaCET.visualize.spatialFeature <- function(
           if(is.null(SpaCET_obj@results$metrics))
           {
             spatialTypes <- setdiff(spatialTypes,"QualityControl")
+          }
+          if(is.null(SpaCET_obj @results $SecAct_output $pattern $signal.H))
+          {
+            spatialTypes <- setdiff(spatialTypes,"SignalingPattern")
           }
           if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
           {
@@ -408,6 +412,8 @@ SpaCET.visualize.spatialFeature <- function(
             spatialFeatures <- rownames(SpaCET_obj@results$metrics)
           }else if(input$spatialType=="CellFraction"){
             spatialFeatures <- rownames(SpaCET_obj@results$deconvolution$propMat)
+          }else if(input$spatialType=="SignalingPattern"){
+            spatialFeatures <- rownames(SpaCET_obj @results $SecAct_output $pattern $signal.H)
           }else if(input$spatialType=="LRNetworkScore"){
             spatialFeatures <- rownames(SpaCET_obj@results$CCI$LRNetworkScore)[2:3]
           }else if(input$spatialType=="Interface"){
@@ -427,6 +433,12 @@ SpaCET.visualize.spatialFeature <- function(
             scaleType="color-continuous"
             colors = c("lightblue", "blue", "darkblue")
             legendName = "Count"
+            limits = NULL
+          }else if(input$spatialType=="SignalingPattern"){
+            mat <- SpaCET_obj @results $SecAct_output $pattern $signal.H
+            scaleType="color-continuous"
+            colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
+            legendName = "Signal"
             limits = NULL
           }else if(input$spatialType=="CellFraction"){
             mat <- SpaCET_obj@results$deconvolution$propMat
@@ -494,7 +506,7 @@ SpaCET.visualize.spatialFeature <- function(
                 dragmode = "lasso",
                 images=list(
                   list(
-                    source = base64enc::dataURI(file = SpaCET_obj@input$image$path),
+                    #source = base64enc::dataURI(file = SpaCET_obj@input$image$path),
                     xref = "paper",
                     yref = "paper",
                     x= 0,
@@ -539,12 +551,12 @@ SpaCET.visualize.spatialFeature <- function(
 
             if(!is.null(d))
             {
+              d[,3] <- round(d[,3],3)
+              d[,4] <- round(d[,4],3)
               d <- cbind(d, xy="a")
               d <- cbind(d, SpotID="b")
               d <- cbind(d, Value="c")
-              d[,3] <- round(d[,3],3)
-              d[,4] <- round(d[,4],3)
-              d[,"xy"] <- paste0(600-d[,4],"x",d[,3])
+              d[,"xy"] <- paste0(nrow(SpaCET_obj@input$image$grob$raster)-d[,4],"x",d[,3])
               d[,"SpotID"] <- spotID[names(visiualVector)%in%d[,"xy"]]
               d[,"Value"] <- visiualVector[names(visiualVector)%in%d[,"xy"]]
               d <- d[,c("SpotID","Value")]
