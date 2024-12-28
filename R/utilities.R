@@ -128,6 +128,15 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
   {
     stop("The Spot IDs in the counts and spotCoordinates matrices are not identical.")
   }
+
+  if(!is.null(metaData))
+  {
+    if(!identical(colnames(counts),rownames(metaData)))
+    {
+      stop("The Spot IDs in the counts and metaData matrices are not identical.")
+    }
+  }
+
   if(is.na(imagePath))
   {
     rg <- NA
@@ -188,11 +197,12 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
   st.matrix.data <- st.matrix.data[,remaining.spots]
 
   SpaCET_obj@input$counts <- st.matrix.data
-  SpaCET_obj@input$spotCoordinates <- SpaCET_obj@input$spotCoordinates[colnames(st.matrix.data),]
+
+  SpaCET_obj@input$spotCoordinates <- SpaCET_obj@input$spotCoordinates[colnames(st.matrix.data),,drop=F]
 
   if(!is.null(SpaCET_obj@input$metaData))
   {
-    SpaCET_obj@input$metaData <- SpaCET_obj@input$metaData[colnames(st.matrix.data),]
+    SpaCET_obj@input$metaData <- SpaCET_obj@input$metaData[colnames(st.matrix.data),,drop=F]
   }
 
   SpaCET_obj@results$metrics <- rbind(
