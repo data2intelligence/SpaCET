@@ -700,7 +700,8 @@ visualSpatial <- function(
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
-          panel.border = element_blank()
+          panel.border = element_blank(),
+          legend.position = legend.position
         )
     }else{
       coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
@@ -720,7 +721,8 @@ visualSpatial <- function(
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           panel.grid = element_blank(),
-          panel.border = element_blank()
+          panel.border = element_blank(),
+          legend.position = legend.position
         )
 
       if(scaleType=="color-continuous")
