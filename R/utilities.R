@@ -72,8 +72,11 @@ create.SpaCET.object.10X <- function(visiumPath)
   if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
   {
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
-  }else{
+
+  }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
+  }else{
+    barcode <- as.data.frame(arrow::read_parquet(paste0(visiumPath,"/spatial/tissue_positions.parquet")))
   }
 
   colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
@@ -154,7 +157,13 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
   }
 
   st.matrix.data <- methods::as(counts, "CsparseMatrix")
-  st.matrix.data <- rm_duplicates(st.matrix.data)
+
+  if(ncol(st.matrix.data) < 10000)
+  {
+    st.matrix.data <- rm_duplicates(st.matrix.data)
+  }else{
+    st.matrix.data <- rm_duplicates_sparse(st.matrix.data)
+  }
 
   SpaCET_obj <- methods::new("SpaCET",
     input=list(
@@ -399,3 +408,28 @@ rm_duplicates <- function(mat){
   return(mat)
 }
 
+
+rm_duplicates_sparse <- function(mat)
+{
+  gene_count <- table(rownames(mat))
+  gene_dupl <- names(gene_count)[gene_count>1]
+
+  if(length(gene_dupl) > 0){
+    gene_unique <- names(gene_count)[gene_count==1]
+    gene_unique_index <- which(rownames(mat)%in%gene_unique)
+
+    gene_dupl_index <- c()
+    for(gene in gene_dupl)
+    {
+      gene_dupl_index_gene <- which(rownames(mat)%in%gene)
+      mat_dupl_gene <- mat[gene_dupl_index_gene,]
+      dupl_sum <- Matrix::rowSums(mat_dupl_gene)
+      max_flag <- which(dupl_sum==max(dupl_sum))
+      gene_dupl_index <- c(gene_dupl_index,gene_dupl_index_gene[max_flag[1]])
+    }
+
+    mat <- mat[sort(c(gene_unique_index,gene_dupl_index)),]
+  }
+
+  return(mat)
+}

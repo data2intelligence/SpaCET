@@ -27,7 +27,8 @@ Imports:
     psych,
     BiRewire,
     limma,
-    MUDAN
+    MUDAN,
+    arrow
 biocViews:
     Spatial,
     UCell
