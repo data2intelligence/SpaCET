@@ -104,8 +104,8 @@ diameter.</p>
 <div class="section level2">
 <h2 id="create-spacet-object">Create SpaCET object<a class="anchor" aria-label="anchor" href="#create-spacet-object"></a>
 </h2>
-<p>To read your ST data into R, user can create an SpaCET object by
-using <code>create.SpaCET.object</code> or
+<p>To read your ST data into R, user can create a SpaCET object by using
+<code>create.SpaCET.object</code> or
 <code>create.SpaCET.object.10X</code>. Specifically, if users are
 analyzing an ST dataset from 10x Visium, they only need to input
 “visiumPath” by using <code>create.SpaCET.object.10X</code>. Please make
@@ -113,7 +113,7 @@ sure that “visiumPath” points to the standard output folders of 10x
 SpaCET Ranger, which has both “filtered_feature_bc_matrix” and “spatial”
 folders.</p>
 <p>Here, since the PDAC ST data set was generated from the original ST
-technology, user need <code>create.SpaCET.object</code> to create an
+technology, user need <code>create.SpaCET.object</code> to create a
 SpaCET object by preparing four types of input data referring to a tumor
 ST sample.</p>
 <ol style="list-style-type: decimal">
@@ -154,7 +154,7 @@ unavailable.</li>
 <span><span class="co">## 10x15 10 15</span></span>
 <span><span class="co">## 10x16 10 16</span></span>
 <span></span>
-<span><span class="co"># load ST data to create an SpaCET object.</span></span>
+<span><span class="co"># load ST data to create a SpaCET object.</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCET.object.html">create.SpaCET.object</a></span><span class="op">(</span></span>
 <span>  counts<span class="op">=</span><span class="va">counts</span>,</span>
 <span>  spotCoordinates<span class="op">=</span><span class="va">spotCoordinates</span>,</span>
@@ -169,7 +169,7 @@ unavailable.</li>
 <h2 id="deconvolve-cell-lineage">Deconvolve cell lineage<a class="anchor" aria-label="anchor" href="#deconvolve-cell-lineage"></a>
 </h2>
 <p>We provide <code>SpaCET.deconvolution.matched.scRNAseq</code> to
-deconvolve an SpaCET object with a customized scRNA-seq data. User need
+deconvolve a SpaCET object with a customized scRNA-seq data. User need
 to prepare three types of input data referring to the matched scRNA-seq
 dataset.</p>
 <ol style="list-style-type: decimal">

@@ -41,6 +41,7 @@ reference:
     - SpaCET.deconvolution
     - SpaCET.deconvolution.malignant
     - SpaCET.deconvolution.matched.scRNAseq
+    - SpaCET.deconvolution.malignant.customized.scRNAseq
 
   - title: Cell-cell interaction analysis
     contents:

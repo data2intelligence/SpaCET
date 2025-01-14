@@ -96,7 +96,7 @@
     
 <p>This tutorial demonstrates how to run SpaCET to estimate cell
 identities and cell-cell interactions by using a breast cancer spatial
-transcriptomics (ST) data set from <a href="https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0" target="_blank" class="external-link">10x Visium</a>. Each spot is 55 µm in diameter covering
+transcriptomics (ST) data set from <a href="https://www.10xgenomics.com/resources/datasets/human-breast-cancer-block-a-section-1-1-standard-1-0-0" target="_blank" class="external-link">10x/Visium</a>. Each spot is 55 µm in diameter covering
 <a href="https://kb.10xgenomics.com/hc/en-us/articles/360035487952-How-many-cells-are-captured-in-a-single-spot" target="_blank" class="external-link">1-10 cells</a>. Before running the tutorial, make sure
 that the SpaCET package and its dependencies have been installed.</p>
 <div class="section level2">
@@ -110,11 +110,10 @@ analyzing an ST dataset from 10x Visium, they only need to input
 sure that “visiumPath” points to the standard output folders of 10x
 Space Ranger, which includes both (1) sequencing data, i.e.,
 “filtered_feature_bc_matrix.h5” file or “filtered_feature_bc_matrix”
-folder, and (2) image folder “spatial”.</p>
+folder, and (2) image folder “spatial”. For <span style="color:red">Visium HD</span> data, you can set
+<code>visiumPath &lt;- "/Your/data/path/to/binned_outputs/square_016um/"</code>.</p>
 <p>Here, we create an SpaCET object for the current breast cancer visium
-dataset. In this step, if there are duplicated gene symbols, the gene
-with the highest total counts remains and all other duplicated genes are
-removed.</p>
+sample.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
@@ -144,7 +143,7 @@ represents a gene whereas each column is a spot.</p>
 <span><span class="co">## AL732372.1       .     .     .     .     .     .</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="show-key-quality-control-metrics">Show key quality control metrics<a class="anchor" aria-label="anchor" href="#show-key-quality-control-metrics"></a>
+<h2 id="show-quality-control-metrics">Show quality control metrics<a class="anchor" aria-label="anchor" href="#show-quality-control-metrics"></a>
 </h2>
 <p>After creating the SpaCET object, you can use
 <code>SpaCET.visualize.spatialFeature</code> to show both UMI and gene
@@ -153,8 +152,8 @@ presents the overall UMI counts within a spot while the “Gene” option
 represents the number of expressed genes (i.e., genes with at least one
 UMI count) in a particular spot.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># filter low-quality spots and calculate the QC metrics</span></span>
-<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.quality.control.html">SpaCET.quality.control</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, min.genes<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># filter out spots with less than 100 expressed genes</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.quality.control.html">SpaCET.quality.control</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, min.genes<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># plot the QC metrics</span></span>
 <span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>
@@ -345,7 +344,7 @@ than CAF/M2-dominated spots (right panel).</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="enrich-cell-cell-interactions-at-the-tumor-immune-interface">Enrich cell-cell interactions at the tumor-immune interface<a class="anchor" aria-label="anchor" href="#enrich-cell-cell-interactions-at-the-tumor-immune-interface"></a>
+<h2 id="analyze-the-tumor-immune-interface">Analyze the tumor-immune interface<a class="anchor" aria-label="anchor" href="#analyze-the-tumor-immune-interface"></a>
 </h2>
 <p>Interestingly, besides the interaction significance, we found an
 enrichment of CAF-M2 interactions close to boundaries between tumor and
@@ -414,6 +413,10 @@ states equals to the malignant cell fraction for each spot.</p>
 <span>  nrow<span class="op">=</span><span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/cancerCellState.png" width="100%" style="border:none"></p>
+<p>In order to annotate the identified Cancer Cell States, you can
+follow this <a href="https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html#calculate-cancer-cell-state-score" class="external-link">tutorial</a>
+to calculate the known cancer cell state score across spots, and then
+compare them.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
