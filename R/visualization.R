@@ -180,12 +180,12 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = "Score"
       limits = NULL
     }else if(spatialType == "SecretedProteinActivity"){
-      if(is.null(SpaCET_obj@results$SecretedProteinActivity))
+      if(is.null(SpaCET_obj@results$SecAct_output$SecretedProteinActivity))
       {
         stop("Please run SecAct.signaling.inference first.")
       }
 
-      mat <- SpaCET_obj@results$SecretedProteinActivity$zscore
+      mat <- SpaCET_obj@results$SecAct_output$SecretedProteinActivity$zscore
 
       scaleType="color-continuous"
       if(is.null(colors)) colors = c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
