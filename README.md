@@ -6,7 +6,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-SpaCET is an R package desighed for analyzing cancer spatial
+SpaCET is an R package designed for analyzing cancer spatial
 transcriptomics (ST) datasets to estimate cell lineages and
 intercellular interactions within the tumor microenvironment. In a
 nutshell, SpaCET first infers cancer cell abundance by integrating a
