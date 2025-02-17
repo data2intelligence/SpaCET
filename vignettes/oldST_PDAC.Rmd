@@ -137,7 +137,7 @@ SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
   sc_counts=sc_counts, 
   sc_annotation=sc_annotation, 
   sc_lineageTree=sc_lineageTree, 
-  coreNo=8
+  coreNo=6
 )
 
 SpaCET.visualize.spatialFeature(

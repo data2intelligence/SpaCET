@@ -55,7 +55,7 @@ library(SpaCET)
 
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
-SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 
 SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 

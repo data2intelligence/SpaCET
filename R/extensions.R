@@ -11,9 +11,9 @@
 #' @rdname SpaCET.deconvolution.malignant
 #' @export
 #'
-SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=8)
+SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=6)
 {
-  coreNoDect <- parallel::detectCores()
+  coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo) coreNo <- coreNoDect
   if(Sys.info()[['sysname']] == "Windows")
   {
@@ -176,14 +176,14 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 #' @param coreNo Core number in parallel.
 #' @return A SpaCET object
 #' @examples
-#' SpaCET_obj <- SpaCET.deconvolution.malignant.customized.scRNAseq(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+#' SpaCET_obj <- SpaCET.deconvolution.malignant.customized.scRNAseq(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 #'
 #' @rdname SpaCET.deconvolution.malignant.customized.scRNAseq
 #' @export
 #'
-SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 {
-  coreNoDect <- parallel::detectCores()
+  coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo) coreNo <- coreNoDect
   if(Sys.info()[['sysname']] == "Windows")
   {
@@ -321,9 +321,9 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 #'
 #' @rdname SpaCET.deconvolution.matched.scRNAseq
 #' @export
-SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 {
-  coreNoDect <- parallel::detectCores()
+  coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo) coreNo <- coreNoDect
   if(Sys.info()[['sysname']] == "Windows")
   {

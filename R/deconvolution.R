@@ -6,14 +6,14 @@
 #' @param coreNo Core number in parallel computation.
 #' @return A SpaCET object.
 #' @examples
-#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 #'
 #' @rdname SpaCET.deconvolution
 #' @export
 #'
-SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, coreNo=8)
+SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, coreNo=6)
 {
-  coreNoDect <- parallel::detectCores()
+  coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo) coreNo <- coreNoDect
   if(Sys.info()[['sysname']] == "Windows")
   {

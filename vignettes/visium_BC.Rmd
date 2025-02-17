@@ -95,7 +95,7 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 
 ``` r
 # deconvolve ST data
-SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 # Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
 
 # show the ST deconvolution results
@@ -178,7 +178,7 @@ Cell colocalization does not directly indicate physical interaction. Thus, we so
 
 ``` r
 # calculate the L-R network score across ST spots.
-SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj,coreNo=8)
+SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj,coreNo=6)
 
 # visualize the L-R network score.
 SpaCET.visualize.spatialFeature(
@@ -246,7 +246,7 @@ Similar to the deconvolution of immune major lineages into sublineages, the over
 
 ``` r
 # further deconvolve malignant cell states
-SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, coreNo = 8)
+SpaCET_obj <- SpaCET.deconvolution.malignant(SpaCET_obj, coreNo=6)
 
 # show cancer cell state fraction of the first five spots
 SpaCET_obj@results$deconvolution$propMat[c("Malignant cell state A","Malignant cell state B"),1:6]

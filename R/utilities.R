@@ -348,7 +348,7 @@ convert.Seurat  <- function(Seurat_obj)
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
 #' SpaCET_obj <- convert.Seurat(Seurat_obj)
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
-#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+#' SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 #' Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
 #' Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
 #' Seurat::SpatialFeaturePlot(Seurat_obj, features = c("CAF", "Macrophage"))

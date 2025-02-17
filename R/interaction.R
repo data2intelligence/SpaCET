@@ -169,15 +169,15 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #' @param coreNo Core number in parallel computation.
 #' @return A SpaCET object.
 #' @examples
-#' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=8)
+#' SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=6)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 #'
 #' @rdname SpaCET.CCI.LRNetworkScore
 #' @export
 #'
-SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=8)
+SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 {
-  coreNoDect <- parallel::detectCores()
+  coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo) coreNo <- coreNoDect
   if(Sys.info()[['sysname']] == "Windows")
   {
