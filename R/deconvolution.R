@@ -258,6 +258,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
   }else{ # spot > 20000
     CNA_expr <- "CNA"
 
+    # first round
     cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
     sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
@@ -279,7 +280,41 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     }
 
     malPropSorted <- sort(malProp)
-    top5p <- round(length(malPropSorted)*0.02)
+    top5p <- round(length(malPropSorted)*0.05)
+    p5 <- malPropSorted[top5p]
+    p95 <- malPropSorted[length(malPropSorted)-top5p+1]
+
+    malProp[malProp<=p5] <- p5
+    malProp[malProp>=p95] <- p95
+
+    malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
+
+
+    # second round
+    spotMal <- colnames(st.matrix.data.diff)[malProp>=1]
+
+    sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
+    sig <- matrix(sig)
+    rownames(sig) <- rownames(st.matrix.data.diff)
+
+    malProp <- c()
+    for(x in 1:subNo)
+    {
+      if(x!=subNo)
+      {
+        cor_sig <- corMat(as.matrix(st.matrix.data.diff[,(5000*(x-1)+1):(5000*x)]),sig)
+      }else{
+        cor_sig <- corMat(as.matrix(st.matrix.data.diff[,(5000*(x-1)+1):ncol(st.matrix.data.diff)]),sig)
+      }
+
+      malPropSub <- cor_sig[,"cor_r"]
+      names(malPropSub) <- rownames(cor_sig)
+
+      malProp <- c(malProp, malPropSub)
+    }
+
+    malPropSorted <- sort(malProp)
+    top5p <- round(length(malPropSorted)*0.05)
     p5 <- malPropSorted[top5p]
     p95 <- malPropSorted[length(malPropSorted)-top5p+1]
 
