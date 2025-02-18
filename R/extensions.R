@@ -14,7 +14,11 @@
 SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", malignantCutoff=0.7, coreNo=6)
 {
   coreNoDect <- parallel::detectCores(logical = FALSE)
-  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(coreNoDect<coreNo)
+  {
+    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    coreNo <- coreNoDect
+  }
   if(Sys.info()[['sysname']] == "Windows")
   {
     print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
@@ -184,7 +188,11 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 {
   coreNoDect <- parallel::detectCores(logical = FALSE)
-  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(coreNoDect<coreNo)
+  {
+    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    coreNo <- coreNoDect
+  }
   if(Sys.info()[['sysname']] == "Windows")
   {
     print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
@@ -324,7 +332,11 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 {
   coreNoDect <- parallel::detectCores(logical = FALSE)
-  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(coreNoDect<coreNo)
+  {
+    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    coreNo <- coreNoDect
+  }
   if(Sys.info()[['sysname']] == "Windows")
   {
     print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")

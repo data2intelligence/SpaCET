@@ -178,7 +178,11 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 {
   coreNoDect <- parallel::detectCores(logical = FALSE)
-  if(coreNoDect<coreNo) coreNo <- coreNoDect
+  if(coreNoDect<coreNo)
+  {
+    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    coreNo <- coreNoDect
+  }
   if(Sys.info()[['sysname']] == "Windows")
   {
     print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
