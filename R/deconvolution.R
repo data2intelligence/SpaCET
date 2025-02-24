@@ -281,7 +281,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
     malPropSorted <- sort(malProp)
     top5p <- round(length(malPropSorted)*0.01)
-    top5p <- 150
+    top5p <- 100
     p5 <- malPropSorted[top5p]
     p95 <- malPropSorted[length(malPropSorted)-top5p+1]
 
@@ -316,7 +316,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
     malPropSorted <- sort(malProp)
     top5p <- round(length(malPropSorted)*0.01)
-    top5p <- 150
+    top5p <- 100
     p5 <- malPropSorted[top5p]
     p95 <- malPropSorted[length(malPropSorted)-top5p+1]
 
