@@ -2,9 +2,15 @@
 % Please edit documentation in R/utilities.R
 \name{create.SpaCET.object}
 \alias{create.SpaCET.object}
-\title{Create an SpaCET object}
+\title{Create a SpaCET object}
 \usage{
-create.SpaCET.object(counts, spotCoordinates, imagePath, platform)
+create.SpaCET.object(
+  counts,
+  spotCoordinates,
+  metaData = NULL,
+  imagePath = NA,
+  platform
+)
 }
 \arguments{
 \item{counts}{Count matrix with gene name (row) x spot ID (column).}
@@ -16,13 +22,13 @@ create.SpaCET.object(counts, spotCoordinates, imagePath, platform)
 \item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
-Read an ST dataset to create an SpaCET object.
+Read an ST dataset to create a SpaCET object.
 }
 \details{
-To create an SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
+To create a SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
 However, if analyzing the Visium data, it is more easy to use `create.SpaCET.object.10X` to read ST data.
 }
 \examples{

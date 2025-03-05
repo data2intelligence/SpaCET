@@ -7,7 +7,7 @@
 SpaCET.visualize.cellTypePair(SpaCET_obj, cellTypePair)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{cellTypePair}{A pair of cell types.}
 }

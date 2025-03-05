@@ -12,11 +12,11 @@ SpaCET.deconvolution.matched.scRNAseq(
   sc_annotation,
   sc_lineageTree,
   sc_nCellEachLineage = 100,
-  coreNo = 8
+  coreNo = 6
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{sc_includeMalignant}{Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its build-in reference.}
 
@@ -33,7 +33,7 @@ SpaCET.deconvolution.matched.scRNAseq(
 \item{coreNo}{Core number.}
 }
 \value{
-An SpaCET object
+A SpaCET object
 }
 \description{
 Estimate the fraction of cell lineage and sub lineage.

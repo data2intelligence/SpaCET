@@ -7,12 +7,12 @@
 SpaCET.quality.control(SpaCET_obj, min.genes = 1)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{min.genes}{Minimum number of expressed genes. Default: 1.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
 Spots with less than `min.genes` expressed genes would be removed.

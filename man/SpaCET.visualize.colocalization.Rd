@@ -7,7 +7,7 @@
 SpaCET.visualize.colocalization(SpaCET_obj)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 }
 \value{
 A ggplot object.

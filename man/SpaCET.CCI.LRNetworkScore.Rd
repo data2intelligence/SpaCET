@@ -4,21 +4,21 @@
 \alias{SpaCET.CCI.LRNetworkScore}
 \title{Ligand-Receptor interaction enrichment analysis}
 \usage{
-SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo = 8)
+SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo = 6)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{coreNo}{Core number in parallel computation.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
 Calculate the overall intensity of L-R interactions within ST spots.
 }
 \examples{
-SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=8)
+SpaCET_obj <- SpaCET.CCI.LRNetworkScore(SpaCET_obj, coreNo=6)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 
 }

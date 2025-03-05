@@ -8,11 +8,11 @@ SpaCET.deconvolution(
   SpaCET_obj,
   cancerType,
   adjacentNormal = FALSE,
-  coreNo = 8
+  coreNo = 6
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{cancerType}{Cancer type of the current tumor ST dataset.}
 
@@ -21,12 +21,12 @@ SpaCET.deconvolution(
 \item{coreNo}{Core number in parallel computation.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
 Estimate the cell fraction of cell lineages and sub lineages.
 }
 \examples{
-SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 
 }

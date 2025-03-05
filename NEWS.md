@@ -1,3 +1,11 @@
+## SpaCET 1.3.0
+
+*2025-03-05*
+
+* Add cell references of hepatocytes and cholangiocytes so that SpaCET can infer their fractions when deconvolving liver cancer samples.
+* Update `SpaCET.deconvolution` to deconvolve normal tissues by setting`adjacentNormal = TRUE` to skip the malignant cell prediction.
+* Update `SpaCET.visualize.spatialFeature` to visualize secreted protein signaling activity and pattern.
+
 ## SpaCET 1.2.0
 
 *2024-07-06*

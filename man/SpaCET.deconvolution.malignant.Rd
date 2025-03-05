@@ -8,11 +8,11 @@ SpaCET.deconvolution.malignant(
   SpaCET_obj,
   Malignant = "Malignant",
   malignantCutoff = 0.7,
-  coreNo = 8
+  coreNo = 6
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
 
@@ -21,7 +21,7 @@ SpaCET.deconvolution.malignant(
 \item{coreNo}{Core number in parallel.}
 }
 \value{
-An SpaCET object
+A SpaCET object
 }
 \description{
 Explore different malignant cell states in tumor ST dataset.

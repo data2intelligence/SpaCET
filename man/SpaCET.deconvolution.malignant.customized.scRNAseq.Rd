@@ -11,11 +11,11 @@ SpaCET.deconvolution.malignant.customized.scRNAseq(
   sc_annotation,
   sc_lineageTree,
   sc_nCellEachLineage = 100,
-  coreNo = 8
+  coreNo = 6
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
 
@@ -30,12 +30,12 @@ SpaCET.deconvolution.malignant.customized.scRNAseq(
 \item{coreNo}{Core number in parallel.}
 }
 \value{
-An SpaCET object
+A SpaCET object
 }
 \description{
 Explore different malignant cell states in tumor ST dataset.
 }
 \examples{
-SpaCET_obj <- SpaCET.deconvolution.malignant.customized.scRNAseq(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution.malignant.customized.scRNAseq(SpaCET_obj, Malignant="Malignant", sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
 
 }

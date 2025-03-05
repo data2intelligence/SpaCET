@@ -10,10 +10,10 @@ convert.Seurat(Seurat_obj)
 \item{Seurat_obj}{An Seurat object.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
-Convert an Seurat object to an SpaCET object.
+Convert an Seurat object to a SpaCET object.
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")

@@ -7,22 +7,22 @@
 addTo.Seurat(SpaCET_obj, Seurat_obj)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
-\item{Seurat_obj}{An Seurat object.}
+\item{Seurat_obj}{A Seurat object.}
 }
 \value{
 An Seurat object.
 }
 \description{
-Add deconvolution results from an SpaCET object to an Seurat object as a new assay.
+Add deconvolution results from a SpaCET object to an Seurat object as a new assay.
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
 SpaCET_obj <- convert.Seurat(Seurat_obj)
 SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
-SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=8)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 Seurat_obj <- addTo.Seurat(SpaCET_obj, Seurat_obj)
 Seurat::DefaultAssay(Seurat_obj) <- "propMatFromSpaCET"
 Seurat::SpatialFeaturePlot(Seurat_obj, features = c("CAF", "Macrophage"))

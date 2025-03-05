@@ -28,7 +28,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SpaCET</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -166,7 +166,7 @@ unavailable.</li>
 <p>We use the in-house reference to deconvolve this ST sample.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># deconvolve ST data</span></span>
-<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.html">SpaCET.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cancerType<span class="op">=</span><span class="st">"CRC"</span>, coreNo<span class="op">=</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.html">SpaCET.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cancerType<span class="op">=</span><span class="st">"CRC"</span>, coreNo<span class="op">=</span><span class="fl">6</span><span class="op">)</span></span>
 <span><span class="co"># Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.</span></span>
 <span></span>
 <span><span class="co"># show the ST deconvolution results</span></span>

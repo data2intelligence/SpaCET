@@ -11,14 +11,14 @@ SpaCET.identify.interface(
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
 
 \item{MalignantCutoff}{Malignant cell fraction cutoff for tumor boundary. Default: 0.5.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
 Identify the spots at the tumor-stroma interface.

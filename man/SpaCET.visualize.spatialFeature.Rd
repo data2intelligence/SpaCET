@@ -19,7 +19,7 @@ SpaCET.visualize.spatialFeature(
 )
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.}
 

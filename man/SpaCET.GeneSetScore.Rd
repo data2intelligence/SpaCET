@@ -7,12 +7,12 @@
 SpaCET.GeneSetScore(SpaCET_obj, GeneSets)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{GeneSets}{A string for in-house gene sets, or a list object for user-defined gene sets. See details.}
 }
 \value{
-An SpaCET object
+A SpaCET object
 }
 \description{
 Calculate spots' gene set score from the in-house or user-defined gene sets.

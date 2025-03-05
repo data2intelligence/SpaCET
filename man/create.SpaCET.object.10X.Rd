@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{create.SpaCET.object.10X}
 \alias{create.SpaCET.object.10X}
-\title{Create an SpaCET object from 10X Visium}
+\title{Create a SpaCET object from 10X Visium}
 \usage{
 create.SpaCET.object.10X(visiumPath)
 }
@@ -10,10 +10,10 @@ create.SpaCET.object.10X(visiumPath)
 \item{visiumPath}{Path to the Space Ranger output folder. See ‘details’ for more information.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
-Read an ST dataset to create an SpaCET object.
+Read an ST dataset to create a SpaCET object.
 }
 \details{
 If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".

@@ -7,12 +7,12 @@
 SpaCET.combine.interface(SpaCET_obj, cellTypePair)
 }
 \arguments{
-\item{SpaCET_obj}{An SpaCET object.}
+\item{SpaCET_obj}{A SpaCET object.}
 
 \item{cellTypePair}{A pair of cell types.}
 }
 \value{
-An SpaCET object.
+A SpaCET object.
 }
 \description{
 Demonstrate the spatial position of interaction spots at the tumor microenvironment.
