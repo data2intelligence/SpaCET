@@ -77,8 +77,10 @@
 <span>  sameScaleForFraction <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pointSize <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  pointAlpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  imageBg <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  imageSize <span class="op">=</span> <span class="st">"CompleteImage"</span>,</span>
 <span>  legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
 <span>  interactive <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -106,12 +108,36 @@
 <dd><p>Indicate whether all cell types have the same scale for cell fraction.</p></dd>
 
 
+<dt>colors</dt>
+<dd><p>A vector of colors for spots.</p></dd>
+
+
+<dt>pointSize</dt>
+<dd><p>Size of spots.</p></dd>
+
+
+<dt>pointAlpha</dt>
+<dd><p>Alpha transparency scales of spots. Must lie between 0 and 1.</p></dd>
+
+
 <dt>nrow</dt>
 <dd><p>Row number of the combined panel for multiple spatial features.</p></dd>
 
 
 <dt>imageBg</dt>
-<dd><p>logical: should the image be shown?</p></dd>
+<dd><p>Logical: should the image be shown as background?</p></dd>
+
+
+<dt>imageSize</dt>
+<dd><p>Size of the image, i.e., "CompleteImage", "CaptureArea".</p></dd>
+
+
+<dt>legend.position</dt>
+<dd><p>The position of the legend. Set it as "none" if you want to remove the legend.</p></dd>
+
+
+<dt>interactive</dt>
+<dd><p>Logical: should the interactive app be activited?</p></dd>
 
 </dl></div>
     <div class="section level2">

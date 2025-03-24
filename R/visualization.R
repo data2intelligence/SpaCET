@@ -5,8 +5,14 @@
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
+#' @param colors A vector of colors for spots.
+#' @param pointSize Size of spots.
+#' @param pointAlpha Alpha transparency scales of spots. Must lie between 0 and 1.
 #' @param nrow Row number of the combined panel for multiple spatial features.
-#' @param imageBg logical: should the image be shown?
+#' @param imageBg Logical: should the image be shown as background?
+#' @param imageSize Size of the image, i.e., "CompleteImage", "CaptureArea".
+#' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
+#' @param interactive Logical: should the interactive app be activited?
 #' @return A ggplot2 object.
 #' @details
 #' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
@@ -32,8 +38,10 @@ SpaCET.visualize.spatialFeature <- function(
     sameScaleForFraction = FALSE,
     colors = NULL,
     pointSize = 1,
+    pointAlpha = 1,
     nrow = 1,
     imageBg = TRUE,
+    imageSize = "CompleteImage",
     legend.position = "right",
     interactive = FALSE
 )
@@ -302,12 +310,13 @@ SpaCET.visualize.spatialFeature <- function(
         scaleType=scaleType,
         colors=colors,
         pointSize=pointSize,
-        pointAlpha=1,
+        pointAlpha=pointAlpha,
         limits=limits,
         titleName=spatialFeature,
         legendName=legendName,
         legend.position=legend.position,
         imageBg=imageBg,
+        imageSize=imageSize,
         spotID=spotID)
 
       library(patchwork)
@@ -497,7 +506,8 @@ SpaCET.visualize.spatialFeature <- function(
               titleName=input$spatialFeature,
               legendName=legendName,
               legend.position=legend.position,
-              imageBg=TRUE,
+              imageBg=imageBg,
+              imageSize=imageSize,
               spotID=spotID
               )
 
@@ -600,6 +610,7 @@ visualSpatial <- function(
     legendName,
     legend.position,
     imageBg,
+    imageSize,
     spotID
 )
 {
@@ -611,8 +622,25 @@ visualSpatial <- function(
 
     if(imageBg & !is.na(image$path))
     {
+      if(imageSize=="CaptureArea")
+      {
+        left_edge <- floor( min(coordi[,1])*0.95)
+        right_edge <- ceiling( max(coordi[,1])*1.02 )
+        bottom_edge <- floor( min(coordi[,2])*0.95 )
+        top_edge <- ceiling( max(coordi[,2])*1.02 )
+
+        image$grob$raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+      }
+
       xDiml <- dim(image$grob$raster)[1] # dim pixel
       yDiml <- dim(image$grob$raster)[2] # dim pixel
+
     }else{
       xDiml <- max(coordi[,1])
       yDiml <- max(coordi[,2])

@@ -72,8 +72,10 @@ SpaCET.visualize.spatialFeature(
   SpaCET_obj, 
   spatialType = "QualityControl", 
   spatialFeatures=c("UMI","Gene"),
-  imageBg = TRUE
+  imageBg = TRUE,
+  imageSize = "CompleteImage"
 )
+# or set imageSize = "CaptureArea" to show the capture area only.
 
 ```
 <img src="img/QC.png" width="100%" style="border:none" />

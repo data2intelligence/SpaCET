@@ -12,8 +12,10 @@ SpaCET.visualize.spatialFeature(
   sameScaleForFraction = FALSE,
   colors = NULL,
   pointSize = 1,
+  pointAlpha = 1,
   nrow = 1,
   imageBg = TRUE,
+  imageSize = "CompleteImage",
   legend.position = "right",
   interactive = FALSE
 )
@@ -29,9 +31,21 @@ SpaCET.visualize.spatialFeature(
 
 \item{sameScaleForFraction}{Indicate whether all cell types have the same scale for cell fraction.}
 
+\item{colors}{A vector of colors for spots.}
+
+\item{pointSize}{Size of spots.}
+
+\item{pointAlpha}{Alpha transparency scales of spots. Must lie between 0 and 1.}
+
 \item{nrow}{Row number of the combined panel for multiple spatial features.}
 
-\item{imageBg}{logical: should the image be shown?}
+\item{imageBg}{Logical: should the image be shown as background?}
+
+\item{imageSize}{Size of the image, i.e., "CompleteImage", "CaptureArea".}
+
+\item{legend.position}{The position of the legend. Set it as "none" if you want to remove the legend.}
+
+\item{interactive}{Logical: should the interactive app be activited?}
 }
 \value{
 A ggplot2 object.
