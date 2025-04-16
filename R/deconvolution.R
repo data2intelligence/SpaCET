@@ -31,7 +31,7 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
   # filter the matrix with ref genes in case the matrix is too big
   load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
 
-  if(cancerType=="LIHC")
+  if(cancerType%in%c("LIHC","CHOL"))
   {
     load( system.file("extdata",'Ref_Normal_LIHC.rda',package = 'SpaCET') )
 

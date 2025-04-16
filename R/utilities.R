@@ -273,6 +273,7 @@ convert.Seurat  <- function(Seurat_obj)
       input=list(
         counts=st.matrix.data,
         spotCoordinates=spotCoordinates,
+        metaData=NULL,
         image=list(path="FromSeurat",grob=rg),
         platform="Visium"
       )
@@ -325,6 +326,7 @@ convert.Seurat  <- function(Seurat_obj)
                                  input=list(
                                    counts=st.matrix.data,
                                    spotCoordinates=spotCoordinates,
+                                   metaData=NULL,
                                    image=list(path="FromSeurat",grob=rg),
                                    platform="Visium"
                                  )
