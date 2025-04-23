@@ -458,6 +458,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
       legendName="Spot",
       legend.position="none",
       imageBg=TRUE,
+      imageSize = "CaptureArea",
       spotID=spotID
     )
 
