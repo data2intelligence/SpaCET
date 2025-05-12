@@ -226,17 +226,18 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @title Convert Seurat to SpaCET
 #' @description Convert an Seurat object to a SpaCET object.
 #' @param Seurat_obj An Seurat object.
+#' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
 #' @return A SpaCET object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
-#' SpaCET_obj <- convert.Seurat(Seurat_obj)
+#' SpaCET_obj <- convert.Seurat(Seurat_obj, platform = "Visium")
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
-#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
+#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures = c("UMI","Gene"))
 #'
 #' @rdname convert.Seurat
 #' @export
-convert.Seurat  <- function(Seurat_obj)
+convert.Seurat <- function(Seurat_obj, platform)
 {
   sliceNum <- length(Seurat_obj@images)
 
@@ -250,22 +251,41 @@ convert.Seurat  <- function(Seurat_obj)
     }else{
       st.matrix.data <- Seurat_obj@assays$Spatial@counts
     }
-    st.matrix.data <- rm_duplicates(st.matrix.data)
 
     slice <- Seurat_obj@images[[1]]
 
-    spotCoordinates <- data.frame(
-      pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
-      pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
-      barcode=colnames(st.matrix.data)
-    )
+    if(class(slice)=="VisiumV2")
+    {
+      st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
-    colnames(st.matrix.data) <- paste0(
-      slice@coordinates$row,"x",
-      slice@coordinates$col
-    )
+      spotCoordinates <- data.frame(
+        pxl_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+        pxl_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres,
+        barcode=slice@boundaries$centroids@cells
+      )
+
+      colnames(st.matrix.data) <- paste0(
+        spotCoordinates$pxl_row,"x",
+        spotCoordinates$pxl_col
+      )
+
+    }else{
+      spotCoordinates <- data.frame(
+        pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
+        pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
+        barcode=colnames(st.matrix.data)
+      )
+
+      colnames(st.matrix.data) <- paste0(
+        slice@coordinates$row,"x",
+        slice@coordinates$col
+      )
+
+    }
 
     rownames(spotCoordinates) <- colnames(st.matrix.data)
+
+    st.matrix.data <- rm_duplicates(st.matrix.data)
 
     rg <- grid::rasterGrob(slice@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
 
@@ -275,7 +295,7 @@ convert.Seurat  <- function(Seurat_obj)
         spotCoordinates=spotCoordinates,
         metaData=NULL,
         image=list(path="FromSeurat",grob=rg),
-        platform="Visium"
+        platform=platform
       )
     )
 
@@ -304,21 +324,38 @@ convert.Seurat  <- function(Seurat_obj)
       st.matrix.data <- st.matrix.data[,spot_start:spot_end]
       colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
 
-      st.matrix.data <- rm_duplicates(st.matrix.data)
+      if(class(slice)=="VisiumV2")
+      {
+        st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
+        spotCoordinates <- data.frame(
+          pxl_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+          pxl_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres,
+          barcode=slice@boundaries$centroids@cells
+        )
 
-      spotCoordinates <- data.frame(
-        pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
-        pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
-        barcode=colnames(st.matrix.data)
-      )
+        colnames(st.matrix.data) <- paste0(
+          spotCoordinates$pxl_row,"x",
+          spotCoordinates$pxl_col
+        )
 
-      colnames(st.matrix.data) <- paste0(
-        slice@coordinates$row,"x",
-        slice@coordinates$col
-      )
+      }else{
+        spotCoordinates <- data.frame(
+          pxl_row=slice@coordinates$imagerow * slice@scale.factors$lowres,
+          pxl_col=slice@coordinates$imagecol * slice@scale.factors$lowres,
+          barcode=colnames(st.matrix.data)
+        )
+
+        colnames(st.matrix.data) <- paste0(
+          slice@coordinates$row,"x",
+          slice@coordinates$col
+        )
+
+      }
 
       rownames(spotCoordinates) <- colnames(st.matrix.data)
+
+      st.matrix.data <- rm_duplicates(st.matrix.data)
 
       rg <- grid::rasterGrob(slice@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
 
@@ -328,7 +365,7 @@ convert.Seurat  <- function(Seurat_obj)
                                    spotCoordinates=spotCoordinates,
                                    metaData=NULL,
                                    image=list(path="FromSeurat",grob=rg),
-                                   platform="Visium"
+                                   platform=platform
                                  )
       )
 
