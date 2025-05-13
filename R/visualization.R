@@ -87,8 +87,8 @@ SpaCET.visualize.spatialFeature <- function(
       if(sum(geneFlag)!=length(geneFlag))
       {
         excluded <- spatialFeatures[!geneFlag]
-        print("The following genes are excluded because they are not official gene symbols.")
-        print(excluded)
+        warning("The following genes are excluded because they are not official gene symbols.")
+        message(excluded)
         spatialFeatures <- spatialFeatures[geneFlag]
       }
 

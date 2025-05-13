@@ -16,12 +16,12 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
     coreNo <- coreNoDect
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
-    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
     coreNo <- 1
   }
 
@@ -49,18 +49,18 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
 
   if(adjacentNormal==TRUE)
   {
-    print("Stage 1. Infer malignant cell fraction (skip).")
+    message("Stage 1. Infer malignant cell fraction (skip).")
 
     malProp <- rep(0,dim(st.matrix.data)[2])
     names(malProp) <- colnames(st.matrix.data)
 
     malRes <- list("malRef"=NULL,"malProp"=malProp)
   }else{
-    print("Stage 1. Infer malignant cell fraction.")
+    message("Stage 1. Infer malignant cell fraction.")
     malRes <- inferMal_cor(st.matrix.data,cancerType)
   }
 
-  print("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
+  message("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
 
   if(ncol(st.matrix.data) <= 20000)
   {
@@ -76,7 +76,7 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
     subNo <- ceiling(ncol(st.matrix.data)/5000)
     for(x in 1:subNo)
     {
-      print(paste0("Processing ",x,"/",subNo))
+      message(paste0("Processing ",x,"/",subNo))
 
       if(x!=subNo)
       {
@@ -131,7 +131,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
   if(ncol(st.matrix.data.diff) < 20000)
   {
-    print("Stage 1 - Step 1. Clustering.")
+    message("Stage 1 - Step 1. Clustering.")
 
     # clustering
     set.seed(123)
@@ -175,7 +175,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     clustering <- clustering[paste0("c",maxN),] # find optimal k
 
 
-    print("Stage 1 - Step 2. Find tumor clusters.")
+    message("Stage 1 - Step 2. Find tumor clusters.")
 
     for(CNA_expr in c("CNA","expr"))
     {
@@ -209,20 +209,20 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
       if(length(clusterMal)!=0) # find malignant spots.
       {
-        print(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
+        message(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
         malFlag <- TRUE
         break
       }else{
         if(CNA_expr=="expr")
         {
-          print(paste0("                  > No malignant cells detected in this tumor ST data set."))
+          message(paste0("                  > No malignant cells detected in this tumor ST data set."))
           malFlag <- FALSE
         }
       }
 
     }
 
-    print("Stage 1 - Step 3. Infer malignant cells.")
+    message("Stage 1 - Step 3. Infer malignant cells.")
     if(malFlag)
     {
       spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
@@ -399,7 +399,7 @@ SpatialDeconv <- function(
 
   if(mode!="deconvMal")
   {
-    print("Stage 2 - Level 1. Estimate the major lineage.")
+    message("Stage 2 - Level 1. Estimate the major lineage.")
 
     mixture <- mixtureMinusMal
     Reference <- tempReference[,Level1]
@@ -493,7 +493,7 @@ SpatialDeconv <- function(
 
   if(mode!="deconvMal")
   {
-    print("Stage 2 - Level 2. Estimate the sub lineage.")
+    message("Stage 2 - Level 2. Estimate the sub lineage.")
   }
 
   ###### level 2 deconv ######

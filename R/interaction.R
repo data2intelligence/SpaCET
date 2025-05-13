@@ -180,12 +180,12 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
     coreNo <- coreNoDect
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
-    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
     coreNo <- 1
   }
 
@@ -225,7 +225,7 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
   }
 
   ###### permute L-R network
-  print("Step 1. Permute Ligand-Receptor network.")
+  message("Step 1. Permute Ligand-Receptor network.")
   LRdb_string <- c()
 
   set.seed(123456)
@@ -245,7 +245,7 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 
 
   ###### Calculate L-R NS
-  print("Step 2. Calculate L-R network score.")
+  message("Step 2. Calculate L-R network score.")
   LRcoexpr <- function(LRdb,spot)
   {
     Ls <- LRdb[,1]
@@ -372,14 +372,14 @@ SpaCET.CCI.cellTypePair <- function(SpaCET_obj, cellTypePair)
 
     if(rho > 0 & pv1 < 0.05 & cd1 < 0 & pv2 < 0.05)
     {
-      print(paste0("Based on colocalization analysis and L-R enrichment analysis, ",cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
+      message(paste0("Based on colocalization analysis and L-R enrichment analysis, ",cellTypePair[1]," and ",cellTypePair[2], " have potential intercellular interaction in the current tissue."))
       testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- TRUE
      }else{
-      print("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
+      message("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
       testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- FALSE
      }
   }else{
-    print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+    message("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
     testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"Interaction"] <- FALSE
   }
 
@@ -717,9 +717,9 @@ SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macro
   {
     if(is.na(testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]))
     {
-      print("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
+      message("The colocalization analysis is not significant for the current cell-type pair. Please check other cell-type pairs.")
     }else{
-      print("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
+      message("Based on colocalization analysis and L-R enrichment analysis, the intercellular interaction is not significant for the current cell-type pair. Please check other cell-type pairs.")
     }
   }else{
 

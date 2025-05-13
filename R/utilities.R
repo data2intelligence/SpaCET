@@ -158,12 +158,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
 
   st.matrix.data <- methods::as(counts, "CsparseMatrix")
 
-  if(ncol(st.matrix.data) < 10000)
-  {
-    st.matrix.data <- rm_duplicates(st.matrix.data)
-  }else{
-    st.matrix.data <- rm_duplicates_sparse(st.matrix.data)
-  }
+  st.matrix.data <- rm_duplicates(st.matrix.data)
 
   SpaCET_obj <- methods::new("SpaCET",
     input=list(
@@ -185,14 +180,14 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
 #' @param min.genes Minimum number of expressed genes. Default: 1.
 #' @return A SpaCET object.
 #' @examples
-#' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
+#' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj, min.genes=100)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
 #'
 #' @rdname SpaCET.quality.control
 #' @export
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 {
-  print(paste0("Removing spots with less than ",min.genes," expressed genes."))
+  message(paste0("Removing spots with less than ",min.genes," expressed genes."))
 
   st.matrix.data <- SpaCET_obj@input$counts
   expressed.genes<- Matrix::colSums(st.matrix.data>0)
@@ -200,8 +195,8 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
   remaining.spots <- expressed.genes>=min.genes
   remaining.spots.num <- sum(remaining.spots)
 
-  print(paste0(length(remaining.spots)-remaining.spots.num," spots are removed."))
-  print(paste0(remaining.spots.num," spots are kept."))
+  message(paste0(length(remaining.spots)-remaining.spots.num," spots are removed."))
+  message(paste0(remaining.spots.num," spots are kept."))
 
   st.matrix.data <- st.matrix.data[,remaining.spots]
 
@@ -430,26 +425,6 @@ addTo.Seurat  <- function(SpaCET_obj, Seurat_obj)
 
 
 rm_duplicates <- function(mat){
-  dupl <- duplicated(rownames(mat))
-  if (sum(dupl) > 0){
-    dupl_genes <- unique(rownames(mat)[dupl])
-    mat_dupl <- mat[rownames(mat) %in% dupl_genes,,drop=F]
-    mat_dupl_names <- rownames(mat_dupl)
-    mat <- mat[!dupl,,drop=F]
-
-    for(gene in dupl_genes){
-      mat_dupl_gene <- mat_dupl[mat_dupl_names == gene,]
-      dupl_sum <- apply(mat_dupl_gene,1,sum)
-      max_flag <- which(dupl_sum==max(dupl_sum))
-      mat[gene,] <- mat_dupl_gene[max_flag[1],] # in case two values are max
-    }
-  }
-  return(mat)
-}
-
-
-rm_duplicates_sparse <- function(mat)
-{
   gene_count <- table(rownames(mat))
   gene_dupl <- names(gene_count)[gene_count>1]
 

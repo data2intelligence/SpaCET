@@ -16,12 +16,12 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
     coreNo <- coreNoDect
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
-    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
     coreNo <- 1
   }
 
@@ -105,7 +105,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 
   states <- sort(unique(Content))
 
-  print(paste0("Identify ",length(states)," malignant cell states"))
+  message(paste0("Identify ",length(states)," malignant cell states"))
 
   refProfiles <- data.frame()
   sigGenes <- list()
@@ -190,12 +190,12 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
     coreNo <- coreNoDect
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
-    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
     coreNo <- 1
   }
 
@@ -272,7 +272,7 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 
   sc_counts <- sc_counts[Matrix::rowSums(sc_counts)>0,]
 
-  print("1. Generate the reference from the input scRNAseq data.")
+  message("1. Generate the reference from the input scRNAseq data.")
   Refnew <- generateRef(
     sc.matrix.data = sc_counts,
     sc.matrix.anno = sc_annotation,
@@ -280,7 +280,7 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
     coreNo=coreNo
   )
 
-  print("2. Deconvolve malignant cells.")
+  message("2. Deconvolve malignant cells.")
 
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
@@ -334,12 +334,12 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    print(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
     coreNo <- coreNoDect
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
-    print("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
     coreNo <- 1
   }
 
@@ -388,7 +388,7 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
 
   sc_counts <- sc_counts[Matrix::rowSums(sc_counts)>0,]
 
-  print("1. Generate the reference from the matched scRNAseq data.")
+  message("1. Generate the reference from the matched scRNAseq data.")
   Ref <- generateRef(
     sc.matrix.data = sc_counts,
     sc.matrix.anno = sc_annotation,
@@ -396,7 +396,7 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
     coreNo=coreNo
   )
 
-  print("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
+  message("2. Hierarchically deconvolve the Spatial Transcriptomics dataset.")
 
   st.matrix.data <- SpaCET_obj@input$counts
   st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]
@@ -414,10 +414,10 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
       coreNo=coreNo
     )
   }else{
-    print("Stage 1. Infer malignant cell fraction.")
+    message("Stage 1. Infer malignant cell fraction.")
     malRes <- inferMal_cor(st.matrix.data,cancerType)
 
-    print("Stage 2. Deconvolve non-malignant cell fracton.")
+    message("Stage 2. Deconvolve non-malignant cell fracton.")
     propMat <- SpatialDeconv(
       ST=st.matrix.data,
       Ref=Ref,
