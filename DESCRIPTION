@@ -28,7 +28,9 @@ Imports:
     psych,
     BiRewire,
     limma,
-    arrow
+    arrow,
+    UCell,
+    MUDAN
 biocViews:
     UCell
 remotes:
