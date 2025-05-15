@@ -60,6 +60,7 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
     malRes <- inferMal_cor(st.matrix.data,cancerType)
   }
 
+  message(" ")
   message("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
 
   if(ncol(st.matrix.data) <= 20000)
@@ -415,7 +416,7 @@ SpatialDeconv <- function(
     mixture <- mixture[Signature,]
     Reference <- Reference[Signature,]
 
-    propList <- parallel::mclapply(
+    propList <- pbmcapply::pbmclapply(
       1:nSpot,
       FUN=function(i){
         theta <- rep(thetaSum[i]/nCell, nCell)
@@ -525,7 +526,7 @@ SpatialDeconv <- function(
 
       ui <- rbind(diag(nCell), rep(1, nCell), rep(-1, nCell))
 
-      propList <- parallel::mclapply(
+      propList <- pbmcapply::pbmclapply(
         1:nSpot,
         FUN=function(i){
           theta <- rep(thetaSum[i]/nCell, nCell)

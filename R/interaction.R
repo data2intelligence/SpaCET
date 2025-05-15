@@ -226,10 +226,8 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 
   ###### permute L-R network
   message("Step 1. Permute Ligand-Receptor network.")
-  LRdb_string <- c()
 
-  set.seed(123456)
-  for(i in 1:1000)
+  LRdb_bg <- function(i)
   {
     LRdb_rand <- BiRewire::birewire.rewire.bipartite(LRdb_mat,verbose=FALSE)
 
@@ -237,11 +235,12 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
     LRdb_rand.m <- LRdb_rand.m[LRdb_rand.m[,3]==1,1:2]
     colnames(LRdb_rand.m) <- c("L","R")
 
-    LRdb_string <- c(LRdb_string,c(t(LRdb_rand.m)))
+    c(t(LRdb_rand.m))
   }
 
-  LRdb_rand_comb <- matrix(LRdb_string,ncol=2,byrow=TRUE)
-  ###### permute L-R network ######
+  set.seed(123456)
+  LRdb_bg_List <- pbmcapply::pbmclapply(1:1000,LRdb_bg,mc.cores=coreNo)
+  LRdb_rand_comb <- matrix(unlist(LRdb_bg_List),ncol=2,byrow=TRUE)
 
 
   ###### Calculate L-R NS
@@ -274,7 +273,7 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
     list(LR_raw,score,pv)
   }
 
-  LRNetworkScoreList <- parallel::mclapply(1:spotNum,LRNetworkScore,mc.cores=coreNo)
+  LRNetworkScoreList <- pbmcapply::pbmclapply(1:spotNum,LRNetworkScore,mc.cores=coreNo)
 
   LRNetworkScoreMat <- matrix(unlist(LRNetworkScoreList),ncol=ncol(st.matrix.data))
   colnames(LRNetworkScoreMat) <- colnames(st.matrix.data)

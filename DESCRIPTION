@@ -24,6 +24,7 @@ Imports:
     NbClust,
     cluster,
     parallel,
+    pbmcapply,
     psych,
     BiRewire,
     limma,

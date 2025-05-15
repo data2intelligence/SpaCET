@@ -479,7 +479,7 @@ generateRef <- function(
 
     if(length(cellTypes_level_1) > 1) # if only one major lineage, do not need markers
     {
-      markers <- parallel::mclapply(setdiff(cellTypes_level_1,cellType), run_limma, mc.cores=coreNo)
+      markers <- pbmcapply::pbmclapply(setdiff(cellTypes_level_1,cellType), run_limma, mc.cores=coreNo)
       temp <- table(unlist(markers))
 
       sigGenes[[cellType]] <- names(temp)[temp>=length(cellTypes_level_1)-1]
