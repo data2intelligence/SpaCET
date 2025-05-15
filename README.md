@@ -46,7 +46,7 @@ install.packages("Path_to_the_source_code", repos = NULL, type="source")
 - R version \>= 4.2.0.
 - R packages: Matrix, jsonlite, ggplot2, reshape2, patchwork, png,
   shiny, plotly, DT, MUDAN, factoextra, NbClust, cluster, parallel,
-  psych, BiRewire, limma, UCell.
+  pbmcapply, psych, BiRewire, limma, arrow, UCell.
 
 ## Example
 

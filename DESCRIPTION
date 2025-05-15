@@ -20,6 +20,7 @@ Imports:
     shiny,
     plotly,
     DT,
+    MUDAN,
     factoextra,
     NbClust,
     cluster,
@@ -28,10 +29,8 @@ Imports:
     psych,
     BiRewire,
     limma,
-    MUDAN,
     arrow
 biocViews:
-    Spatial,
     UCell
 remotes:
     JEFworks/MUDAN
