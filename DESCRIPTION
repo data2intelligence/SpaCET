@@ -20,7 +20,6 @@ Imports:
     shiny,
     plotly,
     DT,
-    MUDAN,
     factoextra,
     NbClust,
     cluster,
