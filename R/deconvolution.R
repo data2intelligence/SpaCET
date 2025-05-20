@@ -210,7 +210,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
       if(length(clusterMal)!=0) # find malignant spots.
       {
-        message(paste0("                  > Use ",CNA_expr," signature: ",cancerType))
+        message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
         malFlag <- TRUE
         break
       }else{
@@ -501,6 +501,8 @@ SpatialDeconv <- function(
   for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
   {
       if(!cellSpe%in%rownames(propMatLevel1)) next
+
+      message(paste0("                  > ",cellSpe,":"))
 
       cellsub <- Tree[[cellSpe]]
       cellsub <- setdiff(cellsub,"Macrophage other")

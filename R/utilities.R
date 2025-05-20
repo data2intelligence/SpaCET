@@ -72,7 +72,6 @@ create.SpaCET.object.10X <- function(visiumPath)
   if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
   {
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
-
   }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
   }else{
