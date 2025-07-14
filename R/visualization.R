@@ -1,7 +1,7 @@
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj A SpaCET object.
-#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.
+#' @param spatialType Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.
 #' @param spatialFeatures A vector of spatial features.
 #' @param scaleTypeForGeneExpression Scale type of gene expression, i.e., "RawCounts","LogRawCounts","LogTPM/10", and "LogTPM".
 #' @param sameScaleForFraction Indicate whether all cell types have the same scale for cell fraction.
@@ -18,7 +18,7 @@
 #' @details
 #' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
 #' "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
-#' "GeneExpr" is set to visualize the expression level of genes.
+#' "GeneExpression" is set to visualize the expression level of genes.
 #' "CellFraction" refers to the cell fraction of cell types.
 #' "LRNetworkScore" is selected to show the Ligand-Receptor network score. See `SpaCET.CCI.LRNetworkScore` for how to calculate it.
 #'
@@ -26,7 +26,6 @@
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "GeneExpression", spatialFeatures=c("EPCAM","MS4A1"))
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures=c("Malignant","Macrophage"))
-#' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures="All", pointSize = 0.1, nrow=5)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 #'
 #' @rdname SpaCET.visualize.spatialFeature
@@ -156,6 +155,18 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = "Cell Type"
       limits = NULL
 
+    }else if(spatialType == "CellTypeComposition"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      scaleType="color-discrete"
+      legendName = "Cell Type"
+      limits = NULL
+
     }else if(spatialType == "LRNetworkScore"){
       if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
       {
@@ -238,7 +249,7 @@ SpaCET.visualize.spatialFeature <- function(
       legendName = spatialFeatures
       limits = NULL
     }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
     }
 
 
@@ -269,7 +280,7 @@ SpaCET.visualize.spatialFeature <- function(
       {
         if(!spatialFeature%in%c("MajorLineage","SubLineage"))
         {
-          stop("Please set spatialFeature as MajorLineage or SubLineage")
+          stop("Please set spatialFeatures as MajorLineage or SubLineage")
         }else{
           if(spatialFeature == "MajorLineage")
           {
@@ -286,7 +297,7 @@ SpaCET.visualize.spatialFeature <- function(
             }
           }
 
-          res_deconv_level <- mat[allCellTypes,]
+          res_deconv_level <- mat[allCellTypes,,drop=F]
 
           Content <- sapply(1:dim(res_deconv_level)[2],function(x) names(sort(res_deconv_level[,x],decreasing=T))[1])
           names(Content) <- colnames(res_deconv_level)
@@ -294,6 +305,36 @@ SpaCET.visualize.spatialFeature <- function(
           Content <- Content[order(match(Content,allCellTypes))]
 
           visiualVector <- Content
+        }
+
+      }else if(spatialType == "CellTypeComposition"){
+        if(!spatialFeature%in%c("MajorLineage","SubLineage"))
+        {
+          stop("Please set spatialFeatures as MajorLineage or SubLineage")
+        }else{
+          if(spatialFeature == "MajorLineage")
+          {
+            allCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+            {
+              allCellTypes <- c("Malignant",allCellTypes)
+            }
+          }else{
+            allCellTypes <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
+            {
+              allCellTypes <- c("Malignant",allCellTypes)
+            }
+          }
+
+          res_deconv_level <- mat[allCellTypes,,drop=F]
+
+          if("Unidentifiable"%in%rownames(mat))
+          {
+            res_deconv_level <- rbind(res_deconv_level, Unidentifiable=mat["Unidentifiable",] )
+          }
+
+          visiualVector <- as.data.frame(res_deconv_level)
         }
 
       }else{
@@ -685,13 +726,19 @@ visualSpatial <- function(
     fig.df <- data.frame(
       x=xDiml-coordi[,1],
       y=coordi[,2],
-      value=visiualVector,
       spotID=spotID
     )
     rownames(fig.df) <- names(visiualVector)
 
+    if(is.vector(visiualVector))
+    {
+      fig.df <- cbind(fig.df, value=visiualVector)
+    }else{
+      fig.df <- cbind(fig.df, t(visiualVector) )
+    }
+
     # 1. initiate plot
-    p <- ggplot(fig.df,aes(x=x,y=y,text=spotID))
+    p <- ggplot()
 
     # 2. add image
     if(imageBg & !is.na(image$path))
@@ -701,8 +748,19 @@ visualSpatial <- function(
     }
 
     # 3. draw spot
-    p <- p+
-      geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)
+    if(is.vector(visiualVector))
+    {
+      p <- p+
+        geom_point(aes(x=x, y=y, colour=value, text=spotID), data=fig.df, size=pointSize, alpha=pointAlpha)
+    }else{
+      p <- p+
+        scatterpie::geom_scatterpie(
+          aes(x=x, y=y, group=spotID, r=pointSize),
+          data=fig.df,
+          cols=colnames(fig.df)[4:ncol(fig.df)],
+          color=NA)+
+        scale_fill_manual(values=colors, name=legendName)
+    }
 
     # 4. axis
     if(imageBg & !is.na(image$path))
@@ -731,7 +789,12 @@ visualSpatial <- function(
     {
       p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
     }else{
-      p+scale_colour_manual(name=legendName,values=colors)
+      if(is.vector(visiualVector))
+      {
+        p+scale_colour_manual(name=legendName, values=colors)
+      }else{ # cell type composition no color
+        p
+      }
     }
 
   }else{
@@ -793,7 +856,7 @@ visualSpatial <- function(
       {
         p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
       }else{
-        p+scale_colour_manual(name=legendName,values=colors)
+        p+scale_colour_manual(name=legendName, values=colors)
       }
 
     }

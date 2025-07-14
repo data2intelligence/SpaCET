@@ -15,6 +15,7 @@ Imports:
     jsonlite,
     ggplot2,
     reshape2,
+    scatterpie,
     patchwork,
     png,
     shiny,
