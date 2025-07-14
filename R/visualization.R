@@ -10,7 +10,8 @@
 #' @param pointAlpha Alpha transparency scales of spots. Must lie between 0 and 1.
 #' @param nrow Row number of the combined panel for multiple spatial features.
 #' @param imageBg Logical: should the image be shown as background?
-#' @param imageSize Size of the image, i.e., "CompleteImage", "CaptureArea".
+#' @param imageSize Size of the image, i.e., "CompleteImage", "CaptureArea", "CustomizedArea".
+#' @param CustomizedAreaScale A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.
 #' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
 #' @param interactive Logical: should the interactive app be activited?
 #' @return A ggplot2 object.
@@ -41,11 +42,17 @@ SpaCET.visualize.spatialFeature <- function(
     pointAlpha = 1,
     nrow = 1,
     imageBg = TRUE,
-    imageSize = "CompleteImage",
+    imageSize = "CaptureArea",
+    CustomizedAreaScale = NULL,
     legend.position = "right",
     interactive = FALSE
 )
 {
+  if(!imageSize%in%c("CompleteImage", "CaptureArea", "CustomizedArea"))
+  {
+    stop("Please set imageSize as one of them, CompleteImage, CaptureArea, CustomizedArea.")
+  }
+
   if(interactive==FALSE)
   {
 
@@ -317,6 +324,7 @@ SpaCET.visualize.spatialFeature <- function(
         legend.position=legend.position,
         imageBg=imageBg,
         imageSize=imageSize,
+        CustomizedAreaScale=CustomizedAreaScale,
         spotID=spotID)
 
       library(patchwork)
@@ -508,6 +516,7 @@ SpaCET.visualize.spatialFeature <- function(
               legend.position=legend.position,
               imageBg=imageBg,
               imageSize=imageSize,
+              CustomizedAreaScale=CustomizedAreaScale,
               spotID=spotID
               )
 
@@ -611,6 +620,7 @@ visualSpatial <- function(
     legend.position,
     imageBg,
     imageSize,
+    CustomizedAreaScale,
     spotID
 )
 {
@@ -638,10 +648,36 @@ visualSpatial <- function(
         coordi[,2] <- coordi[,2]-bottom_edge
       }
 
+      if(imageSize=="CustomizedArea")
+      {
+        if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
+        {
+          stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
+        }
+        range1 <- max(coordi[,1]) - min(coordi[,1])
+        range2 <- max(coordi[,2]) - min(coordi[,2])
+        CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
+        CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
+
+        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * 0.95)
+        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
+        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
+        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
+
+        image$grob$raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+      }
+
       xDiml <- dim(image$grob$raster)[1] # dim pixel
       yDiml <- dim(image$grob$raster)[2] # dim pixel
 
     }else{
+      # no image
       xDiml <- max(coordi[,1])
       yDiml <- max(coordi[,2])
     }
