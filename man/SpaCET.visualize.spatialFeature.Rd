@@ -15,7 +15,8 @@ SpaCET.visualize.spatialFeature(
   pointAlpha = 1,
   nrow = 1,
   imageBg = TRUE,
-  imageSize = "CompleteImage",
+  imageSize = "CaptureArea",
+  CustomizedAreaScale = NULL,
   legend.position = "right",
   interactive = FALSE
 )
@@ -23,7 +24,7 @@ SpaCET.visualize.spatialFeature(
 \arguments{
 \item{SpaCET_obj}{A SpaCET object.}
 
-\item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.}
+\item{spatialType}{Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.}
 
 \item{spatialFeatures}{A vector of spatial features.}
 
@@ -41,7 +42,9 @@ SpaCET.visualize.spatialFeature(
 
 \item{imageBg}{Logical: should the image be shown as background?}
 
-\item{imageSize}{Size of the image, i.e., "CompleteImage", "CaptureArea".}
+\item{imageSize}{Size of the image, i.e., "CompleteImage", "CaptureArea", "CustomizedArea".}
+
+\item{CustomizedAreaScale}{A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.}
 
 \item{legend.position}{The position of the legend. Set it as "none" if you want to remove the legend.}
 
@@ -56,7 +59,7 @@ Visualize multiple types of spatial features in ST data.
 \details{
 `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
 "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
-"GeneExpr" is set to visualize the expression level of genes.
+"GeneExpression" is set to visualize the expression level of genes.
 "CellFraction" refers to the cell fraction of cell types.
 "LRNetworkScore" is selected to show the Ligand-Receptor network score. See `SpaCET.CCI.LRNetworkScore` for how to calculate it.
 }
@@ -64,7 +67,6 @@ Visualize multiple types of spatial features in ST data.
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures=c("UMI","Gene"))
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "GeneExpression", spatialFeatures=c("EPCAM","MS4A1"))
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures=c("Malignant","Macrophage"))
-SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "CellFraction", spatialFeatures="All", pointSize = 0.1, nrow=5)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "LRNetworkScore", spatialFeatures=c("Network_Score","Network_Score_pv"))
 
 }

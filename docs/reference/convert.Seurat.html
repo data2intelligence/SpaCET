@@ -69,13 +69,17 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">convert.Seurat</span><span class="op">(</span><span class="va">Seurat_obj</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">convert.Seurat</span><span class="op">(</span><span class="va">Seurat_obj</span>, <span class="va">platform</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>Seurat_obj</dt>
 <dd><p>An Seurat object.</p></dd>
+
+
+<dt>platform</dt>
+<dd><p>A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -89,9 +93,9 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">visiumPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span>, <span class="st">"extdata/Visium_BC"</span><span class="op">)</span></span>
 <span><span class="va">Seurat_obj</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/Load10X_Spatial.html" class="external-link">Load10X_Spatial</a></span><span class="op">(</span>data.dir <span class="op">=</span> <span class="va">visiumPath</span><span class="op">)</span></span>
-<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu">convert.Seurat</span><span class="op">(</span><span class="va">Seurat_obj</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu">convert.Seurat</span><span class="op">(</span><span class="va">Seurat_obj</span>, platform <span class="op">=</span> <span class="st">"Visium"</span><span class="op">)</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="SpaCET.quality.control.html">SpaCET.quality.control</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
-<span><span class="fu"><a href="SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"QualityControl"</span>, spatialFeatures<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UMI"</span>,<span class="st">"Gene"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"QualityControl"</span>, spatialFeatures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UMI"</span>,<span class="st">"Gene"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

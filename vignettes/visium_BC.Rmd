@@ -145,15 +145,53 @@ SpaCET.visualize.spatialFeature(
   pointSize = 0.1, 
   nrow=5
 )
+
+# Since some cell types have relatively low abundance, user 
+# can get a better vision by setting `sameScaleForFraction = FALSE`. 
 ```
 <img src="img/visualizeDeconvolution2.png" width="100%" style="border:none" />
 
-Since some cell types have relatively low abundance, user can get a better vision by setting `sameScaleForFraction = FALSE`. In addition, you can open up an interactive visualization panel by setting `interactive=TRUE` to browse the deconvolution results.
+
+
+To show cell type composition in pie chart, user can set `spatialType = "CellTypeComposition"`. If you want to crop the specific region like ([#48](https://github.com/data2intelligence/SpaCET/issues/48)), you can set imageSize = "CustomizedArea" and also assign 4 numbers (0~1) to CustomizedAreaScale, corresponding to the figure above (x_left, x_right, y_bottom, y_top).
+
+``` r
+# load the color for cell types
+hiresST_Path <- system.file("extdata", 'hiresST_CRC', package = 'SpaCET')
+load(paste0(hiresST_Path,"/colors_vector.rda"))
+
+# draw scatter pie (left panel)
+SpaCET.visualize.spatialFeature(
+     SpaCET_obj, 
+     spatialType = "CellTypeComposition", 
+     spatialFeatures = "MajorLineage", 
+     colors = colors_vector,
+     pointSize = 3
+ )
+ 
+# crop scatter pie (right panel)
+SpaCET.visualize.spatialFeature(
+     SpaCET_obj, 
+     spatialType = "CellTypeComposition", 
+     spatialFeatures = "MajorLineage", 
+     colors = colors_vector,
+     pointSize = 2,
+     imageBg = TRUE,
+     imageSize = "CustomizedArea",
+     CustomizedAreaScale = c(0, 0.2, 0.2, 0.5)
+ )
+```
+
+<img src="img/visualizeDeconvolution3.png" width="55%" style="border:none" />
+<img src="img/visualizeDeconvolution32.png" width="40%" style="border:none" />
+
+
+In addition, you can open up an interactive visualization panel by setting `interactive=TRUE` to browse the deconvolution results.
 
 ``` r
 SpaCET.visualize.spatialFeature(SpaCET_obj,interactive=TRUE)
 ```
-<img src="img/visualizeDeconvolution3.png" width="94%" style="border:none" />
+<img src="img/visualizeDeconvolution4.png" width="94%" style="border:none" />
 
 ## Estimate cell-cell interactions
 After decomposing cell fractions, SpaCET can infer intercellular interactions based on cell colocalization and ligand-receptor coexpression. Linear correlations of cell fraction between cell types are computed across all ST spots to evaluate cell-type colocalization. High positive correlations indicate that cell-type pairs tend to colocalize together. To infer physical interactions, SpaCET tests the co-expression of ligand and receptor genes within the same ST spot for the co-localized cell-type pairs.

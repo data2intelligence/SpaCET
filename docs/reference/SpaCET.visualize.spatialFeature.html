@@ -80,7 +80,8 @@
 <span>  pointAlpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  imageBg <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  imageSize <span class="op">=</span> <span class="st">"CompleteImage"</span>,</span>
+<span>  imageSize <span class="op">=</span> <span class="st">"CaptureArea"</span>,</span>
+<span>  CustomizedAreaScale <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
 <span>  interactive <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -93,7 +94,7 @@
 
 
 <dt>spatialType</dt>
-<dd><p>Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", "LRNetworkScore", "Interface", and "GeneSetScore". See ‘details’ for more information.</p></dd>
+<dd><p>Type of spatial features, i.e., "QualityControl", "GeneExpression", "CellFraction", and "LRNetworkScore". See ‘details’ for more information.</p></dd>
 
 
 <dt>spatialFeatures</dt>
@@ -129,7 +130,11 @@
 
 
 <dt>imageSize</dt>
-<dd><p>Size of the image, i.e., "CompleteImage", "CaptureArea".</p></dd>
+<dd><p>Size of the image, i.e., "CompleteImage", "CaptureArea", "CustomizedArea".</p></dd>
+
+
+<dt>CustomizedAreaScale</dt>
+<dd><p>A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.</p></dd>
 
 
 <dt>legend.position</dt>
@@ -150,7 +155,7 @@
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>`SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
 "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
-"GeneExpr" is set to visualize the expression level of genes.
+"GeneExpression" is set to visualize the expression level of genes.
 "CellFraction" refers to the cell fraction of cell types.
 "LRNetworkScore" is selected to show the Ligand-Receptor network score. See `SpaCET.CCI.LRNetworkScore` for how to calculate it.</p>
     </div>
@@ -160,7 +165,6 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"QualityControl"</span>, spatialFeatures<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UMI"</span>,<span class="st">"Gene"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"GeneExpression"</span>, spatialFeatures<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"EPCAM"</span>,<span class="st">"MS4A1"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"CellFraction"</span>, spatialFeatures<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Malignant"</span>,<span class="st">"Macrophage"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"CellFraction"</span>, spatialFeatures<span class="op">=</span><span class="st">"All"</span>, pointSize <span class="op">=</span> <span class="fl">0.1</span>, nrow<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">SpaCET.visualize.spatialFeature</span><span class="op">(</span><span class="va">SpaCET_obj</span>, spatialType <span class="op">=</span> <span class="st">"LRNetworkScore"</span>, spatialFeatures<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Network_Score"</span>,<span class="st">"Network_Score_pv"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span></code></pre></div>
     </div>
