@@ -90,5 +90,6 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 
 Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang.
 Estimation of cell lineages in tumors from spatial transcriptomics data.
-**Nature Communications** 14, 568 (2023).
-\[<a href="https://www.nature.com/articles/s41467-023-36062-6" target="_blank">Link</a>\]
+**Nature Communications** 14, 568 (2023). \[
+<a href="https://www.nature.com/articles/s41467-023-36062-6"
+target="_blank">Link</a> \]
