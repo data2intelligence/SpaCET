@@ -4,7 +4,7 @@
 \alias{convert.Seurat}
 \title{Convert Seurat to SpaCET}
 \usage{
-\method{convert}{Seurat}(Seurat_obj, platform)
+convert.Seurat(Seurat_obj, platform)
 }
 \arguments{
 \item{Seurat_obj}{An Seurat object.}
