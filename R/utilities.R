@@ -72,10 +72,13 @@ create.SpaCET.object.10X <- function(visiumPath)
   if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
   {
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
+    platform <- "Visium"
   }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
+    platform <- "Visium"
   }else{
     barcode <- as.data.frame(arrow::read_parquet(paste0(visiumPath,"/spatial/tissue_positions.parquet")))
+    platform <- "VisiumHD"
   }
 
   colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
@@ -100,7 +103,7 @@ create.SpaCET.object.10X <- function(visiumPath)
     spotCoordinates=spotCoordinates,
     metaData=NULL,
     imagePath=imagePath,
-    platform="Visium"
+    platform=platform
   )
 
   SpaCET_obj
