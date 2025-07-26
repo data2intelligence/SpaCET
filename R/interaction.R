@@ -197,7 +197,7 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
   spotNum <- ncol(st.matrix.data)
 
   ###### preprocess L-R network ######
-  LRdb <- read.csv(system.file("extdata",'LR.txt',package = 'SpaCET'),as.is=T,sep="\t")
+  LRdb <- read.csv(system.file("extdata",'Ramilowski2015.txt',package = 'SpaCET'),as.is=T,sep="\t")
   LRdb <- data.frame(L=LRdb[,2],R=LRdb[,4],stringsAsFactors=FALSE)
 
   Ls <- unique(LRdb[,"L"])
