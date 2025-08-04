@@ -273,6 +273,7 @@ x_right, y_bottom, y_top).</p>
 <code class="sourceCode R"><span><span class="co"># load the color for cell types</span></span>
 <span><span class="va">hiresST_Path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">'hiresST_CRC'</span>, package <span class="op">=</span> <span class="st">'SpaCET'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">hiresST_Path</span>,<span class="st">"/colors_vector.rda"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">colors_vector</span><span class="op">[</span><span class="st">"Unidentifiable"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"grey82"</span></span>
 <span></span>
 <span><span class="co"># draw scatter pie (left panel)</span></span>
 <span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>

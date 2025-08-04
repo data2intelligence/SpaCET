@@ -159,6 +159,7 @@ To show cell type composition in pie chart, user can set `spatialType = "CellTyp
 # load the color for cell types
 hiresST_Path <- system.file("extdata", 'hiresST_CRC', package = 'SpaCET')
 load(paste0(hiresST_Path,"/colors_vector.rda"))
+colors_vector["Unidentifiable"] <- "grey82"
 
 # draw scatter pie (left panel)
 SpaCET.visualize.spatialFeature(
