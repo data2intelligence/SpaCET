@@ -737,22 +737,36 @@ visualSpatial <- function(
       fig.df <- cbind(fig.df, t(visiualVector) )
     }
 
-    # 1. initiate plot
-    p <- ggplot()
 
-    # 2. add image
-    if(imageBg & !is.na(image$path))
-    {
-      p <- p+
-        annotation_custom(image$grob)
-    }
-
-    # 3. draw spot
     if(is.vector(visiualVector))
     {
+      # 1. initiate plot
+      p <- ggplot(fig.df,aes(x=x,y=y,text=spotID))
+
+      # 2. add image
+      if(imageBg & !is.na(image$path))
+      {
+        p <- p+
+          annotation_custom(image$grob)
+      }
+
+      # 3. draw spot
       p <- p+
-        geom_point(aes(x=x, y=y, colour=value, text=spotID), data=fig.df, size=pointSize, alpha=pointAlpha)
+        geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)
+
     }else{
+
+      # 1. initiate plot
+      p <- ggplot()
+
+      # 2. add image
+      if(imageBg & !is.na(image$path))
+      {
+        p <- p+
+          annotation_custom(image$grob)
+      }
+
+      # 3. draw spot
       p <- p+
         scatterpie::geom_scatterpie(
           aes(x=x, y=y, group=spotID, r=pointSize),
