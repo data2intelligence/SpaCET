@@ -76,6 +76,7 @@
 <span>  <span class="va">sc_counts</span>,</span>
 <span>  <span class="va">sc_annotation</span>,</span>
 <span>  <span class="va">sc_lineageTree</span>,</span>
+<span>  sc_downsampling <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sc_nCellEachLineage <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  coreNo <span class="op">=</span> <span class="fl">6</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -105,6 +106,10 @@
 
 <dt>sc_lineageTree</dt>
 <dd><p>Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.</p></dd>
+
+
+<dt>sc_downsampling</dt>
+<dd><p>Indicate whether downsample the single cell data for each cell type. Default: TRUE.</p></dd>
 
 
 <dt>sc_nCellEachLineage</dt>

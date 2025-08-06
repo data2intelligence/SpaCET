@@ -11,6 +11,7 @@ SpaCET.deconvolution.matched.scRNAseq(
   sc_counts,
   sc_annotation,
   sc_lineageTree,
+  sc_downsampling = TRUE,
   sc_nCellEachLineage = 100,
   coreNo = 6
 )
@@ -27,6 +28,8 @@ SpaCET.deconvolution.matched.scRNAseq(
 \item{sc_annotation}{Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.}
 
 \item{sc_lineageTree}{Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.}
+
+\item{sc_downsampling}{Indicate whether downsample the single cell data for each cell type. Default: TRUE.}
 
 \item{sc_nCellEachLineage}{Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.}
 

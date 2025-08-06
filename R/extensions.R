@@ -321,6 +321,7 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
 #' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
+#' @param sc_downsampling Indicate whether downsample the single cell data for each cell type. Default: TRUE.
 #' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
 #' @param coreNo Core number.
 #' @return A SpaCET object
@@ -329,7 +330,7 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 #'
 #' @rdname SpaCET.deconvolution.matched.scRNAseq
 #' @export
-SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_nCellEachLineage=100, coreNo=6)
+SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignant=TRUE, cancerType, sc_counts, sc_annotation, sc_lineageTree, sc_downsampling=TRUE, sc_nCellEachLineage=100, coreNo=6)
 {
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
@@ -374,21 +375,30 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
     ))
   }
 
-  set.seed(123)
-  idx <- split(sc_annotation[,1], sc_annotation[,2])
-  c_keep <- lapply(idx, function(i) {
-    n <- length(i)
-    if (n > sc_nCellEachLineage)
-      n <- sc_nCellEachLineage
-    sample(i, n)
-  })
+  message("1. Generate the cell type reference from the matched scRNAseq data.")
 
-  sc_counts <- sc_counts[,unlist(c_keep)]
-  sc_annotation <- sc_annotation[unlist(c_keep),]
+  if(sc_downsampling==TRUE)
+  {
+    message(paste0(" Down-sampling: TRUE, n=", sc_nCellEachLineage))
+
+    set.seed(123)
+    idx <- split(sc_annotation[,1], sc_annotation[,2])
+    c_keep <- lapply(idx, function(i) {
+      n <- length(i)
+      if (n > sc_nCellEachLineage)
+        n <- sc_nCellEachLineage
+      sample(i, n)
+    })
+
+    sc_counts <- sc_counts[,unlist(c_keep)]
+    sc_annotation <- sc_annotation[unlist(c_keep),]
+  }else{
+    message(" Down-sampling: FALSE")
+  }
 
   sc_counts <- sc_counts[Matrix::rowSums(sc_counts)>0,]
 
-  message("1. Generate the reference from the matched scRNAseq data.")
+  message(" Create the reference for:")
   Ref <- generateRef(
     sc.matrix.data = sc_counts,
     sc.matrix.anno = sc_annotation,
@@ -456,6 +466,8 @@ generateRef <- function(
 
   for(cellType in cellTypes_level_1)
   {
+    message(paste0("  ",cellType))
+
     refProfiles[rownames(sc.matrix.data.norm),cellType] <- apply(
       sc.matrix.data.norm[,sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]],drop=F],
       1,mean)
