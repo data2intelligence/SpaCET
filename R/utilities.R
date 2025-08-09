@@ -187,6 +187,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
 #'
 #' @rdname SpaCET.quality.control
 #' @export
+#'
 SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 {
   message(paste0("Removing spots with less than ",min.genes," expressed genes."))
@@ -224,17 +225,19 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @description Convert an Seurat object to a SpaCET object.
 #' @param Seurat_obj An Seurat object.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
+#' @param visiumPath Path to the Space Ranger output folder (Optional). If setting, this function will retrieve more information from the raw output.
 #' @return A SpaCET object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
-#' SpaCET_obj <- convert.Seurat(Seurat_obj, platform = "Visium")
+#' SpaCET_obj <- convert.Seurat(Seurat_obj, platform = "Visium", visiumPath=NULL)
 #' SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 #' SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures = c("UMI","Gene"))
 #'
 #' @rdname convert.Seurat
 #' @export
-convert.Seurat <- function(Seurat_obj, platform)
+#'
+convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL)
 {
   sliceNum <- length(Seurat_obj@images)
 
@@ -261,10 +264,28 @@ convert.Seurat <- function(Seurat_obj, platform)
         barcode=slice@boundaries$centroids@cells
       )
 
-      colnames(st.matrix.data) <- paste0(
-        spotCoordinates$pxl_row,"x",
-        spotCoordinates$pxl_col
-      )
+      if(is.null(visiumPath))
+      {
+        # VisiumV2 does not have spot ID
+        colnames(st.matrix.data) <- paste0(
+          spotCoordinates$pxl_row,"x",
+          spotCoordinates$pxl_col
+        )
+      }else{
+        if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
+        {
+          barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
+        }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
+          barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
+        }else{
+          barcode <- as.data.frame(arrow::read_parquet(paste0(visiumPath,"/spatial/tissue_positions.parquet")))
+        }
+        colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
+        rownames(barcode) <- barcode[,"barcode"]
+        barcode <- barcode[colnames(st.matrix.data),]
+
+        colnames(st.matrix.data) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
+      }
 
     }else{
       spotCoordinates <- data.frame(
@@ -331,10 +352,28 @@ convert.Seurat <- function(Seurat_obj, platform)
           barcode=slice@boundaries$centroids@cells
         )
 
-        colnames(st.matrix.data) <- paste0(
-          spotCoordinates$pxl_row,"x",
-          spotCoordinates$pxl_col
-        )
+        if(is.null(visiumPath))
+        {
+          # VisiumV2 does not have spot ID
+          colnames(st.matrix.data) <- paste0(
+            spotCoordinates$pxl_row,"x",
+            spotCoordinates$pxl_col
+          )
+        }else{
+          if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
+          {
+            barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
+          }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
+            barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
+          }else{
+            barcode <- as.data.frame(arrow::read_parquet(paste0(visiumPath,"/spatial/tissue_positions.parquet")))
+          }
+          colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
+          rownames(barcode) <- barcode[,"barcode"]
+          barcode <- barcode[colnames(st.matrix.data),]
+
+          colnames(st.matrix.data) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
+        }
 
       }else{
         spotCoordinates <- data.frame(
@@ -357,13 +396,13 @@ convert.Seurat <- function(Seurat_obj, platform)
       rg <- grid::rasterGrob(slice@image, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
 
       SpaCET_obj <- methods::new("SpaCET",
-                                 input=list(
-                                   counts=st.matrix.data,
-                                   spotCoordinates=spotCoordinates,
-                                   metaData=NULL,
-                                   image=list(path="FromSeurat",grob=rg),
-                                   platform=platform
-                                 )
+        input=list(
+          counts=st.matrix.data,
+          spotCoordinates=spotCoordinates,
+          metaData=NULL,
+          image=list(path="FromSeurat",grob=rg),
+          platform=platform
+        )
       )
 
       SpaCET_obj_list[[i]] <- SpaCET_obj
@@ -391,6 +430,7 @@ convert.Seurat <- function(Seurat_obj, platform)
 #'
 #' @rdname addTo.Seurat
 #' @export
+#'
 addTo.Seurat  <- function(SpaCET_obj, Seurat_obj)
 {
   sliceNum <- length(SpaCET_obj)
