@@ -680,6 +680,12 @@ visualSpatial <- function(
         bottom_edge <- floor( min(coordi[,2])*0.95 )
         top_edge <- ceiling( max(coordi[,2])*1.02 )
 
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
+
         image$grob$raster <- image$grob$raster[
           left_edge:right_edge,
           bottom_edge:top_edge
@@ -704,6 +710,12 @@ visualSpatial <- function(
         right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
         bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
         top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
+
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
 
         image$grob$raster <- image$grob$raster[
           left_edge:right_edge,
