@@ -132,6 +132,7 @@ head(sc_lineageTree)
 Then, user can run `SpaCET.deconvolution.matched.scRNAseq` to carry out cell type deconvolution.
 
 ``` r
+# deconvolve ST data; ~2 minutes
 SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
   SpaCET_obj, 
   sc_counts=sc_counts, 
@@ -139,6 +140,7 @@ SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
   sc_lineageTree=sc_lineageTree, 
   coreNo=6
 )
+# Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
 
 SpaCET.visualize.spatialFeature(
   SpaCET_obj, 

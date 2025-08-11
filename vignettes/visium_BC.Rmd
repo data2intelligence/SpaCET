@@ -96,7 +96,7 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 </details>
 
 ``` r
-# deconvolve ST data
+# deconvolve ST data; ~8 minutes
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 # Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
 

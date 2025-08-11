@@ -83,7 +83,7 @@ str(SpaCET_obj)
 We use the in-house reference to deconvolve this ST sample.
 
 ``` r
-# deconvolve ST data
+# deconvolve ST data; ~30 minutes
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="CRC", coreNo=6)
 # Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
 
