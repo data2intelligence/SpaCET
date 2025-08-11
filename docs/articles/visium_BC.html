@@ -209,7 +209,7 @@ was created by averaging all cancer type-specific expression
 signatures.</p>
 <p><img src="img/cancerDictionary.png" width="100%" style="border:none"></p>
 </details><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># deconvolve ST data</span></span>
+<code class="sourceCode R"><span><span class="co"># deconvolve ST data; ~8 minutes</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.deconvolution.html">SpaCET.deconvolution</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, cancerType<span class="op">=</span><span class="st">"BRCA"</span>, coreNo<span class="op">=</span><span class="fl">6</span><span class="op">)</span></span>
 <span><span class="co"># Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.</span></span>
 <span></span>

@@ -141,11 +141,53 @@ SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
   coreNo=6
 )
 # Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
+``` 
 
+## Visualize the cell type proportion
+
+We provide `SpaCET.visualize.spatialFeature` to present the spatial distribution of cell types.
+
+``` r
+# show the spatial distribution of all cell types.
+SpaCET.visualize.spatialFeature(
+  SpaCET_obj, 
+  spatialType = "CellFraction", 
+  spatialFeatures="All", 
+  sameScaleForFraction = TRUE,
+  pointSize = 1.5, 
+  nrow=4
+)
+```
+
+<img src="img/PDAC_scatter.png" width="100%" style="border:none" />
+
+To show cell type composition in pie chart, user can set `spatialType = "CellTypeComposition"`. 
+
+``` r
+# load the color for cell types
+load(paste0(oldST_Path,"/colors_vector.rda"))
+
+# draw scatter pie
+SpaCET.visualize.spatialFeature(
+     SpaCET_obj, 
+     spatialType = "CellTypeComposition", 
+     spatialFeatures = "MajorLineage", 
+     colors = colors_vector,
+     pointSize = 0.5
+ )
+```
+
+<img src="img/PDAC_pie.png" width="52%" style="border:none" />
+
+``` r
 SpaCET.visualize.spatialFeature(
   SpaCET_obj, 
   spatialType = "CellFraction",
-  spatialFeatures = c("Cancer clone A","Cancer clone B","Acinar cells","Ductal - CRISP3 high/centroacinar like"),
+  spatialFeatures = c(
+    "Cancer clone A",
+    "Cancer clone B",
+    "Acinar cells",
+    "Ductal - CRISP3 high/centroacinar like"),
   nrow=2
 )
 ``` 

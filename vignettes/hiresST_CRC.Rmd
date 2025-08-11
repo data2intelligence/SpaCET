@@ -129,10 +129,10 @@ User can check the most abundant cell type in each bead by setting `spatialType`
 load(paste0(hiresST_Path,"/colors_vector.rda"))
 
 # show colors
-head(colors_vector)
+head(colors_vector,3)
 
-## Malignant            CAF    Endothelial Unidentifiable         B cell            cDC 
-## "#f3c300"      "#be0032"      "#0067a5"      "#e25822"      "#008856"      "#782AB6" 
+## Malignant            CAF    Endothelial
+## "#f3c300"      "#be0032"      "#0067a5"
 
 # show the spatial distribution of all cell types.
 SpaCET.visualize.spatialFeature(

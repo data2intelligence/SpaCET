@@ -823,7 +823,7 @@ visualSpatial <- function(
       }
     }
 
-  }else{
+  }else{ # not visium
 
     if(imageBg& !is.na(image$path))
     {
@@ -856,37 +856,69 @@ visualSpatial <- function(
           panel.border = element_blank(),
           legend.position = legend.position
         )
-    }else{
-      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
-      fig.df <- data.frame(
-        x=coordi[,1],
-        y=coordi[,2],
-        value=visiualVector
-      )
 
-      p <- ggplot(fig.df,aes(x=x,y=y))+
-        geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)+
-        ggtitle(titleName)+
-        theme_bw()+
-        theme(
-          plot.title = element_text(hjust = 0.5),
-          axis.text = element_blank(),
-          axis.title = element_blank(),
-          axis.ticks = element_blank(),
-          panel.grid = element_blank(),
-          panel.border = element_blank(),
-          legend.position = legend.position
+    }else{ # not image
+      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+
+      if(is.vector(visiualVector))
+      {
+        fig.df <- data.frame(
+          x=coordi[,1],
+          y=coordi[,2],
+          spotID=spotID,
+          value=visiualVector
         )
 
-      if(scaleType=="color-continuous")
-      {
-        p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
+        p <- ggplot(fig.df,aes(x=x,y=y))+
+          geom_point(aes(colour=value), size=pointSize, alpha=pointAlpha)+
+          ggtitle(titleName)+
+          theme_bw()+
+          theme(
+            plot.title = element_text(hjust = 0.5),
+            axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            panel.border = element_blank(),
+            legend.position = legend.position
+          )
+
+        if(scaleType=="color-continuous")
+        {
+          p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
+        }else{
+          p+scale_colour_manual(name=legendName, values=colors)
+        }
+
       }else{
-        p+scale_colour_manual(name=legendName, values=colors)
+        fig.df <- data.frame(
+          x=coordi[,1],
+          y=coordi[,2],
+          spotID=spotID
+        )
+        fig.df <- cbind(fig.df, t(visiualVector) )
+
+        p <- ggplot()+
+          scatterpie::geom_scatterpie(
+            aes(x=x, y=y, group=spotID, r=pointSize),
+            data=fig.df,
+            cols=colnames(fig.df)[4:ncol(fig.df)],
+            color=NA)+
+          scale_fill_manual(values=colors, name=legendName)+
+          ggtitle(titleName)+
+          theme_bw()+
+          theme(
+            plot.title = element_text(hjust = 0.5),
+            axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            panel.border = element_blank(),
+            legend.position = legend.position
+          )
       }
 
-    }
+    }# not image
 
-
-  }
+  } # not visium
 }

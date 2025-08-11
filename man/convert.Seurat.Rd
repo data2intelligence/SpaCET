@@ -4,12 +4,14 @@
 \alias{convert.Seurat}
 \title{Convert Seurat to SpaCET}
 \usage{
-convert.Seurat(Seurat_obj, platform)
+convert.Seurat(Seurat_obj, platform, visiumPath = NULL)
 }
 \arguments{
 \item{Seurat_obj}{An Seurat object.}
 
 \item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
+
+\item{visiumPath}{Path to the Space Ranger output folder (Optional). If setting, this function will retrieve more information from the raw output.}
 }
 \value{
 A SpaCET object.
@@ -20,7 +22,7 @@ Convert an Seurat object to a SpaCET object.
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
-SpaCET_obj <- convert.Seurat(Seurat_obj, platform = "Visium")
+SpaCET_obj <- convert.Seurat(Seurat_obj, platform = "Visium", visiumPath=NULL)
 SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 SpaCET.visualize.spatialFeature(SpaCET_obj, spatialType = "QualityControl", spatialFeatures = c("UMI","Gene"))
 
