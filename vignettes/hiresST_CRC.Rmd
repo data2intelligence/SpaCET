@@ -143,4 +143,5 @@ SpaCET.visualize.spatialFeature(
   pointSize = 0.6
 )
 ```
+
 <img src="img/slideseq_anno.png" width="80%" style="border:none" />
