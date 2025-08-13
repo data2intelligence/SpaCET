@@ -47,6 +47,7 @@ The UMI count matrix is stored in `SpaCET_obj@input$counts` as a sparse matrix. 
 ``` r
 # show this object.
 SpaCET_obj@input$counts[1:8,1:6]
+
 ## 8 x 6 sparse Matrix of class "dgCMatrix"
 ##             50x102 59x19 14x94 47x13 73x43 61x97
 ## MIR1302-2HG      .     .     .     .     .     .
@@ -98,7 +99,8 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 ``` r
 # deconvolve ST data; ~8 minutes
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
-# Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
+# Since Windows does not support parallel computation, 
+# please set coreNo=1 for Windows OS.
 
 # show the ST deconvolution results
 SpaCET_obj@results$deconvolution$propMat[1:13,1:6]

@@ -104,6 +104,7 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, adjacentNormal=FALSE, c
     }
   }
 
+  SpaCET_obj@results$deconvolution$malRes <- malRes
   SpaCET_obj@results$deconvolution$Ref <- Ref
   SpaCET_obj@results$deconvolution$propMat <- propMat
   SpaCET_obj
@@ -201,14 +202,12 @@ inferMal_cor <- function(st.matrix.data, cancerType)
         stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
         stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
         stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
+        stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+                                  stat.df[i,"wilcoxTestG0"]<0.05 &
+                                  stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
       }
 
-      clusterMal <- which(
-        stat.df[1:i,"mean"]>0&stat.df[1:i,"wilcoxTestG0"]<0.05 &
-        stat.df[1:i,"fraction_spot_padj"]>=sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-      )
-
-      if(length(clusterMal)!=0) # find malignant spots.
+      if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
       {
         message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
         malFlag <- TRUE
@@ -226,7 +225,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
     message("Stage 1 - Step 3. Infer malignant cells.")
     if(malFlag)
     {
-      spotMal <- names(clustering)[clustering%in%clusterMal & cor_sig[,"cor_r"]>0]
+      spotMal <- names(clustering)[clustering%in%stat.df[stat.df[,"clusterMal"]==TRUE,"cluster"] & cor_sig[,"cor_r"]>0]
       malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,spotMal])*1e6/Matrix::colSums(st.matrix.data[,spotMal]) ) )
 
       sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
@@ -248,12 +247,12 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
       malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
 
-      list("malRef"=malRef,"malProp"=malProp)
+      list("sig"=c(CNA_expr, cancerType),"stat.df"=stat.df,"malRef"=malRef,"malProp"=malProp)
     }else{
       malProp <- rep(0,dim(st.matrix.data.diff)[2])
       names(malProp) <- colnames(st.matrix.data.diff)
 
-      list("malRef"=NULL,"malProp"=malProp)
+      list("sig"=c(CNA_expr, cancerType),"stat.df"=NULL,"malRef"=NULL,"malProp"=malProp)
     }
 
   }else{ # spot > 20000
@@ -329,7 +328,7 @@ inferMal_cor <- function(st.matrix.data, cancerType)
 
     malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,malProp>=1])*1e6/Matrix::colSums(st.matrix.data[,malProp>=1]) ) )
 
-    list("malRef"=malRef,"malProp"=malProp)
+    list("sig"=c(CNA_expr, cancerType),"stat.df"=NULL,"malRef"=malRef,"malProp"=malProp)
   }
 
 }

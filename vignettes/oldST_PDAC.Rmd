@@ -113,8 +113,8 @@ head(sc_lineageTree)
 ## [1] "Cancer clone A" "Cancer clone B"
 ## 
 ## $Ductal
-## [1] "Ductal - APOL1 high/hypoxic"            "Ductal - CRISP3 high/centroacinar like"
-## [3] "Ductal - MHC Class II"                  "Ductal - terminal ductal like"         
+## [1] "Ductal - APOL1 high/hypoxic"   "Ductal - CRISP3 high/centroacinar like"
+## [3] "Ductal - MHC Class II"         "Ductal - terminal ductal like"         
 ## 
 ## $Macrophage
 ## [1] "Macrophages A" "Macrophages B"
@@ -140,7 +140,8 @@ SpaCET_obj <- SpaCET.deconvolution.matched.scRNAseq(
   sc_lineageTree=sc_lineageTree, 
   coreNo=6
 )
-# Since Windows does not support parallel computation, please set coreNo=1 for Windows OS.
+# Since Windows does not support parallel computation, 
+# please set coreNo=1 for Windows OS.
 ``` 
 
 ## Visualize the cell type proportion
