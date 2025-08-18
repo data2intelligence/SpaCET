@@ -227,79 +227,82 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           }
         }
       }
-    }
+    }else{
 
-    if(!is.null(signatureType) & signatureType=="CNA")
-    {
-      for(CNA_expr in c("CNA"))
+      if(signatureType=="CNA")
       {
-        cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
-
-        sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-
-        cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-
-        stat.df <- data.frame()
-        for(i in sort(unique(clustering)))
+        for(CNA_expr in c("CNA"))
         {
-          cor_sig_clustering <- cor_sig[clustering==i,]
+          cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
-          stat.df[i,"cluster"] <- i
-          stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-          stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-          stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-          stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
-          stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
-            stat.df[i,"wilcoxTestG0"]<0.05 &
-            stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-        }
+          sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
-        if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
-        {
-          message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
-          malFlag <- TRUE
-        }else{
-          message(paste0("                  > No malignant cells detected in this tumor ST data set."))
-          malFlag <- FALSE
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
+          {
+            cor_sig_clustering <- cor_sig[clustering==i,]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
+            stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+          }
+
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
+          {
+            message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
+            malFlag <- TRUE
+          }else{
+            message(paste0("                  > No malignant cells detected in this tumor ST data set."))
+            malFlag <- FALSE
+          }
         }
       }
-    }
 
-    if(!is.null(signatureType) & signatureType=="expr")
-    {
-      for(CNA_expr in c("expr"))
+      if(signatureType=="expr")
       {
-        cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
-
-        sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-
-        cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-
-        stat.df <- data.frame()
-        for(i in sort(unique(clustering)))
+        for(CNA_expr in c("expr"))
         {
-          cor_sig_clustering <- cor_sig[clustering==i,]
+          cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
-          stat.df[i,"cluster"] <- i
-          stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-          stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-          stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-          stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
-          stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
-            stat.df[i,"wilcoxTestG0"]<0.05 &
-            stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-        }
+          sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
-        if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
-        {
-          message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
-          malFlag <- TRUE
-        }else{
-          message(paste0("                  > No malignant cells detected in this tumor ST data set."))
-          malFlag <- FALSE
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
+          {
+            cor_sig_clustering <- cor_sig[clustering==i,]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
+            stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+          }
+
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
+          {
+            message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
+            malFlag <- TRUE
+          }else{
+            message(paste0("                  > No malignant cells detected in this tumor ST data set."))
+            malFlag <- FALSE
+          }
         }
       }
+
     }
+
 
     message("Stage 1 - Step 3. Infer malignant cells.")
     if(malFlag)
