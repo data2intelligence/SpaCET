@@ -229,7 +229,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
       }
     }
 
-    if(signatureType=="CNA")
+    if(!is.null(signatureType) & signatureType=="CNA")
     {
       for(CNA_expr in c("CNA"))
       {
@@ -265,7 +265,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
       }
     }
 
-    if(signatureType=="expr")
+    if(!is.null(signatureType) & signatureType=="expr")
     {
       for(CNA_expr in c("expr"))
       {
