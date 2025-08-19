@@ -194,7 +194,15 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         {
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
         }else{
-          if(CNA_expr=="CNA") next
+          if(CNA_expr=="CNA")
+          {
+            next
+          }else{
+            cancerType <- "PANCAN"
+            cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+            sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
+          }
+
         }
 
         cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
