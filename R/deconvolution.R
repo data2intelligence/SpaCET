@@ -129,6 +129,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
   }
 
+  seq_depth <- Matrix::colSums(st.matrix.data>0)
+
   #st.matrix.data.diff <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
   st.matrix.data.diff <- sweep(st.matrix.data, 2, Matrix::colSums(st.matrix.data), "/") *1e6
 
@@ -211,13 +213,16 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         for(i in sort(unique(clustering)))
         {
           cor_sig_clustering <- cor_sig[clustering==i,]
+          seq_depth_clustering <- seq_depth[clustering==i]
 
           stat.df[i,"cluster"] <- i
           stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
           stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+          stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
           stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-          stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
-          stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+          stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+          stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+                                    stat.df[i,"mean"]>0 &
                                     stat.df[i,"wilcoxTestG0"]<0.05 &
                                     stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
         }
@@ -235,6 +240,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           }
         }
       }
+
     }else{
 
       if(signatureType=="CNA")
