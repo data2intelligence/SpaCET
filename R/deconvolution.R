@@ -201,10 +201,9 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         CNA_expr <- comb_list[[n]][1]
         cancerType <- comb_list[[n]][2]
 
-        cancerTypes <- names(cancerDictionary[[CNA_expr]])
-        cancerTypes <- sapply(strsplit(cancerTypes,"_",fixed=T),function(x) return(x[2]))
+        cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
-        if(cancerType%in%cancerTypes)
+        if(sum(cancerTypeExists)>0)
         {
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
