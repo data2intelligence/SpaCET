@@ -2,7 +2,7 @@
 #' @description Estimate the cell fraction of cell lineages and sub lineages.
 #' @param SpaCET_obj A SpaCET object.
 #' @param cancerType Cancer type of the current tumor ST dataset.
-#' @param signatureType Indicate the tumor signature type, CNA or expr. Default: NULL (automatic detection).
+#' @param signatureType Indicate the tumor signature type, NULL, CNA or expr. Default: NULL (automatically detect CNA or expr).
 #' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
 #' @param coreNo Core number in parallel computation.
 #' @return A SpaCET object.
@@ -188,57 +188,54 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
 
     if(is.null(signatureType))
     {
-      for(CNA_expr in c("CNA","expr"))
+      if(cancerType=="PANCAN")
       {
-        cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+        comb_list <- list(c("expr","PANCAN"))
+      }else{
+        comb_list <- list(c("CNA",cancerType), c("expr",cancerType), c("expr","PANCAN"))
+      }
 
-        if(sum(cancerTypeExists) > 0)
+      malFlag <- FALSE
+      for(n in 1:length(comb_list))
+      {
+        CNA_expr <- comb_list[[n]][1]
+        cancerType <- comb_list[[n]][2]
+
+        cancerTypes <- names(cancerDictionary[[CNA_expr]])
+        cancerTypes <- sapply(strsplit(cancerTypes,"_",fixed=T),function(x) return(x[2]))
+
+        if(cancerType%in%cancerTypes)
         {
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-        }else{
-          if(CNA_expr=="CNA")
+
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
           {
-            next
-          }else{
-            cancerType <- "PANCAN"
-            cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
-            sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
+            cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
           }
 
-        }
-
-        cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-
-        stat.df <- data.frame()
-        for(i in sort(unique(clustering)))
-        {
-          cor_sig_clustering <- cor_sig[clustering==i,]
-          seq_depth_clustering <- seq_depth[clustering==i]
-
-          stat.df[i,"cluster"] <- i
-          stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-          stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-          stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
-          stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-          stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-          stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
-                                    stat.df[i,"mean"]>0 &
-                                    stat.df[i,"wilcoxTestG0"]<0.05 &
-                                    stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-        }
-
-        if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
-        {
-          message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
-          malFlag <- TRUE
-          break
-        }else{
-          if(CNA_expr=="expr")
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
           {
-            message(paste0("                  > No malignant cells detected in this tumor ST data set."))
-            malFlag <- FALSE
+            message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
+            malFlag <- TRUE
+            break
           }
         }
+
       }
 
     }else{
@@ -319,37 +316,41 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
 
 
     message("Stage 1 - Step 3. Infer malignant cells.")
+    top5p <- round(length(seq_depth)*0.05)
     if(malFlag)
     {
       spotMal <- names(clustering)[clustering%in%stat.df[stat.df[,"clusterMal"]==TRUE,"cluster"] & cor_sig[,"cor_r"]>0]
-      malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,spotMal])*1e6/Matrix::colSums(st.matrix.data[,spotMal]) ) )
-
-      sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
-      sig <- matrix(sig)
-      rownames(sig) <- rownames(st.matrix.data.diff)
-
-      cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-
-      malProp <- cor_sig[,"cor_r"]
-      names(malProp) <- rownames(cor_sig)
-
-      malPropSorted <- sort(malProp)
-      top5p <- round(length(malPropSorted)*0.05)
-      p5 <- malPropSorted[top5p]
-      p95 <- malPropSorted[length(malPropSorted)-top5p+1]
-
-      malProp[malProp<=p5] <- p5
-      malProp[malProp>=p95] <- p95
-
-      malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
-
-      list("sig"=c(CNA_expr, cancerType),"stat.df"=stat.df,"malRef"=malRef,"malProp"=malProp)
     }else{
-      malProp <- rep(0,dim(st.matrix.data.diff)[2])
-      names(malProp) <- colnames(st.matrix.data.diff)
+      seq_depthSorted <- sort(seq_depth,decreasing = T)
+      spotMal <- names(seq_depthSorted)[1:top5p]
 
-      list("sig"=c(CNA_expr, cancerType),"stat.df"=NULL,"malRef"=NULL,"malProp"=malProp)
+      CNA_expr <- "expr";
+      cancerType <- "seq_depth"
+      stat.df <- NULL
+      message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
     }
+
+    malRef <- Matrix::rowMeans( Matrix::t( Matrix::t(st.matrix.data[,spotMal])*1e6/Matrix::colSums(st.matrix.data[,spotMal]) ) )
+
+    sig <- apply(st.matrix.data.diff[,spotMal,drop=F],1,mean)
+    sig <- matrix(sig)
+    rownames(sig) <- rownames(st.matrix.data.diff)
+
+    cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+    malProp <- cor_sig[,"cor_r"]
+    names(malProp) <- rownames(cor_sig)
+
+    malPropSorted <- sort(malProp)
+    p5 <- malPropSorted[top5p]
+    p95 <- malPropSorted[length(malPropSorted)-top5p+1]
+
+    malProp[malProp<=p5] <- p5
+    malProp[malProp>=p95] <- p95
+
+    malProp <- ( malProp-min(malProp) ) / ( max(malProp)-min(malProp) )
+
+    list("sig"=c(CNA_expr, cancerType),"stat.df"=stat.df,"malRef"=malRef,"malProp"=malProp)
 
   }else{ # spot > 20000
     CNA_expr <- "CNA"
