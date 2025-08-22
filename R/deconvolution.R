@@ -128,9 +128,12 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
          If yes, it means the dictionary of SpaCET does not include the signature for input cancer type.
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
   }
-  if(!signatureType%in%c(NULL,"CNA","expr","seq_depth"))
+  if(!is.null(signatureType))
   {
-    stop("The signatureType should be NULL, 'CNA', 'expr', or 'seq_depth'.")
+    if(!signatureType%in%c("CNA","expr","seq_depth"))
+    {
+      stop("The signatureType should be NULL, 'CNA', 'expr', or 'seq_depth'.")
+    }
   }
 
   seq_depth <- Matrix::colSums(st.matrix.data>0)
