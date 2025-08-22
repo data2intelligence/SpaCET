@@ -2,7 +2,7 @@
 #' @description Estimate the cell fraction of cell lineages and sub lineages.
 #' @param SpaCET_obj A SpaCET object.
 #' @param cancerType Cancer type of the current tumor ST dataset.
-#' @param signatureType Indicate the tumor signature type, NULL, CNA or expr. Default: NULL (automatically detect CNA or expr).
+#' @param signatureType Indicate the tumor signature type, NULL, CNA, expr, or seq_depth. Default: NULL (automatically detect CNA or expr).
 #' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
 #' @param coreNo Core number in parallel computation.
 #' @return A SpaCET object.
@@ -128,6 +128,10 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
          If yes, it means the dictionary of SpaCET does not include the signature for input cancer type.
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")
   }
+  if(!signatureType%in%c(NULL,"CNA","expr","seq_depth"))
+  {
+    stop("The signatureType should be NULL, 'CNA', 'expr', or 'seq_depth'.")
+  }
 
   seq_depth <- Matrix::colSums(st.matrix.data>0)
 
@@ -245,6 +249,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
+          if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
+
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
@@ -253,13 +259,16 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           for(i in sort(unique(clustering)))
           {
             cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
 
             stat.df[i,"cluster"] <- i
             stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
             stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
             stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
-            stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
               stat.df[i,"wilcoxTestG0"]<0.05 &
               stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
           }
@@ -269,8 +278,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
           }else{
-            message(paste0("                  > No malignant cells detected in this tumor ST data set."))
-            malFlag <- FALSE
+            stop("No malignant cells detected in this tumor ST data set.")
           }
         }
       }
@@ -281,6 +289,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
 
+          if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
+
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
@@ -289,13 +299,16 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           for(i in sort(unique(clustering)))
           {
             cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
 
             stat.df[i,"cluster"] <- i
             stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
             stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
             stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$ p.value)
-            stat.df[i,"clusterMal"] <- stat.df[i,"mean"]>0 &
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
               stat.df[i,"wilcoxTestG0"]<0.05 &
               stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
           }
@@ -305,10 +318,14 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
           }else{
-            message(paste0("                  > No malignant cells detected in this tumor ST data set."))
-            malFlag <- FALSE
+            stop("No malignant cells detected in this tumor ST data set.")
           }
         }
+      }
+
+      if(signatureType=="seq_depth")
+      {
+        malFlag <- FALSE
       }
 
     }
@@ -323,8 +340,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
       seq_depthSorted <- sort(seq_depth,decreasing = T)
       spotMal <- names(seq_depthSorted)[1:top5p]
 
-      CNA_expr <- "expr";
-      cancerType <- "seq_depth"
+      CNA_expr <- "seq_depth"
       stat.df <- NULL
       message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
     }
