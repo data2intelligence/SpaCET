@@ -344,6 +344,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
       spotMal <- names(seq_depthSorted)[1:top5p]
 
       CNA_expr <- "seq_depth"
+      cancerType <- "current_sample"
       stat.df <- NULL
       message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
     }
