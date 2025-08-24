@@ -228,7 +228,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
             stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
             stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
             stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+            stat.df[i,"clusterMal"] <-
+              (stat.df[i,"seq_depth_diff"]>0 | stat.df[i,"fraction_spot_padj"] >= 0.33) &
               stat.df[i,"mean"]>0 &
               stat.df[i,"wilcoxTestG0"]<0.05 &
               stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
@@ -270,7 +271,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
             stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
             stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
             stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+            stat.df[i,"clusterMal"] <-
+              (stat.df[i,"seq_depth_diff"]>0 | stat.df[i,"fraction_spot_padj"] >= 0.33) &
               stat.df[i,"mean"]>0 &
               stat.df[i,"wilcoxTestG0"]<0.05 &
               stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
@@ -310,7 +312,8 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
             stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
             stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
             stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <- stat.df[i,"seq_depth_diff"]>0 &
+            stat.df[i,"clusterMal"] <-
+              (stat.df[i,"seq_depth_diff"]>0 | stat.df[i,"fraction_spot_padj"] >= 0.33) &
               stat.df[i,"mean"]>0 &
               stat.df[i,"wilcoxTestG0"]<0.05 &
               stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
