@@ -82,7 +82,13 @@ create.SpaCET.object.10X <- function(visiumPath)
   }
 
   colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
-  rownames(barcode) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
+  rownames(barcode) <- barcode[,"barcode"]
+
+  barcode <- barcode[barcode[,"in_tissue"]==1,]
+
+  olp <- intersect(colnames(st.matrix.data),rownames(barcode))
+  st.matrix.data <- st.matrix.data[,olp,drop=F]
+  barcode <- barcode[olp,,drop=F]
 
   if(file.exists(paste0(visiumPath,"/spatial/tissue_lowres_image.png")))
   {
@@ -95,7 +101,9 @@ create.SpaCET.object.10X <- function(visiumPath)
     barcode[["pxl_col"]] <- round(barcode[,"pxl_col_in_fullres"]*jsonFile$tissue_hires_scalef,3)
   }
 
-  spotCoordinates <- barcode[match(colnames(st.matrix.data),barcode[,"barcode"]),c("pxl_row","pxl_col","barcode")]
+  spotCoordinates <- barcode[,c("pxl_row","pxl_col","barcode")]
+  rownames(spotCoordinates) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
+
   colnames(st.matrix.data) <- rownames(spotCoordinates)
 
   SpaCET_obj <- create.SpaCET.object(
