@@ -425,7 +425,7 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
     )
   }else{
     message("Stage 1. Infer malignant cell fraction.")
-    malRes <- inferMal_cor(st.matrix.data,cancerType)
+    malRes <- inferMal_cor(st.matrix.data,cancerType,signatureType=NULL)
 
     message("Stage 2. Deconvolve non-malignant cell fracton.")
     propMat <- SpatialDeconv(

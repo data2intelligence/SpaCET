@@ -41,23 +41,23 @@ load(paste0(oldST_Path,"/st_PDAC.rda"))
 # show count matrix
 counts[1:6,1:5]
 
-##        10x10 10x13 10x14 10x15 10x16
-## A1CF       0     0     0     0     0
-## A2M       13     0     4     0     0
-## A4GALT     1     0     0     0     0
-## A4GNT      0     0     1     0     0
-## AAAS       0     0     0     0     0
-## AACS       0     0     0     0     0
+##        s1 s2 s3 s4 s5
+## A1CF    0  0  0  0  0
+## A2M    13  0  4  0  0
+## A4GALT  1  0  0  0  0
+## A4GNT   0  0  1  0  0
+## AAAS    0  0  0  0  0
+## AACS    0  0  0  0  0
 
 # show coordinate matrix
 spotCoordinates[1:5,]
 
-##        X  Y
-## 10x10 10 10
-## 10x13 10 13
-## 10x14 10 14
-## 10x15 10 15
-## 10x16 10 16
+##    coordinate_x_um coordinate_y_um
+## s1            2000            2000
+## s2            2000            2600
+## s3            2000            2800
+## s4            2000            3000
+## s5            2000            3200
 
 # load ST data to create a SpaCET object.
 SpaCET_obj <- create.SpaCET.object(
