@@ -16,8 +16,8 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
-    coreNo <- coreNoDect
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect,"-1 is used automatically."))
+    coreNo <- coreNoDect-1
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
@@ -190,8 +190,8 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
-    coreNo <- coreNoDect
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect,"-1 is used automatically."))
+    coreNo <- coreNoDect-1
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
@@ -335,8 +335,8 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
-    coreNo <- coreNoDect
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect,"-1 is used automatically."))
+    coreNo <- coreNoDect-1
   }
   if(Sys.info()[['sysname']] == "Windows")
   {

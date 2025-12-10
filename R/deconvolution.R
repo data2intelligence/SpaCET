@@ -17,8 +17,8 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, signatureType=NULL, adj
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
-    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect," is used automatically."))
-    coreNo <- coreNoDect
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect,"-1 is used automatically."))
+    coreNo <- coreNoDect-1
   }
   if(Sys.info()[['sysname']] == "Windows")
   {
