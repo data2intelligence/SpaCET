@@ -32,7 +32,7 @@ Here, we create an SpaCET object for the current breast cancer visium sample.
 library(SpaCET)
 
 # set the path to the in-house breast cancer ST data. 
-# User can set the paths to their own data.
+# user can set the paths to their own data.
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 
 # load ST data to create an SpaCET object.
@@ -98,7 +98,7 @@ Specifically, user need to specify the cancer type of this tumor ST data set by 
 
 ``` r
 # deconvolve ST data; ~8 minutes
-SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
+SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=5)
 # Since Windows does not support parallel computation, 
 # please set coreNo=1 for Windows OS.
 
@@ -155,7 +155,7 @@ SpaCET.visualize.spatialFeature(
 
 
 
-To show cell type composition in pie chart, user can set `spatialType = "CellTypeComposition"`. If you want to crop the specific region like ([#48](https://github.com/data2intelligence/SpaCET/issues/48)), you can set imageSize = "CustomizedArea" and also assign 4 numbers (0~1) to CustomizedAreaScale, corresponding to the figure above (x_left, x_right, y_bottom, y_top).
+To show cell type composition in pie chart, user can set `spatialType = "CellTypeComposition"`. If you want to crop the specific region like ([#48](https://github.com/data2intelligence/SpaCET/issues/48)), you can set imageSize = "CustomizedArea" and also assign 4 numbers (0~1) to `CustomizedAreaScale`, corresponding to the figure above (x_left, x_right, y_bottom, y_top).
 
 ``` r
 # load the color for cell types

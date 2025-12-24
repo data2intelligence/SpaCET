@@ -1,3 +1,10 @@
+## SpaCET 1.4.0
+
+*2026-01-01*
+
+* Add a new function `SpaCET.SpatialCorrelation` to identify spatially variable genes and co-expressed ligand-receptor interactions.
+* Update `SpaCET.visualize.spatialFeature` to show customized area by setting `imageSize = "CustomizedArea"` and `CustomizedAreaScale`.
+
 ## SpaCET 1.3.0
 
 *2025-03-05*

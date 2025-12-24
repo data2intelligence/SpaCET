@@ -4,6 +4,7 @@
 # SpaCET: Spatial Cellular Estimator for Tumors <img src="man/figures/sticker.png" align="right" alt="" width="120" />
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 SpaCET is an R package designed for analyzing cancer spatial
@@ -85,6 +86,8 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
   data](https://data2intelligence.github.io/SpaCET/articles/hiresST_CRC.html)
 - [Gene set score calculation for spatial
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
+- [Spatially variable genes and co-expressed ligand–receptor
+  interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
 
 ## Data availability
 

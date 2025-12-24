@@ -29,7 +29,8 @@ To read your ST data into R, user can create an SpaCET object by using `create.S
 ``` r
 library(SpaCET)
 
-# set the path to the in-house breast cancer ST data. User can set the paths to their own data.
+# set the path to the in-house breast cancer ST data. 
+# user can set the paths to their own data.
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 
 # load ST data to create an SpaCET object.

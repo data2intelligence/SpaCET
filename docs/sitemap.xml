@@ -1,102 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/GeneSetScore.html</loc>
-  </url>
-  <url>
-    <loc>/articles/hiresST_CRC.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/oldST_PDAC.html</loc>
-  </url>
-  <url>
-    <loc>/articles/visium_BC.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET-class.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.CCI.LRNetworkScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.CCI.cellTypePair.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.CCI.colocalization.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.GeneSetScore.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.combine.interface.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.deconvolution.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.deconvolution.malignant.customized.scRNAseq.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.deconvolution.malignant.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.deconvolution.matched.scRNAseq.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.distance.to.interface.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.identify.interface.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.quality.control.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.cellTypePair.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.colocalization.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SpaCET.visualize.spatialFeature.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addTo.Seurat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/convert.Seurat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create.SpaCET.object.10X.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create.SpaCET.object.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read.gmt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/write.gmt.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/articles/GeneSetScore.html</loc></url>
+<url><loc>/articles/SpatialCorrelation.html</loc></url>
+<url><loc>/articles/hiresST_CRC.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/oldST_PDAC.html</loc></url>
+<url><loc>/articles/visium_BC.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/SpaCET-class.html</loc></url>
+<url><loc>/reference/SpaCET.CCI.LRNetworkScore.html</loc></url>
+<url><loc>/reference/SpaCET.CCI.cellTypePair.html</loc></url>
+<url><loc>/reference/SpaCET.CCI.colocalization.html</loc></url>
+<url><loc>/reference/SpaCET.GeneSetScore.html</loc></url>
+<url><loc>/reference/SpaCET.SpatialCorrelation.html</loc></url>
+<url><loc>/reference/SpaCET.combine.interface.html</loc></url>
+<url><loc>/reference/SpaCET.deconvolution.html</loc></url>
+<url><loc>/reference/SpaCET.deconvolution.malignant.customized.scRNAseq.html</loc></url>
+<url><loc>/reference/SpaCET.deconvolution.malignant.html</loc></url>
+<url><loc>/reference/SpaCET.deconvolution.matched.scRNAseq.html</loc></url>
+<url><loc>/reference/SpaCET.distance.to.interface.html</loc></url>
+<url><loc>/reference/SpaCET.identify.interface.html</loc></url>
+<url><loc>/reference/SpaCET.quality.control.html</loc></url>
+<url><loc>/reference/SpaCET.visualize.cellTypePair.html</loc></url>
+<url><loc>/reference/SpaCET.visualize.colocalization.html</loc></url>
+<url><loc>/reference/SpaCET.visualize.spatialFeature.html</loc></url>
+<url><loc>/reference/addTo.Seurat.html</loc></url>
+<url><loc>/reference/calWeights.html</loc></url>
+<url><loc>/reference/convert.Seurat.html</loc></url>
+<url><loc>/reference/create.SpaCET.object.10X.html</loc></url>
+<url><loc>/reference/create.SpaCET.object.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/read.gmt.html</loc></url>
+<url><loc>/reference/write.gmt.html</loc></url>
 </urlset>
+

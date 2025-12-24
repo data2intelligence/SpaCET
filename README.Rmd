@@ -77,6 +77,7 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 * [Deconvolution with a matched scRNA-seq data set](https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html)
 * [Application to high resolution spatial transcriptomics data](https://data2intelligence.github.io/SpaCET/articles/hiresST_CRC.html)
 * [Gene set score calculation for spatial spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
+* [Spatially variable genes and co-expressed ligand–receptor interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
 
 ## Data availability
 This [Link](https://doi.org/10.5281/zenodo.7466024){target="_blank"} provides access to the 10 scRNA-seq datasets used to generate SpaCET's in-house cell-type reference, along with the 8 spatial transcriptomics samples demonstrated in our manuscript.

@@ -21,6 +21,8 @@ navbar:
       - text: Misc
       - text: Gene set score calculation for spatial spots
         href: articles/GeneSetScore.html
+      - text: Spatially variable genes and co-expressed ligand–receptor interactions
+        href: articles/SpatialCorrelation.html
     - text: News
       href: news/index.html
 
@@ -66,3 +68,8 @@ reference:
     - SpaCET.GeneSetScore
     - read.gmt
     - write.gmt
+
+  - title: Spatial correlation calculation
+    contents:
+    - SpaCET.SpatialCorrelation
+    - calWeights

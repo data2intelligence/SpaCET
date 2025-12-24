@@ -622,3 +622,185 @@ write.gmt <- function(gmt, gmtPath)
   }
   writeLines(comb,gmtPath)
 }
+
+
+#' @title Calculate spatial correlation
+#' @description Calculate spatial correlations in both univariate and bivariate settings.
+#' @param SpaCET_obj A SpaCET object.
+#' @param mode Mode of spatial correlation, i.e., "univariate", "bivariate", "pairwise".
+#' @param item A vector or two-column matrix. See details.
+#' @param nPermutation Permutation number.
+#' @return A SpaCET object
+#' @details
+#' 1) when mode = "univariate", set `item` as NULL or a gene vector.
+#' if NULL: test genome-wide genes
+#' else: test the genes you input
+#'
+#' 2) when mode = "univariate", set `item` as NULL or a two-column matrix.
+#' if NULL: test all ligand-receptor pair stored in our package
+#' else: test the gene pairs you input
+#'
+#' @examples
+#' genes <- c("TGFB1","TGFB2","TGFB3","TGFBR1","TGFBR2","TGFBR3")
+#' genePairs <- data.frame(c("TGFB1","TGFB1"), c("TGFBR1","TGFBR2"))
+#' SpaCET_obj <- SpaCET.SpatialCorrelation(SpaCET_obj, mode="univariate", item=genes, W, nPermutation=1000)
+#' SpaCET_obj <- SpaCET.SpatialCorrelation(SpaCET_obj, mode="bivariate", item=genePairs, W, nPermutation=1000)
+#' SpaCET_obj <- SpaCET.SpatialCorrelation(SpaCET_obj, mode="pairwise", W)
+#'
+#' @rdname SpaCET.SpatialCorrelation
+#' @export
+#'
+SpaCET.SpatialCorrelation <- function(SpaCET_obj, mode, item=NULL, W, nPermutation=1000)
+{
+  message("Step 1: Normalize count matrix with variance stabilizing transformation.")
+  mat <- sctransform::vst(SpaCET_obj@input$counts, min_cells=5, verbosity=0)$y
+
+  message("Step 2: Calculate Moran's I.")
+  W <- W[,Matrix::colSums(W)>0] # remove spot island
+  W <- W[Matrix::rowSums(W)>0,] # remove spot island
+
+  mat <- mat[,colnames(W)]
+
+  N <- ncol(mat)
+
+  if(!is.null(item))
+  {
+    mat <- mat[rownames(mat)%in%c(as.matrix(item)),,drop=FALSE]
+  }else{
+    if(mode == "bivariate")
+    {
+      LRdb <- read.csv(system.file("extdata",'Ramilowski2015.txt',package = 'SpaCET'),as.is=T,sep="\t")
+      item <- data.frame(L=LRdb[,2],R=LRdb[,4],stringsAsFactors=FALSE)
+    }
+  }
+
+  if(mode == "bivariate")
+  {
+    item <- item[item[,1]%in%rownames(mat)&item[,2]%in%rownames(mat),]
+  }
+
+  for (i in 1:nrow(mat))
+  {
+    x <- mat[i, ]
+
+    dx <- x - mean(x, na.rm=TRUE)
+    stdx <- sum(dx^2, na.rm=TRUE)
+    stdx <- sqrt(stdx/N)
+    dx <- dx/stdx
+
+    dx -> mat[i, ]
+  }
+
+  if(mode%in%c("univariate","bivariate"))
+  {
+    set.seed(123456)
+
+    if(mode=="univariate")
+    {
+      MoranI_permute_mat <- matrix(NA_real_, nrow = nrow(mat), ncol = nPermutation+1)
+      rownames(MoranI_permute_mat) <- rownames(mat)
+
+      for(i in 1:nPermutation)
+      {
+        randomOrder <- sample(1:N)
+        Xperm <- mat[, randomOrder, drop = FALSE]
+
+        XW <- as.matrix(Xperm %*% W)
+        MoranI_permute_mat[,i] <- rowSums(XW * Xperm)
+      }
+
+      XW <- as.matrix(mat %*% W)
+      MoranI_permute_mat[, nPermutation+1] <- rowSums(XW * mat)
+
+    }else{ # bivariate
+
+      MoranI_permute_mat <- matrix(NA_real_, nrow = nrow(item), ncol = nPermutation+1)
+      rownames(MoranI_permute_mat) <- paste0(item[,1],"_",item[,2])
+
+      for(i in 1:nPermutation)
+      {
+        randomOrder <- sample(1:N)
+        Xperm <- mat[, randomOrder, drop = FALSE]
+        Xperm1 <- Xperm[item[,1], , drop = FALSE]
+        Xperm2 <- Xperm[item[,2], , drop = FALSE]
+
+        XW <- as.matrix(Xperm1 %*% W)
+        MoranI_permute_mat[,i] <- rowSums(XW * Xperm2)
+      }
+
+      XW <- as.matrix(mat[item[,1], , drop = FALSE] %*% W)
+      MoranI_permute_mat[, nPermutation+1] <- rowSums(XW * mat[item[,2], , drop = FALSE])
+    }
+
+    MoranI_permute_mat <- MoranI_permute_mat/sum(W)
+
+    p.Moran_I <- MoranI_permute_mat[,1+nPermutation]
+    p.Moran_Z <- apply(MoranI_permute_mat, 1, function(x) (x[nPermutation+1]-mean(x[1:nPermutation]) ) / sd(x[1:nPermutation]) )
+    p.Moran_P <- apply(MoranI_permute_mat, 1, function(x) (sum(x[1:nPermutation]>=x[nPermutation+1])+1) / (nPermutation+1) )
+    p.Moran_Padj <- p.adjust(p.Moran_P, method="BH")
+    MoranI_summary <- data.frame(p.Moran_I, p.Moran_Z, p.Moran_P, p.Moran_Padj)
+
+    SpaCET_obj@results$SpatialCorrelation[[mode]] <- MoranI_summary[order(MoranI_summary[, "p.Moran_Padj"], -MoranI_summary[, "p.Moran_I"]),]
+
+  }else{ # pairwise
+
+    XW <- as.matrix(mat %*% W)
+
+    XWX <- tcrossprod(XW, mat)
+
+    MoranI <- XWX/sum(W)
+
+    SpaCET_obj@results$SpatialCorrelation$pairwise <- MoranI
+  }
+
+  SpaCET_obj
+}
+
+
+#' @title Calculate weight matrix
+#' @description Calculate weight matrix based on the Radial Basis Function (RBF) kernel.
+#' @param SpaCET_obj A SpaCET object.
+#' @param radius Radius cut off (unit: um).
+#' @param k The maximum number of nearest neighbours to compute. The default value is all within radius.
+#' @param sigma Free parameter for RBF kernel.
+#' @param diagAsZero Indicate whether to mask the effect in the same spot.
+#' @return A SpaCET object
+#' @examples
+#' W <- calWeights(SpaCET_obj)
+#'
+#' @rdname calWeights
+#' @export
+#'
+calWeights <- function(SpaCET_obj, radius=200, k=NULL, sigma=100, diagAsZero=TRUE)
+{
+  spotCoordinates <- SpaCET_obj@input$spotCoordinates[,c("coordinate_x_um","coordinate_y_um")]
+
+  if(is.null(k)) k <- nrow(spotCoordinates)
+
+  nn_result <- RANN::nn2(spotCoordinates, searchtype="radius", radius=radius, k=k)
+
+  neighbor_indices <- nn_result$nn.idx
+  neighbor_distances <- nn_result$nn.dists
+
+  i <- rep(1:nrow(neighbor_indices), each=ncol(neighbor_indices)) # row indices (cell index)
+  j <- as.vector(t(neighbor_indices))
+  x <- as.vector(t(neighbor_distances))
+
+  valid <- x<=radius & x>0
+  i <- i[valid]          # Keep only valid indices
+  j <- j[valid]          # Valid neighbor indices
+  x <- x[valid]          # Valid distances
+
+  # transform distance to weight
+  x <- exp( -x^2 / (2*sigma^2) )
+
+  # Create the sparse matrix using the 'i', 'j', and 'x' vectors
+  library(Matrix)
+  W <- sparseMatrix(i=i, j=j, x=x, dims=c(nrow(neighbor_indices), nrow(neighbor_indices)), repr="T")
+  rownames(W) <- rownames(spotCoordinates)
+  colnames(W) <- rownames(spotCoordinates)
+
+  if(diagAsZero==FALSE) diag(W) <- 1
+
+  W
+}

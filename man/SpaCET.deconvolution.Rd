@@ -7,6 +7,7 @@
 SpaCET.deconvolution(
   SpaCET_obj,
   cancerType,
+  signatureType = NULL,
   adjacentNormal = FALSE,
   coreNo = 6
 )
@@ -15,6 +16,8 @@ SpaCET.deconvolution(
 \item{SpaCET_obj}{A SpaCET object.}
 
 \item{cancerType}{Cancer type of the current tumor ST dataset.}
+
+\item{signatureType}{Indicate the tumor signature type, NULL, CNA, expr, or seq_depth. Default: NULL (automatically detect CNA or expr).}
 
 \item{adjacentNormal}{Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.}
 
