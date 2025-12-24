@@ -1,10 +1,10 @@
 ---
-title: "Gene set score calculation"
+title: "Gene set score calculation for spatial spots"
 output: rmarkdown::html_vignette
 description: >
-  Gene set score calculation.
+  Gene set score calculation for spatial spots.
 vignette: >
-  %\VignetteIndexEntry{Gene set score calculation}
+  %\VignetteIndexEntry{Gene set score calculation for spatial spots}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
