@@ -72,7 +72,7 @@ SpaCET_obj@results$SpatialCorrelation$univariate
 
 ```
 
-## Spatially co-expression ligand-receptor interaction
+## Spatially co-expression ligand-receptor interactions
 
 Users can define a two-column matrix of gene pairs and test whether they are spatially co-expressed using `mode="bivariate"`. Statistical significance is assessed by permuting spot positions. To perform the analysis using the in-house ligand–receptor database, set `item = NULL`.
 

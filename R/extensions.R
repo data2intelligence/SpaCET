@@ -652,12 +652,13 @@ write.gmt <- function(gmt, gmtPath)
 #'
 SpaCET.SpatialCorrelation <- function(SpaCET_obj, mode, item=NULL, W, nPermutation=1000)
 {
+  W <- W[,Matrix::colSums(W)>0] # remove spot island
+  W <- W[Matrix::rowSums(W)>0,] # remove spot island
+
   message("Step 1: Normalize count matrix with variance stabilizing transformation.")
   mat <- sctransform::vst(SpaCET_obj@input$counts, min_cells=5, verbosity=0)$y
 
   message("Step 2: Calculate Moran's I.")
-  W <- W[,Matrix::colSums(W)>0] # remove spot island
-  W <- W[Matrix::rowSums(W)>0,] # remove spot island
 
   mat <- mat[,colnames(W)]
 

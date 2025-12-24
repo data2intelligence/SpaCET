@@ -31,6 +31,7 @@ Imports:
     limma,
     arrow,
     RANN,
+    sctransform,
     UCell,
     MUDAN
 biocViews:
