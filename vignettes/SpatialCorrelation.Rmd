@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this vignette, we demonstrate the use of `SpaCET` to identify (1) spatially variable genes, (2) spatially co-expressed ligand–receptor interactions, and (3) pairwise co-expressed gene pairs, all of which are primarily based on Moran’s I measures.
+In this vignette, we demonstrate the use of `SpaCET` to identify (1) spatially variable genes, (2) spatially co-expressed ligand–receptor interactions, and (3) pairwise co-expressed gene pairs, all of which are primarily based on Moran’s I measures. According to a benchmarking [study](https://doi.org/10.1186/s13059-025-03731-2){target="_blank"}, Moran’s I achieves competitive performance in detecting spatial patterns.
 
 ## Create SpaCET object
 
