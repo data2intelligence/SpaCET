@@ -82,5 +82,8 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 ## Data availability
 This [Link](https://doi.org/10.5281/zenodo.7466024){target="_blank"} provides access to the 10 scRNA-seq datasets used to generate SpaCET's in-house cell-type reference, along with the 8 spatial transcriptomics samples demonstrated in our manuscript.
 
+## Contact
+For questions, bug reports, or feature requests, please submit an [issue](https://github.com/data2intelligence/SpaCET/issues). To keep the issue tracker focused and constructive, advertising or promotional content is not permitted.
+
 ## Citation
 Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. **Nature Communications** 14, 568 (2023). [[Full Text](https://www.nature.com/articles/s41467-023-36062-6){target="_blank"}]

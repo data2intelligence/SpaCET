@@ -93,7 +93,7 @@ Users can define a two-column matrix of gene pairs and test whether they are spa
 # define a two-column matrix of gene pairs
 genePairs <- data.frame(c("TGFB1","TGFB1"), c("TGFBR1","TGFBR2"))
 
-# run spatial correlation, 1 min
+# run spatial correlation, 2 mins
 SpaCET_obj <- SpaCET.SpatialCorrelation(
   SpaCET_obj, 
   mode="bivariate", 
