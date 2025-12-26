@@ -58,7 +58,7 @@ Users can define a vector of genes and test whether they are spatially variable 
 # define a gene vector
 genes <- c("TGFB1","TGFB2","TGFB3","TGFBR1","TGFBR2","TGFBR3")
 
-# run spatial autocorrelation
+# run spatial correlation, 2 mins
 SpaCET_obj <- SpaCET.SpatialCorrelation(
   SpaCET_obj, 
   mode="univariate", 
@@ -70,6 +70,19 @@ SpaCET_obj <- SpaCET.SpatialCorrelation(
 # show results
 SpaCET_obj@results$SpatialCorrelation$univariate
 
+
+# run for genome-wide genes, 50 mins
+SpaCET_obj <- SpaCET.SpatialCorrelation(
+  SpaCET_obj, 
+  mode="univariate", 
+  item=NULL, 
+  W=W, 
+  nPermutation=1000
+)
+
+# show results
+SpaCET_obj@results$SpatialCorrelation$univariate[1:6,]
+
 ```
 
 ## Spatially co-expression ligand-receptor interactions
@@ -80,7 +93,7 @@ Users can define a two-column matrix of gene pairs and test whether they are spa
 # define a two-column matrix of gene pairs
 genePairs <- data.frame(c("TGFB1","TGFB1"), c("TGFBR1","TGFBR2"))
 
-# run spatial autocorrelation
+# run spatial correlation, 1 min
 SpaCET_obj <- SpaCET.SpatialCorrelation(
   SpaCET_obj, 
   mode="bivariate", 
@@ -91,6 +104,21 @@ SpaCET_obj <- SpaCET.SpatialCorrelation(
 
 # show results
 SpaCET_obj@results$SpatialCorrelation$bivariate
+
+# run for in-house ligand–receptor database, 20 mins
+Sys.time()
+SpaCET_obj <- SpaCET.SpatialCorrelation(
+  SpaCET_obj, 
+  mode="bivariate", 
+  item=NULL, 
+  W=W, 
+  nPermutation=1000
+)
+Sys.time()
+
+# show results
+SpaCET_obj@results$SpatialCorrelation$bivariate[1:6,]
+
 
 ```
 
@@ -112,7 +140,7 @@ SpaCET.visualize.spatialFeature(
 To perform genome-wide pairwise co-expression analysis using `mode="pairwise"`, the output is a symmetric matrix of Moran’s I values for each gene pair.
 
 ``` r
-# run spatial autocorrelation
+# run spatial correlation, 2 mins
 SpaCET_obj <- SpaCET.SpatialCorrelation(SpaCET_obj, mode="pairwise", W=W)
 
 # show results

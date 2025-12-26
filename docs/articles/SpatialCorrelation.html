@@ -80,7 +80,9 @@
 <p>In this vignette, we demonstrate the use of <code>SpaCET</code> to
 identify (1) spatially variable genes, (2) spatially co-expressed
 ligand–receptor interactions, and (3) pairwise co-expressed gene pairs,
-all of which are primarily based on Moran’s I measures.</p>
+all of which are primarily based on Moran’s I measures. According to a
+benchmarking <a href="https://doi.org/10.1186/s13059-025-03731-2" target="_blank" class="external-link">study</a>, Moran’s I achieves competitive performance in
+detecting spatial patterns.</p>
 <div class="section level2">
 <h2 id="create-spacet-object">Create SpaCET object<a class="anchor" aria-label="anchor" href="#create-spacet-object"></a>
 </h2>
@@ -130,7 +132,7 @@ genome-wide analysis, set <code>item = NULL</code>.</p>
 <code class="sourceCode R"><span><span class="co"># define a gene vector</span></span>
 <span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFB1"</span>,<span class="st">"TGFB2"</span>,<span class="st">"TGFB3"</span>,<span class="st">"TGFBR1"</span>,<span class="st">"TGFBR2"</span>,<span class="st">"TGFBR3"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># run spatial autocorrelation</span></span>
+<span><span class="co"># run spatial correlation, 2 mins</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.SpatialCorrelation.html">SpaCET.SpatialCorrelation</a></span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>, </span>
 <span>  mode<span class="op">=</span><span class="st">"univariate"</span>, </span>
@@ -140,10 +142,23 @@ genome-wide analysis, set <code>item = NULL</code>.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show results</span></span>
-<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">univariate</span></span></code></pre></div>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">univariate</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># run for genome-wide genes, 50 mins</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.SpatialCorrelation.html">SpaCET.SpatialCorrelation</a></span><span class="op">(</span></span>
+<span>  <span class="va">SpaCET_obj</span>, </span>
+<span>  mode<span class="op">=</span><span class="st">"univariate"</span>, </span>
+<span>  item<span class="op">=</span><span class="cn">NULL</span>, </span>
+<span>  W<span class="op">=</span><span class="va">W</span>, </span>
+<span>  nPermutation<span class="op">=</span><span class="fl">1000</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show results</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">univariate</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="spatially-co-expression-ligand-receptor-interaction">Spatially co-expression ligand-receptor interaction<a class="anchor" aria-label="anchor" href="#spatially-co-expression-ligand-receptor-interaction"></a>
+<h2 id="spatially-co-expression-ligand-receptor-interactions">Spatially co-expression ligand-receptor interactions<a class="anchor" aria-label="anchor" href="#spatially-co-expression-ligand-receptor-interactions"></a>
 </h2>
 <p>Users can define a two-column matrix of gene pairs and test whether
 they are spatially co-expressed using <code>mode="bivariate"</code>.
@@ -154,7 +169,7 @@ perform the analysis using the in-house ligand–receptor database, set
 <code class="sourceCode R"><span><span class="co"># define a two-column matrix of gene pairs</span></span>
 <span><span class="va">genePairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFB1"</span>,<span class="st">"TGFB1"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFBR1"</span>,<span class="st">"TGFBR2"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># run spatial autocorrelation</span></span>
+<span><span class="co"># run spatial correlation, 1 min</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.SpatialCorrelation.html">SpaCET.SpatialCorrelation</a></span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>, </span>
 <span>  mode<span class="op">=</span><span class="st">"bivariate"</span>, </span>
@@ -164,7 +179,21 @@ perform the analysis using the in-house ligand–receptor database, set
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show results</span></span>
-<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">bivariate</span></span></code></pre></div>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">bivariate</span></span>
+<span></span>
+<span><span class="co"># run for in-house ligand–receptor database, 20 mins</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.SpatialCorrelation.html">SpaCET.SpatialCorrelation</a></span><span class="op">(</span></span>
+<span>  <span class="va">SpaCET_obj</span>, </span>
+<span>  mode<span class="op">=</span><span class="st">"bivariate"</span>, </span>
+<span>  item<span class="op">=</span><span class="cn">NULL</span>, </span>
+<span>  W<span class="op">=</span><span class="va">W</span>, </span>
+<span>  nPermutation<span class="op">=</span><span class="fl">1000</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># show results</span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">results</span><span class="op">$</span><span class="va">SpatialCorrelation</span><span class="op">$</span><span class="va">bivariate</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="op">]</span></span></code></pre></div>
 <p>Users can use the following code to visualize the gene expression
 levels of spatially co-expressed gene pairs.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -183,7 +212,7 @@ levels of spatially co-expressed gene pairs.</p>
 <code>mode="pairwise"</code>, the output is a symmetric matrix of
 Moran’s I values for each gene pair.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># run spatial autocorrelation</span></span>
+<code class="sourceCode R"><span><span class="co"># run spatial correlation, 2 mins</span></span>
 <span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.SpatialCorrelation.html">SpaCET.SpatialCorrelation</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, mode<span class="op">=</span><span class="st">"pairwise"</span>, W<span class="op">=</span><span class="va">W</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># show results</span></span>
