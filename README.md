@@ -92,7 +92,7 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 
 ## Data availability
 
-This <a href="https://doi.org/10.5281/zenodo.7466024"
+This <a href="https://doi.org/10.5281/zenodo.14976008"
 target="_blank">Link</a> provides access to the 10 scRNA-seq datasets
 used to generate SpaCET’s in-house cell-type reference, along with the 8
 spatial transcriptomics samples demonstrated in our manuscript.
