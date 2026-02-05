@@ -38,6 +38,9 @@ Or user can install `SpaCET` from the source code. Click
 to download it.
 
 ``` r
+# install.packages("remotes")
+remotes::install_deps("Path_to_the_source_code", force = TRUE)
+
 # install SpaCET in the R environment.
 install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ```
