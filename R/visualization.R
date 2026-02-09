@@ -813,9 +813,7 @@ visualSpatial <- function(
         panel.grid = element_blank(),
         panel.border = element_blank(),
         legend.position = legend.position
-      )+
-      guides(color = guide_legend(override.aes = list(size = legend.size)))+
-      coord_flip()
+      )+coord_flip()
 
     # 6. set color scale
     if(scaleType=="color-continuous")
@@ -824,7 +822,8 @@ visualSpatial <- function(
     }else{
       if(is.vector(visiualVector))
       {
-        p+scale_colour_manual(name=legendName, values=colors)
+        p+scale_colour_manual(name=legendName, values=colors)+
+          guides(color = guide_legend(override.aes = list(size = legend.size)))
       }else{ # cell type composition no color
         p
       }
@@ -862,8 +861,7 @@ visualSpatial <- function(
           panel.grid = element_blank(),
           panel.border = element_blank(),
           legend.position = legend.position
-        )+
-        guides(color = guide_legend(override.aes = list(size = legend.size)))
+        )
 
     }else{ # not image
       coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
@@ -889,14 +887,14 @@ visualSpatial <- function(
             panel.grid = element_blank(),
             panel.border = element_blank(),
             legend.position = legend.position
-          )+
-          guides(color = guide_legend(override.aes = list(size = legend.size)))
+          )
 
         if(scaleType=="color-continuous")
         {
           p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
         }else{
-          p+scale_colour_manual(name=legendName, values=colors)
+          p+scale_colour_manual(name=legendName, values=colors)+
+            guides(color = guide_legend(override.aes = list(size = legend.size)))
         }
 
       }else{
@@ -924,8 +922,7 @@ visualSpatial <- function(
             panel.grid = element_blank(),
             panel.border = element_blank(),
             legend.position = legend.position
-          )+
-          guides(color = guide_legend(override.aes = list(size = legend.size)))
+          )
       }
 
     }# not image
