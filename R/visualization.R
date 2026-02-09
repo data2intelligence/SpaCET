@@ -13,6 +13,7 @@
 #' @param imageSize Size of the image, i.e., "CompleteImage", "CaptureArea", "CustomizedArea".
 #' @param CustomizedAreaScale A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.
 #' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
+#' @param legend.size The size of the legend.
 #' @param interactive Logical: should the interactive app be activited?
 #' @return A ggplot2 object.
 #' @details
@@ -44,6 +45,7 @@ SpaCET.visualize.spatialFeature <- function(
     imageSize = "CaptureArea",
     CustomizedAreaScale = NULL,
     legend.position = "right",
+    legend.size = 1,
     interactive = FALSE
 )
 {
@@ -363,6 +365,7 @@ SpaCET.visualize.spatialFeature <- function(
         titleName=spatialFeature,
         legendName=legendName,
         legend.position=legend.position,
+        legend.size=legend.size,
         imageBg=imageBg,
         imageSize=imageSize,
         CustomizedAreaScale=CustomizedAreaScale,
@@ -555,6 +558,7 @@ SpaCET.visualize.spatialFeature <- function(
               titleName=input$spatialFeature,
               legendName=legendName,
               legend.position=legend.position,
+              legend.size=legend.size,
               imageBg=imageBg,
               imageSize=imageSize,
               CustomizedAreaScale=CustomizedAreaScale,
@@ -659,6 +663,7 @@ visualSpatial <- function(
     titleName,
     legendName,
     legend.position,
+    legend.size,
     imageBg,
     imageSize,
     CustomizedAreaScale,
@@ -808,7 +813,9 @@ visualSpatial <- function(
         panel.grid = element_blank(),
         panel.border = element_blank(),
         legend.position = legend.position
-      )+coord_flip()
+      )+
+      guides(color = guide_legend(override.aes = list(size = legend.size)))+
+      coord_flip()
 
     # 6. set color scale
     if(scaleType=="color-continuous")
@@ -855,7 +862,8 @@ visualSpatial <- function(
           panel.grid = element_blank(),
           panel.border = element_blank(),
           legend.position = legend.position
-        )
+        )+
+        guides(color = guide_legend(override.aes = list(size = legend.size)))
 
     }else{ # not image
       coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
@@ -881,7 +889,8 @@ visualSpatial <- function(
             panel.grid = element_blank(),
             panel.border = element_blank(),
             legend.position = legend.position
-          )
+          )+
+          guides(color = guide_legend(override.aes = list(size = legend.size)))
 
         if(scaleType=="color-continuous")
         {
@@ -915,7 +924,8 @@ visualSpatial <- function(
             panel.grid = element_blank(),
             panel.border = element_blank(),
             legend.position = legend.position
-          )
+          )+
+          guides(color = guide_legend(override.aes = list(size = legend.size)))
       }
 
     }# not image
