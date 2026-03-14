@@ -805,7 +805,8 @@ visualSpatial <- function(
     p <- p+
       ggtitle(titleName)+
       theme(
-        panel.background = element_rect(fill = "white"),
+        plot.background = element_blank(),
+        panel.background = element_blank(),
         plot.title = element_text(hjust = 0.5),
         axis.text = element_blank(),
         axis.title = element_blank(),
