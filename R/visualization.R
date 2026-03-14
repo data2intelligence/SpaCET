@@ -804,6 +804,7 @@ visualSpatial <- function(
     # 5. set theme
     p <- p+
       ggtitle(titleName)+
+      theme_bw()+
       theme(
         plot.background = element_blank(),
         panel.background = element_blank(),
