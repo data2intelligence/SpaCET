@@ -112,12 +112,15 @@ folders.</p>
 </h2>
 <p>The spatial weight matrix W is calculated based on the Radial Basis
 Function (RBF) kernel as follows. dij denotes the Euclidean distance
-between spot i and j on spatial coordinates in the m space. We assigned
-the free parameter = 100 because the distance between a spot and its 1st
-layer of neighbor spots is 100 um. We set Wii = 0 to mask coexpression
-effects in the same spot. We also set Wij = 0 when the distance between
-spots i and j is over 200 um, i.e., beyond two layers of neighbor spots
-in Visium data.</p>
+between spot i and j on spatial coordinates in the um space. We assigned
+the free parameter sigma = 100 because the distance between a spot and
+its 1st layer of neighbor spots is 100 um. We set Wii = 0 to mask
+coexpression effects in the same spot. We also set Wij = 0 when the
+distance between spots i and j is over 200 um, i.e., beyond two layers
+of neighbor spots in Visium data.</p>
+<center>
+<img src="img/w.png" width="25%" style="border:none">
+</center>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calWeights.html">calWeights</a></span><span class="op">(</span><span class="va">SpaCET_obj</span>, radius<span class="op">=</span><span class="fl">200</span>, sigma<span class="op">=</span><span class="fl">100</span>, diagAsZero<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -128,6 +131,9 @@ in Visium data.</p>
 spatially variable using <code>mode="univariate"</code>. Statistical
 significance is assessed by permuting spot positions. To perform a
 genome-wide analysis, set <code>item = NULL</code>.</p>
+<center>
+<img src="img/m1.png" width="60%" style="border:none">
+</center>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define a gene vector</span></span>
 <span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFB1"</span>,<span class="st">"TGFB2"</span>,<span class="st">"TGFB3"</span>,<span class="st">"TGFBR1"</span>,<span class="st">"TGFBR2"</span>,<span class="st">"TGFBR3"</span><span class="op">)</span></span>
@@ -165,6 +171,9 @@ they are spatially co-expressed using <code>mode="bivariate"</code>.
 Statistical significance is assessed by permuting spot positions. To
 perform the analysis using the in-house ligand–receptor database, set
 <code>item = NULL</code>.</p>
+<center>
+<img src="img/m2.png" width="60%" style="border:none">
+</center>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define a two-column matrix of gene pairs</span></span>
 <span><span class="va">genePairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFB1"</span>,<span class="st">"TGFB1"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TGFBR1"</span>,<span class="st">"TGFBR2"</span><span class="op">)</span><span class="op">)</span></span>

@@ -43,7 +43,9 @@ SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)
 
 ## Compute weight matrix
 
-The spatial weight matrix W is calculated based on the Radial Basis Function (RBF) kernel as follows. dij denotes the Euclidean distance between spot i and j on spatial coordinates in the m space. We assigned the free parameter  = 100 because the distance between a spot and its 1st layer of neighbor spots is 100 um. We set Wii = 0 to mask coexpression effects in the same spot. We also set Wij = 0 when the distance between spots i and j is over 200 um, i.e., beyond two layers of neighbor spots in Visium data.
+The spatial weight matrix W is calculated based on the Radial Basis Function (RBF) kernel as follows. dij denotes the Euclidean distance between spot i and j on spatial coordinates in the um space. We assigned the free parameter sigma = 100 because the distance between a spot and its 1st layer of neighbor spots is 100 um. We set Wii = 0 to mask coexpression effects in the same spot. We also set Wij = 0 when the distance between spots i and j is over 200 um, i.e., beyond two layers of neighbor spots in Visium data.
+
+<center><img src="img/w.png" width="25%" style="border:none" /></center>
 
 ``` r
 W <- calWeights(SpaCET_obj, radius=200, sigma=100, diagAsZero=TRUE)
@@ -53,6 +55,9 @@ W <- calWeights(SpaCET_obj, radius=200, sigma=100, diagAsZero=TRUE)
 ## Spatially variable genes
 
 Users can define a vector of genes and test whether they are spatially variable using `mode="univariate"`. Statistical significance is assessed by permuting spot positions. To perform a genome-wide analysis, set `item = NULL`.
+
+<center><img src="img/m1.png" width="60%" style="border:none" /></center>
+
 
 ``` r
 # define a gene vector
@@ -88,6 +93,8 @@ SpaCET_obj@results$SpatialCorrelation$univariate[1:6,]
 ## Spatially co-expression ligand-receptor interactions
 
 Users can define a two-column matrix of gene pairs and test whether they are spatially co-expressed using `mode="bivariate"`. Statistical significance is assessed by permuting spot positions. To perform the analysis using the in-house ligand–receptor database, set `item = NULL`.
+
+<center><img src="img/m2.png" width="60%" style="border:none" /></center>
 
 ``` r
 # define a two-column matrix of gene pairs
