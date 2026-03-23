@@ -191,6 +191,8 @@ SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 
   st.matrix.data <- SpaCET_obj@input$counts
 
+  if(tolower(SpaCET_obj@input$organism)=="mouse") st.matrix.data <- mouse2human_mat(st.matrix.data)
+
   st.matrix.data <- Matrix::t(Matrix::t(st.matrix.data)*1e6/Matrix::colSums(st.matrix.data))
   st.matrix.data@x <- log2(st.matrix.data@x+1)
 
@@ -456,6 +458,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
       titleName="Spatial distribution of two cell-types",
       legendName="Spot",
       legend.position="none",
+      legend.size=1,
       imageBg=TRUE,
       imageSize = "CaptureArea",
       spotID=spotID
@@ -758,7 +761,12 @@ SpaCET.distance.to.interface <- function(SpaCET_obj, cellTypePair=c("CAF","Macro
     dd <- function(i)
     {
       set.seed(i)
-      mean( db[sample(M2_CAF,length(M2CAF))] )
+      if(length(M2CAF) < length(M2_CAF))
+      {
+        mean( db[sample(M2_CAF,length(M2CAF))] )
+      }else{
+        mean( db[sample(M2_CAF,length(M2CAF), replace=TRUE)] )
+      }
     }
 
     d_list <- sapply(1:nPermutation, dd)

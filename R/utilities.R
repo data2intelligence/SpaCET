@@ -41,7 +41,7 @@ setClass("SpaCET",
 #' @importFrom Matrix readMM
 #' @importFrom jsonlite fromJSON
 #'
-create.SpaCET.object.10X <- function(visiumPath)
+create.SpaCET.object.10X <- function(visiumPath, organism="human")
 {
   if(!file.exists(visiumPath))
   {
@@ -118,7 +118,8 @@ create.SpaCET.object.10X <- function(visiumPath)
     spotCoordinates=spotCoordinates,
     metaData=metaData,
     imagePath=imagePath,
-    platform=platform
+    platform=platform,
+    organism=organism
   )
 
   SpaCET_obj
@@ -142,7 +143,7 @@ create.SpaCET.object.10X <- function(visiumPath)
 #' @rdname create.SpaCET.object
 #' @export
 #'
-create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePath=NA, platform)
+create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePath=NA, platform, organism="human")
 {
   if(!identical(colnames(counts),rownames(spotCoordinates)))
   {
@@ -183,7 +184,8 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
       spotCoordinates=spotCoordinates,
       metaData=metaData,
       image=list(path=imagePath,grob=rg),
-      platform=platform
+      platform=platform,
+      organism=organism
     )
   )
 
@@ -252,7 +254,7 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @rdname convert.Seurat
 #' @export
 #'
-convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL)
+convert.Seurat <- function(Seurat_obj, visiumPath=NULL, platform, organism="human")
 {
   sliceNum <- length(Seurat_obj@images)
 
@@ -347,7 +349,8 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL)
         spotCoordinates=spotCoordinates,
         metaData=metaData,
         image=list(path="FromSeurat",grob=rg),
-        platform=platform
+        platform=platform,
+        organism=organism
       )
     )
 
@@ -454,7 +457,8 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL)
           spotCoordinates=spotCoordinates,
           metaData=metaData,
           image=list(path="FromSeurat",grob=rg),
-          platform=platform
+          platform=platform,
+          organism=organism
         )
       )
 
@@ -541,4 +545,44 @@ rm_duplicates <- function(mat){
   }
 
   return(mat)
+}
+
+
+mouse2human_mat <- function(mat) {
+  m2h <- read.csv( system.file("extdata",'Mouse2Human_filter.csv',package = 'SpaCET'), row.names=1)
+  m2h <- m2h[,c("mouse","human")]
+
+  if (is.null(rownames(mat))) {
+    stop("mat must have rownames.")
+  }
+
+  # keep only mapped mouse genes
+  idx <- match(rownames(mat), m2h$mouse)
+  keep <- !is.na(idx)
+
+  mat2 <- mat[keep, , drop = FALSE]
+  human <- m2h$human[idx[keep]]
+
+  if (nrow(mat2) == 0) {
+    stop("No mouse genes matched the mapping table.")
+  }
+
+  # group rows by human gene
+  grp <- factor(human)
+  lev <- levels(grp)
+
+  # sparse aggregation matrix: one row per human gene
+  A <- Matrix::sparseMatrix(
+    i = as.integer(grp),
+    j = seq_along(grp),
+    x = 1,
+    dims = c(length(lev), length(grp)),
+    dimnames = list(lev, NULL)
+  )
+
+  # collapse mouse rows to human rows
+  out <- A %*% mat2
+
+  rownames(out) <- lev
+  out
 }

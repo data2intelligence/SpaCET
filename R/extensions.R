@@ -55,6 +55,8 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   st.matrix.data <- as.matrix(SpaCET_obj@input$counts)
   st.matrix.data <- st.matrix.data[rowSums(st.matrix.data)>0,]
 
+  if(tolower(SpaCET_obj@input$organism)=="mouse") st.matrix.data <- mouse2human_mat(st.matrix.data)
+
   st.matrix.data.mal <- st.matrix.data[,res_deconv[Malignant,]>=malignantCutoff]
   st.matrix.data.mal.CPM <- sweep(st.matrix.data.mal, 2, Matrix::colSums(st.matrix.data.mal), "/") *1e5
   st.matrix.data.mal.log <- log2(st.matrix.data.mal.CPM+1)
@@ -111,11 +113,11 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   sigGenes <- list()
   lineageTree <- list()
 
-  refProfiles[rownames(st.matrix.data.mal.CPM),"Malignant"] <- rowMeans(st.matrix.data.mal.CPM)
+  refProfiles[rownames(st.matrix.data.mal.CPM),"Malignant"] <- Matrix::rowMeans(st.matrix.data.mal.CPM)
 
   for(i in states)
   {
-    refProfiles[rownames(st.matrix.data.mal.CPM),paste0("Malignant cell state ",i)] <- rowMeans(st.matrix.data.mal.CPM[,Content==i])
+    refProfiles[rownames(st.matrix.data.mal.CPM),paste0("Malignant cell state ",i)] <- Matrix::rowMeans(st.matrix.data.mal.CPM[,Content==i])
 
     tempMarkers <- c()
     for(j in setdiff(states,i))
