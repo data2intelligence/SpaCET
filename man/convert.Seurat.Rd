@@ -4,7 +4,7 @@
 \alias{convert.Seurat}
 \title{Convert Seurat to SpaCET}
 \usage{
-convert.Seurat(Seurat_obj, platform, visiumPath = NULL)
+convert.Seurat(Seurat_obj, platform, visiumPath = NULL, organism = "human")
 }
 \arguments{
 \item{Seurat_obj}{An Seurat object.}
@@ -12,6 +12,8 @@ convert.Seurat(Seurat_obj, platform, visiumPath = NULL)
 \item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
 
 \item{visiumPath}{Path to the Space Ranger output folder (Optional). If setting, this function will retrieve more information from the raw output.}
+
+\item{organism}{Organism of the sample, e.g., human or mouse.}
 }
 \value{
 A SpaCET object.

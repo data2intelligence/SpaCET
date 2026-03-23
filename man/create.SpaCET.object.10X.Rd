@@ -4,10 +4,12 @@
 \alias{create.SpaCET.object.10X}
 \title{Create a SpaCET object from 10X Visium}
 \usage{
-create.SpaCET.object.10X(visiumPath)
+create.SpaCET.object.10X(visiumPath, organism = "human")
 }
 \arguments{
 \item{visiumPath}{Path to the Space Ranger output folder. See ‘details’ for more information.}
+
+\item{organism}{Organism of the sample, e.g., human or mouse.}
 }
 \value{
 A SpaCET object.

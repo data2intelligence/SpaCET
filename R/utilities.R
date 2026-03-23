@@ -13,6 +13,7 @@ setClass("SpaCET",
 #' @title Create a SpaCET object from 10X Visium
 #' @description Read an ST dataset to create a SpaCET object.
 #' @param visiumPath Path to the Space Ranger output folder. See ‘details’ for more information.
+#' @param organism Organism of the sample, e.g., human or mouse.
 #' @return A SpaCET object.
 #' @details
 #' If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
@@ -132,6 +133,7 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
 #' @param spotCoordinates Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
 #' @param imagePath Path to the H&E image file. Can be NA if it is not available.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
+#' @param organism Organism of the sample, e.g., human or mouse.
 #' @return A SpaCET object.
 #' @details
 #' To create a SpaCET object, user need to input four parameters, i.e., "counts", "spotCoordinates", "imagePath", and "platform".
@@ -243,6 +245,7 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @param Seurat_obj An Seurat object.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
 #' @param visiumPath Path to the Space Ranger output folder (Optional). If setting, this function will retrieve more information from the raw output.
+#' @param organism Organism of the sample, e.g., human or mouse.
 #' @return A SpaCET object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
@@ -254,7 +257,7 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 #' @rdname convert.Seurat
 #' @export
 #'
-convert.Seurat <- function(Seurat_obj, visiumPath=NULL, platform, organism="human")
+convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="human")
 {
   sliceNum <- length(Seurat_obj@images)
 

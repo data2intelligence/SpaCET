@@ -9,7 +9,8 @@ create.SpaCET.object(
   spotCoordinates,
   metaData = NULL,
   imagePath = NA,
-  platform
+  platform,
+  organism = "human"
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ create.SpaCET.object(
 \item{imagePath}{Path to the H&E image file. Can be NA if it is not available.}
 
 \item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
+
+\item{organism}{Organism of the sample, e.g., human or mouse.}
 }
 \value{
 A SpaCET object.

@@ -18,6 +18,7 @@ SpaCET.visualize.spatialFeature(
   imageSize = "CaptureArea",
   CustomizedAreaScale = NULL,
   legend.position = "right",
+  legend.size = 1,
   interactive = FALSE
 )
 }
@@ -47,6 +48,8 @@ SpaCET.visualize.spatialFeature(
 \item{CustomizedAreaScale}{A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.}
 
 \item{legend.position}{The position of the legend. Set it as "none" if you want to remove the legend.}
+
+\item{legend.size}{The size of the legend.}
 
 \item{interactive}{Logical: should the interactive app be activited?}
 }
