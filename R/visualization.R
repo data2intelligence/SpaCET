@@ -14,8 +14,13 @@
 #' @param CustomizedAreaScale A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.
 #' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
 #' @param legend.size The size of the legend.
-#' @param interactive Logical: should the interactive app be activited?
-#' @return A ggplot2 object.
+#' @param interactive Controls interactivity mode. \code{FALSE} (default) returns a static ggplot.
+#' \code{TRUE} launches the Shiny interactive app (Visium only).
+#' \code{"plotly"} returns a standalone Plotly htmlwidget with zoom, pan, and hover
+#' tooltips — works in RStudio, R Markdown, and Jupyter. Supports all spatial types
+#' except CellTypeComposition.
+#' @return A ggplot2 object (when \code{interactive=FALSE}), a plotly htmlwidget
+#' (when \code{interactive="plotly"}), or launches a Shiny app (when \code{interactive=TRUE}).
 #' @details
 #' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
 #' "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
@@ -54,7 +59,12 @@ SpaCET.visualize.spatialFeature <- function(
     stop("Please set imageSize as one of them, CompleteImage, CaptureArea, CustomizedArea.")
   }
 
-  if(interactive==FALSE)
+  if(identical(interactive, "plotly") && spatialType == "CellTypeComposition")
+  {
+    stop("CellTypeComposition is not supported in plotly mode. Use interactive=FALSE or interactive=TRUE.")
+  }
+
+  if(identical(interactive, FALSE) || identical(interactive, "plotly"))
   {
 
     if(spatialType == "QualityControl")
@@ -255,6 +265,8 @@ SpaCET.visualize.spatialFeature <- function(
     }
 
 
+    plotly_list <- list()
+
     for(spatialFeature in spatialFeatures)
     {
       if(spatialType == "LRNetworkScore"){
@@ -353,41 +365,73 @@ SpaCET.visualize.spatialFeature <- function(
         SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
         SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
 
-      p <- visualSpatial(
-        visiualVector,
-        image=SpaCET_obj@input$image,
-        platform=SpaCET_obj@input$platform,
-        scaleType=scaleType,
-        colors=colors,
-        pointSize=pointSize,
-        pointAlpha=pointAlpha,
-        limits=limits,
-        titleName=spatialFeature,
-        legendName=legendName,
-        legend.position=legend.position,
-        legend.size=legend.size,
-        imageBg=imageBg,
-        imageSize=imageSize,
-        CustomizedAreaScale=CustomizedAreaScale,
-        spotID=spotID)
-
-      library(patchwork)
-      if(exists("pp"))
+      if(identical(interactive, "plotly"))
       {
-        pp <- pp + p
+        p <- visualSpatialPlotly(
+          visiualVector,
+          image=SpaCET_obj@input$image,
+          platform=SpaCET_obj@input$platform,
+          scaleType=scaleType,
+          colors=colors,
+          pointSize=pointSize,
+          pointAlpha=pointAlpha,
+          limits=limits,
+          titleName=spatialFeature,
+          legendName=legendName,
+          imageBg=imageBg,
+          imageSize=imageSize,
+          CustomizedAreaScale=CustomizedAreaScale,
+          spotID=spotID)
+
+        plotly_list[[length(plotly_list)+1]] <- p
+
       }else{
-        pp <- p
+        p <- visualSpatial(
+          visiualVector,
+          image=SpaCET_obj@input$image,
+          platform=SpaCET_obj@input$platform,
+          scaleType=scaleType,
+          colors=colors,
+          pointSize=pointSize,
+          pointAlpha=pointAlpha,
+          limits=limits,
+          titleName=spatialFeature,
+          legendName=legendName,
+          legend.position=legend.position,
+          legend.size=legend.size,
+          imageBg=imageBg,
+          imageSize=imageSize,
+          CustomizedAreaScale=CustomizedAreaScale,
+          spotID=spotID)
+
+        library(patchwork)
+        if(exists("pp"))
+        {
+          pp <- pp + p
+        }else{
+          pp <- p
+        }
       }
     }
 
-    pp <- pp + patchwork::plot_layout(nrow = nrow)
-
-    if(sameScaleForFraction)
+    if(identical(interactive, "plotly"))
     {
-      pp <- pp + patchwork::plot_layout(guides = "collect")
-    }
+      if(length(plotly_list)==1)
+      {
+        plotly_list[[1]]
+      }else{
+        plotly::subplot(plotly_list, nrows=nrow, shareX=FALSE, shareY=FALSE, titleX=TRUE, titleY=TRUE)
+      }
+    }else{
+      pp <- pp + patchwork::plot_layout(nrow = nrow)
 
-    pp
+      if(sameScaleForFraction)
+      {
+        pp <- pp + patchwork::plot_layout(guides = "collect")
+      }
+
+      pp
+    }
 
   }else{
     if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
@@ -930,4 +974,274 @@ visualSpatial <- function(
     }# not image
 
   } # not visium
+}
+
+
+visualSpatialPlotly <- function(
+    visiualVector,
+    image,
+    platform,
+    scaleType,
+    colors,
+    limits,
+    pointSize,
+    pointAlpha,
+    titleName,
+    legendName,
+    imageBg,
+    imageSize,
+    CustomizedAreaScale,
+    spotID
+)
+{
+  if(!requireNamespace("plotly", quietly=TRUE))
+  {
+    stop("Package 'plotly' is required for interactive plotly mode. Install it with install.packages('plotly').")
+  }
+
+  # --- Coordinate preparation (matches visualSpatial logic) ---
+  if(grepl("visium", tolower(platform)))
+  {
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+
+    if(imageBg & !is.na(image$path))
+    {
+      if(imageSize=="CaptureArea")
+      {
+        left_edge <- floor( min(coordi[,1])*0.95)
+        right_edge <- ceiling( max(coordi[,1])*1.02 )
+        bottom_edge <- floor( min(coordi[,2])*0.95 )
+        top_edge <- ceiling( max(coordi[,2])*1.02 )
+
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
+
+        img_raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+
+      }else if(imageSize=="CustomizedArea"){
+        if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
+        {
+          stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
+        }
+        range1 <- max(coordi[,1]) - min(coordi[,1])
+        range2 <- max(coordi[,2]) - min(coordi[,2])
+        CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
+        CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
+
+        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * 0.95)
+        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
+        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
+        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
+
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
+
+        img_raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+
+      }else{
+        img_raster <- image$grob$raster
+      }
+
+      xDiml <- dim(img_raster)[1]
+      yDiml <- dim(img_raster)[2]
+
+      # Flip x to match visualSpatial coord_flip behavior
+      fig.df <- data.frame(
+        x=xDiml-coordi[,1],
+        y=coordi[,2],
+        spotID=spotID
+      )
+
+    }else{
+      img_raster <- NULL
+      xDiml <- max(coordi[,1])
+      yDiml <- max(coordi[,2])
+
+      fig.df <- data.frame(
+        x=xDiml-coordi[,1],
+        y=coordi[,2],
+        spotID=spotID
+      )
+    }
+
+  }else{
+    # Non-Visium platforms
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+    img_raster <- NULL
+    xDiml <- NULL
+    yDiml <- NULL
+
+    if(imageBg & !is.na(image$path))
+    {
+      r <- jpeg::readJPEG(image)
+      xDiml <- dim(r)[2]
+      yDiml <- dim(r)[1]
+
+      fig.df <- data.frame(
+        x=coordi[,1],
+        y=yDiml-coordi[,2],
+        spotID=spotID
+      )
+    }else{
+      fig.df <- data.frame(
+        x=coordi[,1],
+        y=coordi[,2],
+        spotID=spotID
+      )
+    }
+  }
+
+  rownames(fig.df) <- names(visiualVector)
+  fig.df$value <- visiualVector
+
+  # --- Build Plotly figure ---
+  if(scaleType == "color-continuous")
+  {
+    # Build colorscale from colors vector
+    n_colors <- length(colors)
+    colorscale <- lapply(seq_along(colors), function(i){
+      list((i-1)/(n_colors-1), colors[i])
+    })
+
+    hover_text <- paste0(
+      "Spot: ", fig.df$spotID, "<br>",
+      titleName, ": ", round(as.numeric(fig.df$value), 4)
+    )
+
+    fig <- plotly::plot_ly(
+      data=fig.df,
+      x=~y,
+      y=~x,
+      type="scattergl",
+      mode="markers",
+      marker=list(
+        size=pointSize*5,
+        opacity=pointAlpha,
+        color=as.numeric(fig.df$value),
+        colorscale=colorscale,
+        colorbar=list(title=legendName),
+        cmin=if(!is.null(limits)) limits[1] else NULL,
+        cmax=if(!is.null(limits)) limits[2] else NULL
+      ),
+      text=hover_text,
+      hoverinfo="text"
+    )
+
+  }else{
+    # Discrete color scale: one trace per category
+    categories <- unique(fig.df$value)
+
+    if(length(colors) >= length(categories))
+    {
+      color_map <- setNames(colors[1:length(categories)], categories)
+    }else{
+      color_map <- setNames(
+        grDevices::colorRampPalette(colors)(length(categories)),
+        categories
+      )
+    }
+
+    fig <- plotly::plot_ly()
+
+    for(cat in categories)
+    {
+      sub <- fig.df[fig.df$value == cat,]
+      hover_text <- paste0("Spot: ", sub$spotID, "<br>", titleName, ": ", cat)
+
+      fig <- plotly::add_trace(
+        fig,
+        data=sub,
+        x=~y,
+        y=~x,
+        type="scattergl",
+        mode="markers",
+        marker=list(
+          size=pointSize*5,
+          opacity=pointAlpha,
+          color=color_map[[cat]]
+        ),
+        text=hover_text,
+        hoverinfo="text",
+        name=cat
+      )
+    }
+  }
+
+  # --- Add tissue image background ---
+  if(grepl("visium", tolower(platform)) && imageBg && !is.na(image$path) && !is.null(img_raster))
+  {
+    # Convert raster color matrix to RGB array and write as temporary PNG
+    tmp_img <- tempfile(fileext=".png")
+    raster_mat <- as.matrix(img_raster)
+    rgb_vals <- grDevices::col2rgb(raster_mat, alpha=TRUE)
+    img_array <- array(
+      as.numeric(rgb_vals)/255,
+      dim=c(4, nrow(raster_mat), ncol(raster_mat))
+    )
+    img_array <- aperm(img_array, c(2, 3, 1))
+    png::writePNG(img_array, tmp_img)
+    img_base64 <- base64enc::dataURI(file=tmp_img, mime="image/png")
+    file.remove(tmp_img)
+
+    fig <- plotly::layout(
+      fig,
+      images=list(
+        list(
+          source=img_base64,
+          xref="x",
+          yref="y",
+          x=0,
+          y=xDiml,
+          sizex=yDiml,
+          sizey=xDiml,
+          sizing="stretch",
+          opacity=0.5,
+          layer="below"
+        )
+      )
+    )
+  }
+
+  # --- Layout ---
+  fig <- plotly::layout(
+    fig,
+    title=list(text=titleName, x=0.5),
+    xaxis=list(
+      showgrid=FALSE,
+      zeroline=FALSE,
+      showticklabels=FALSE,
+      title="",
+      scaleanchor="y",
+      scaleratio=1
+    ),
+    yaxis=list(
+      showgrid=FALSE,
+      zeroline=FALSE,
+      showticklabels=FALSE,
+      title=""
+    ),
+    plot_bgcolor="white",
+    paper_bgcolor="white",
+    dragmode="zoom"
+  )
+
+  fig
 }

@@ -18,6 +18,7 @@ Imports:
     scatterpie,
     patchwork,
     png,
+    base64enc,
     shiny,
     plotly,
     DT,
