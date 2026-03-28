@@ -10,6 +10,132 @@ clipLRNetworkScore <- function(mat)
 }
 
 
+prepareSpatialData <- function(SpaCET_obj, spatialType, spatialFeatures,
+                               scaleTypeForGeneExpression, sameScaleForFraction, colors)
+{
+  legendName <- NULL
+  limits <- NULL
+
+  if(spatialType == "QualityControl"){
+    if(is.null(SpaCET_obj@results$metrics)) stop("Please run SpaCET.quality.control first.")
+    mat <- SpaCET_obj@results$metrics
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("lightblue", "blue", "darkblue")
+    legendName <- "Count"
+
+  }else if(spatialType == "GeneExpression"){
+    mat <- SpaCET_obj@input$counts
+    if(scaleTypeForGeneExpression=="RawCounts"){
+      legendName <- "Counts"
+    }else if(scaleTypeForGeneExpression=="LogRawCounts"){
+      mat@x <- log2(mat@x+1)
+      legendName <- "LogCounts"
+    }else if(scaleTypeForGeneExpression=="LogTPM/10"){
+      mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
+      mat@x <- log2(mat@x+1)
+      legendName <- "LogTPM/10"
+    }else if(scaleTypeForGeneExpression=="LogTPM"){
+      mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
+      mat@x <- log2(mat@x+1)
+      legendName <- "LogTPM"
+    }else{
+      stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
+    }
+    geneFlag <- spatialFeatures%in%rownames(mat)
+    if(sum(geneFlag)!=length(geneFlag)){
+      excluded <- spatialFeatures[!geneFlag]
+      warning("The following genes are excluded because they are not official gene symbols.")
+      message(excluded)
+      spatialFeatures <- spatialFeatures[geneFlag]
+    }
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("#4d9221", "yellow", "#c51b7d")
+
+  }else if(spatialType == "CellFraction"){
+    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
+    mat <- SpaCET_obj@results$deconvolution$propMat
+    if(!is.list(spatialFeatures)){
+      if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
+    }else{
+      if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
+        stop("Please assign a name for each element of your cell-type list.")
+      for(i in names(spatialFeatures)){
+        if(sum(spatialFeatures[[i]]%in%rownames(mat)) != length(spatialFeatures[[i]])){
+          wrongCellTypes <- paste0(spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
+          stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
+        }
+        mat <- rbind(mat, i=colSums(mat[spatialFeatures[[i]],,drop=F]))
+        rownames(mat)[nrow(mat)] <- i
+      }
+      spatialFeatures <- names(spatialFeatures)
+    }
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("blue", "yellow", "red")
+    legendName <- "Fraction"
+    if(sameScaleForFraction) limits <- c(0,1)
+
+  }else if(spatialType == "MostAbundantCellType"){
+    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
+    mat <- SpaCET_obj@results$deconvolution$propMat
+    scaleType <- "color-discrete"
+    legendName <- "Cell Type"
+
+  }else if(spatialType == "CellTypeComposition"){
+    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
+    mat <- SpaCET_obj@results$deconvolution$propMat
+    scaleType <- "color-discrete"
+    legendName <- "Cell Type"
+
+  }else if(spatialType == "LRNetworkScore"){
+    if(is.null(SpaCET_obj@results$CCI$LRNetworkScore)) stop("Please run SpaCET.CCI.LRNetworkScore first.")
+    mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("blue","blue","blue","blue","cyan","cyan","yellow")
+
+  }else if(spatialType == "Interface"){
+    if(is.null(SpaCET_obj@results$CCI$interface)) stop("Please run SpaCET.identify.interface first.")
+    mat <- SpaCET_obj@results$CCI$interface
+    scaleType <- "color-discrete"
+    legendName <- "Spot"
+
+  }else if(spatialType == "GeneSetScore"){
+    if(is.null(SpaCET_obj@results$GeneSetScore)) stop("Please run SpaCET.GeneSetScore first.")
+    mat <- SpaCET_obj@results$GeneSetScore
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("#91bfdb","#fee090","#d73027")
+    legendName <- "Score"
+
+  }else if(spatialType == "SecretedProteinActivity"){
+    if(is.null(SpaCET_obj@results$SecAct_output$SecretedProteinActivity)) stop("Please run SecAct.signaling.inference first.")
+    mat <- SpaCET_obj@results$SecAct_output$SecretedProteinActivity$zscore
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
+    legendName <- "Activity"
+
+  }else if(spatialType == "SignalingPattern"){
+    if(is.null(SpaCET_obj@results$SecAct_output$pattern)) stop("Please run SecAct.signaling.pattern first.")
+    mat <- SpaCET_obj@results$SecAct_output$pattern$signal.H
+    if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
+    else spatialFeatures <- as.character(spatialFeatures)
+    scaleType <- "color-continuous"
+    if(is.null(colors)) colors <- c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
+    legendName <- "Signal"
+
+  }else if(spatialType == "metaData"){
+    mat <- t(SpaCET_obj@input$metaData)
+    if(length(spatialFeatures) > 1) stop("Please input one feature once.")
+    scaleType <- "color-discrete"
+    legendName <- spatialFeatures
+
+  }else{
+    stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
+  }
+
+  list(mat=mat, scaleType=scaleType, colors=colors, legendName=legendName,
+       limits=limits, spatialFeatures=spatialFeatures)
+}
+
+
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj A SpaCET object.
@@ -78,201 +204,14 @@ SpaCET.visualize.spatialFeature <- function(
 
   if(identical(interactive, FALSE) || identical(interactive, "plotly"))
   {
-
-    if(spatialType == "QualityControl")
-    {
-      if(is.null(SpaCET_obj@results$metrics))
-      {
-        stop("Please run SpaCET.quality.control first.")
-      }
-
-      mat <- SpaCET_obj@results$metrics
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("lightblue", "blue", "darkblue")
-      legendName = "Count"
-      limits = NULL
-    }else if(spatialType == "GeneExpression"){
-      mat <- SpaCET_obj@input$counts
-
-      if(scaleTypeForGeneExpression=="RawCounts")
-      {
-        legendName = "Counts"
-      }else if(scaleTypeForGeneExpression=="LogRawCounts"){
-        mat@x <- log2(mat@x+1)
-        legendName = "LogCounts"
-      }else if(scaleTypeForGeneExpression=="LogTPM/10"){
-        mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
-        mat@x <- log2(mat@x+1)
-        legendName = "LogTPM/10"
-      }else if(scaleTypeForGeneExpression=="LogTPM"){
-        mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
-        mat@x <- log2(mat@x+1)
-        legendName = "LogTPM"
-      }else{
-        stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
-      }
-
-      geneFlag <- spatialFeatures%in%rownames(mat)
-      if(sum(geneFlag)!=length(geneFlag))
-      {
-        excluded <- spatialFeatures[!geneFlag]
-        warning("The following genes are excluded because they are not official gene symbols.")
-        message(excluded)
-        spatialFeatures <- spatialFeatures[geneFlag]
-      }
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("#4d9221", "yellow", "#c51b7d")
-      limits = NULL
-    }else if(spatialType == "CellFraction"){
-      if(is.null(SpaCET_obj@results$deconvolution$propMat))
-      {
-        stop("Please run cell type deconvolution first.")
-      }
-
-      mat <- SpaCET_obj@results$deconvolution$propMat
-
-      if(!is.list(spatialFeatures))
-      {
-        if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
-
-      }else{
-        if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
-        {
-          stop("Please assign a name for each element of your cell-type list.")
-        }
-
-        for(i in names(spatialFeatures))
-        {
-          if( sum( spatialFeatures[[i]]%in%rownames(mat) ) != length(spatialFeatures[[i]]) )
-          {
-            wrongCellTypes <- paste0( spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
-            stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
-          }
-          mat <- rbind(mat,i=colSums(mat[spatialFeatures[[i]],,drop=F]))
-          rownames(mat)[nrow(mat)] <- i
-        }
-        spatialFeatures <- names(spatialFeatures)
-      }
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("blue", "yellow", "red")
-      legendName = "Fraction"
-
-      if(sameScaleForFraction)
-      {
-        limits = c(0,1)
-      }else{
-        limits = NULL
-      }
-
-    }else if(spatialType == "MostAbundantCellType"){
-      if(is.null(SpaCET_obj@results$deconvolution$propMat))
-      {
-        stop("Please run cell type deconvolution first.")
-      }
-
-      mat <- SpaCET_obj@results$deconvolution$propMat
-
-      scaleType="color-discrete"
-      legendName = "Cell Type"
-      limits = NULL
-
-    }else if(spatialType == "CellTypeComposition"){
-      if(is.null(SpaCET_obj@results$deconvolution$propMat))
-      {
-        stop("Please run cell type deconvolution first.")
-      }
-
-      mat <- SpaCET_obj@results$deconvolution$propMat
-
-      scaleType="color-discrete"
-      legendName = "Cell Type"
-      limits = NULL
-
-    }else if(spatialType == "LRNetworkScore"){
-      if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
-      {
-        stop("Please run SpaCET.CCI.LRNetworkScore first.")
-      }
-
-      mat <- SpaCET_obj@results$CCI$LRNetworkScore
-      mat <- clipLRNetworkScore(mat)
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
-      limits = NULL
-
-    }else if(spatialType == "Interface"){
-      if(is.null(SpaCET_obj@results$CCI$interface))
-      {
-        stop("Please run SpaCET.identify.interface first.")
-      }
-
-      mat <- SpaCET_obj@results$CCI$interface
-
-      scaleType="color-discrete"
-      legendName = "Spot"
-      limits = NULL
-    }else if(spatialType == "GeneSetScore"){
-      if(is.null(SpaCET_obj@results$GeneSetScore))
-      {
-        stop("Please run SpaCET.GeneSetScore first.")
-      }
-
-      mat <- SpaCET_obj@results$GeneSetScore
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
-      legendName = "Score"
-      limits = NULL
-    }else if(spatialType == "SecretedProteinActivity"){
-      if(is.null(SpaCET_obj@results$SecAct_output$SecretedProteinActivity))
-      {
-        stop("Please run SecAct.signaling.inference first.")
-      }
-
-      mat <- SpaCET_obj@results$SecAct_output$SecretedProteinActivity$zscore
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
-      legendName = "Activity"
-      limits = NULL
-    }else if(spatialType == "SignalingPattern"){
-      if(is.null(SpaCET_obj @results $SecAct_output $pattern))
-      {
-        stop("Please run SecAct.signaling.pattern first.")
-      }
-
-      mat <- SpaCET_obj @results $SecAct_output $pattern $signal.H
-
-      if("All"%in%spatialFeatures)
-      {
-        spatialFeatures <- rownames(mat)
-      }else{
-        spatialFeatures <- as.character(spatialFeatures)
-      }
-
-      scaleType="color-continuous"
-      if(is.null(colors)) colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
-      legendName = "Signal"
-      limits = NULL
-    }else if(spatialType == "metaData"){
-
-      mat <- t(SpaCET_obj@input$metaData)
-
-      if(length(spatialFeatures) > 1)
-      {
-        stop("Please input one feature once.")
-      }
-
-      scaleType="color-discrete"
-      legendName = spatialFeatures
-      limits = NULL
-    }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
-    }
+    prep <- prepareSpatialData(SpaCET_obj, spatialType, spatialFeatures,
+                               scaleTypeForGeneExpression, sameScaleForFraction, colors)
+    mat <- prep$mat
+    scaleType <- prep$scaleType
+    colors <- prep$colors
+    legendName <- prep$legendName
+    limits <- prep$limits
+    spatialFeatures <- prep$spatialFeatures
 
 
     plotly_list <- list()
