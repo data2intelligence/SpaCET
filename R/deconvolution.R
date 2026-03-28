@@ -184,13 +184,10 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
 
     # clustering
     set.seed(123)
-    suppressPackageStartupMessages(
-      library(MUDAN)
-    )
 
-    matnorm.info <- normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
+    matnorm.info <- MUDAN::normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
     matnorm <- log10(matnorm.info$mat+1)
-    pcs <- getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
+    pcs <- MUDAN::getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
 
     d <- as.dist(1-cor(t(pcs)))
     hc <- hclust(d, method='ward.D')
@@ -201,17 +198,12 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
     rownames(clustering) <- paste0("c",rownames(clustering))
 
     # silhouette
-    suppressPackageStartupMessages({
-      library(factoextra)
-      library(NbClust)
-      library(cluster)
-    })
 
     v <- c()
     for(i in cluster_numbers)
     {
       clustering0 <- cutree(hc,k=i)
-      sil <- silhouette(clustering0, d, Fun=mean)
+      sil <- cluster::silhouette(clustering0, d, Fun=mean)
       v <- c(v, mean(sil[,3]))
     }
 

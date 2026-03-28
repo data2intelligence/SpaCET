@@ -158,7 +158,6 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
       axis.title = element_text(size = 12, colour = "black")
     )
 
-  library(patchwork)
   p1+p2
 }
 
@@ -523,8 +522,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
         legend.position="none"
       )
 
-    library(patchwork)
-    p1+p2+p3
+      p1+p2+p3
   }
 }
 
