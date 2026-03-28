@@ -714,82 +714,18 @@ visualSpatial <- function(
     spotID
 )
 {
-  library(ggplot2)
-
   if(grepl("visium", tolower(platform)))
   {
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
+    prep <- prepareSpatialCoords(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
+    fig.df <- prep$fig.df
+    xDiml <- prep$xDiml
+    yDiml <- prep$yDiml
 
-    if(imageBg & !is.na(image$path))
+    # Update image grob raster for ggplot annotation_custom
+    if(!is.null(prep$img_raster))
     {
-      if(imageSize=="CaptureArea")
-      {
-        left_edge <- floor( min(coordi[,1])*0.95)
-        right_edge <- ceiling( max(coordi[,1])*1.02 )
-        bottom_edge <- floor( min(coordi[,2])*0.95 )
-        top_edge <- ceiling( max(coordi[,2])*1.02 )
-
-        if(left_edge < 1) left_edge <- 1
-        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
-
-        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
-        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
-
-        image$grob$raster <- image$grob$raster[
-          left_edge:right_edge,
-          bottom_edge:top_edge
-        ]
-
-        coordi[,1] <- coordi[,1]-left_edge
-        coordi[,2] <- coordi[,2]-bottom_edge
-      }
-
-      if(imageSize=="CustomizedArea")
-      {
-        if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
-        {
-          stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
-        }
-        range1 <- max(coordi[,1]) - min(coordi[,1])
-        range2 <- max(coordi[,2]) - min(coordi[,2])
-        CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
-        CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
-
-        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * 0.95)
-        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
-        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
-        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
-
-        if(left_edge < 1) left_edge <- 1
-        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
-
-        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
-        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
-
-        image$grob$raster <- image$grob$raster[
-          left_edge:right_edge,
-          bottom_edge:top_edge
-        ]
-
-        coordi[,1] <- coordi[,1]-left_edge
-        coordi[,2] <- coordi[,2]-bottom_edge
-      }
-
-      xDiml <- dim(image$grob$raster)[1] # dim pixel
-      yDiml <- dim(image$grob$raster)[2] # dim pixel
-
-    }else{
-      # no image
-      xDiml <- max(coordi[,1])
-      yDiml <- max(coordi[,2])
+      image$grob$raster <- prep$img_raster
     }
-
-    fig.df <- data.frame(
-      x=xDiml-coordi[,1],
-      y=coordi[,2],
-      spotID=spotID
-    )
-    rownames(fig.df) <- names(visualVector)
 
     if(is.vector(visualVector))
     {
@@ -977,41 +913,24 @@ visualSpatial <- function(
 }
 
 
-visualSpatialPlotly <- function(
-    visualVector,
-    image,
-    platform,
-    scaleType,
-    colors,
-    limits,
-    pointSize,
-    pointAlpha,
-    titleName,
-    legendName,
-    imageBg,
-    imageSize,
-    CustomizedAreaScale,
-    spotID
-)
+prepareSpatialCoords <- function(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
 {
-  if(!requireNamespace("plotly", quietly=TRUE))
-  {
-    stop("Package 'plotly' is required for interactive plotly mode. Install it with install.packages('plotly').")
-  }
+  EDGE_PAD_INNER <- 0.95
+  EDGE_PAD_OUTER <- 1.02
 
-  # --- Coordinate preparation (matches visualSpatial logic) ---
   if(grepl("visium", tolower(platform)))
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
+    img_raster <- NULL
 
     if(imageBg & !is.na(image$path))
     {
       if(imageSize=="CaptureArea")
       {
-        left_edge <- floor( min(coordi[,1])*0.95)
-        right_edge <- ceiling( max(coordi[,1])*1.02 )
-        bottom_edge <- floor( min(coordi[,2])*0.95 )
-        top_edge <- ceiling( max(coordi[,2])*1.02 )
+        left_edge <- floor( min(coordi[,1])*EDGE_PAD_INNER)
+        right_edge <- ceiling( max(coordi[,1])*EDGE_PAD_OUTER )
+        bottom_edge <- floor( min(coordi[,2])*EDGE_PAD_INNER )
+        top_edge <- ceiling( max(coordi[,2])*EDGE_PAD_OUTER )
 
         if(left_edge < 1) left_edge <- 1
         if(bottom_edge < 1) bottom_edge <- 1
@@ -1019,15 +938,13 @@ visualSpatialPlotly <- function(
         if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
         if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
 
-        img_raster <- image$grob$raster[
-          left_edge:right_edge,
-          bottom_edge:top_edge
-        ]
-
+        img_raster <- image$grob$raster[left_edge:right_edge, bottom_edge:top_edge]
         coordi[,1] <- coordi[,1]-left_edge
         coordi[,2] <- coordi[,2]-bottom_edge
+      }
 
-      }else if(imageSize=="CustomizedArea"){
+      if(imageSize=="CustomizedArea")
+      {
         if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
         {
           stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
@@ -1037,10 +954,10 @@ visualSpatialPlotly <- function(
         CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
         CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
 
-        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * 0.95)
-        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
-        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
-        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
+        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * EDGE_PAD_INNER)
+        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * EDGE_PAD_OUTER )
+        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * EDGE_PAD_INNER )
+        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * EDGE_PAD_OUTER )
 
         if(left_edge < 1) left_edge <- 1
         if(bottom_edge < 1) bottom_edge <- 1
@@ -1048,39 +965,25 @@ visualSpatialPlotly <- function(
         if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
         if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
 
-        img_raster <- image$grob$raster[
-          left_edge:right_edge,
-          bottom_edge:top_edge
-        ]
-
+        img_raster <- image$grob$raster[left_edge:right_edge, bottom_edge:top_edge]
         coordi[,1] <- coordi[,1]-left_edge
         coordi[,2] <- coordi[,2]-bottom_edge
-
-      }else{
-        img_raster <- image$grob$raster
       }
+
+      if(is.null(img_raster)) img_raster <- image$grob$raster
 
       xDiml <- dim(img_raster)[1]
       yDiml <- dim(img_raster)[2]
-
-      # Flip x to match visualSpatial coord_flip behavior
-      fig.df <- data.frame(
-        x=xDiml-coordi[,1],
-        y=coordi[,2],
-        spotID=spotID
-      )
-
     }else{
-      img_raster <- NULL
       xDiml <- max(coordi[,1])
       yDiml <- max(coordi[,2])
-
-      fig.df <- data.frame(
-        x=xDiml-coordi[,1],
-        y=coordi[,2],
-        spotID=spotID
-      )
     }
+
+    fig.df <- data.frame(
+      x=xDiml-coordi[,1],
+      y=coordi[,2],
+      spotID=spotID
+    )
 
   }else{
     # Non-Visium platforms
@@ -1110,6 +1013,45 @@ visualSpatialPlotly <- function(
   }
 
   rownames(fig.df) <- names(visualVector)
+
+  list(
+    fig.df=fig.df,
+    img_raster=img_raster,
+    xDiml=xDiml,
+    yDiml=yDiml
+  )
+}
+
+
+visualSpatialPlotly <- function(
+    visualVector,
+    image,
+    platform,
+    scaleType,
+    colors,
+    limits,
+    pointSize,
+    pointAlpha,
+    titleName,
+    legendName,
+    imageBg,
+    imageSize,
+    CustomizedAreaScale,
+    spotID
+)
+{
+  if(!requireNamespace("plotly", quietly=TRUE))
+  {
+    stop("Package 'plotly' is required for interactive plotly mode. Install it with install.packages('plotly').")
+  }
+
+  # --- Coordinate preparation ---
+  prep <- prepareSpatialCoords(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
+  fig.df <- prep$fig.df
+  img_raster <- prep$img_raster
+  xDiml <- prep$xDiml
+  yDiml <- prep$yDiml
+
   fig.df$value <- visualVector
 
   # --- Build Plotly figure ---
