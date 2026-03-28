@@ -9,6 +9,19 @@ setClass("SpaCET",
   )
 )
 
+# Visium hexagonal grid geometry constants
+VISIUM_SPOT_SPACING_UM <- 100
+VISIUM_HEX_SCALE_X <- 0.5
+VISIUM_HEX_SCALE_Y <- 0.5 * sqrt(3)
+
+addVisiumMicrometerCoords <- function(spotCoordinates)
+{
+  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * VISIUM_HEX_SCALE_X * VISIUM_SPOT_SPACING_UM
+  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * VISIUM_HEX_SCALE_Y * VISIUM_SPOT_SPACING_UM
+  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
+  spotCoordinates
+}
+
 
 #' @title Create a SpaCET object from 10X Visium
 #' @description Read an ST dataset to create a SpaCET object.
@@ -110,9 +123,7 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
 
   colnames(st.matrix.data) <- rownames(spotCoordinates)
 
-  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * 0.5 * 100
-  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * 0.5 * sqrt(3) * 100
-  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
+  spotCoordinates <- addVisiumMicrometerCoords(spotCoordinates)
 
   SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
