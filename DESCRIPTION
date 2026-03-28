@@ -35,7 +35,8 @@ Imports:
     UCell,
     MUDAN
 Suggests:
-    base64enc
+    base64enc,
+    testthat (>= 3.0.0)
 biocViews:
     UCell
 remotes:
