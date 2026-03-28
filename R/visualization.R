@@ -266,6 +266,7 @@ SpaCET.visualize.spatialFeature <- function(
 
 
     plotly_list <- list()
+    pp <- NULL
 
     for(spatialFeature in spatialFeatures)
     {
@@ -318,7 +319,7 @@ SpaCET.visualize.spatialFeature <- function(
 
           Content <- Content[order(match(Content,allCellTypes))]
 
-          visiualVector <- Content
+          visualVector <- Content
         }
 
       }else if(spatialType == "CellTypeComposition"){
@@ -348,27 +349,27 @@ SpaCET.visualize.spatialFeature <- function(
             res_deconv_level <- rbind(res_deconv_level, Unidentifiable=mat["Unidentifiable",] )
           }
 
-          visiualVector <- as.data.frame(res_deconv_level)
+          visualVector <- as.data.frame(res_deconv_level)
         }
 
       }else{
         if(spatialType == "GeneExpression")
         {
-          visiualVector <- sort(mat[spatialFeature,])
+          visualVector <- sort(mat[spatialFeature,])
         }else{
-          visiualVector <- mat[spatialFeature,]
+          visualVector <- mat[spatialFeature,]
         }
       }
 
-      spotID <- names(visiualVector)
-      names(visiualVector) <- paste0(
-        SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
-        SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+      spotID <- names(visualVector)
+      names(visualVector) <- paste0(
+        SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
+        SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
       if(identical(interactive, "plotly"))
       {
         p <- visualSpatialPlotly(
-          visiualVector,
+          visualVector,
           image=SpaCET_obj@input$image,
           platform=SpaCET_obj@input$platform,
           scaleType=scaleType,
@@ -387,7 +388,7 @@ SpaCET.visualize.spatialFeature <- function(
 
       }else{
         p <- visualSpatial(
-          visiualVector,
+          visualVector,
           image=SpaCET_obj@input$image,
           platform=SpaCET_obj@input$platform,
           scaleType=scaleType,
@@ -404,8 +405,7 @@ SpaCET.visualize.spatialFeature <- function(
           CustomizedAreaScale=CustomizedAreaScale,
           spotID=spotID)
 
-        library(patchwork)
-        if(exists("pp"))
+        if(!is.null(pp))
         {
           pp <- pp + p
         }else{
@@ -584,14 +584,14 @@ SpaCET.visualize.spatialFeature <- function(
 
           if( input$spatialFeature%in%rownames(mat) )
           {
-            visiualVector <- mat[input$spatialFeature,]
-            spotID <- names(visiualVector)
-            names(visiualVector) <- paste0(
-              SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
-              SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+            visualVector <- mat[input$spatialFeature,]
+            spotID <- names(visualVector)
+            names(visualVector) <- paste0(
+              SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
+              SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
             g <- visualSpatial(
-              visiualVector,
+              visualVector,
               image=SpaCET_obj@input$image,
               platform=SpaCET_obj@input$platform,
               scaleType=scaleType,
@@ -649,11 +649,11 @@ SpaCET.visualize.spatialFeature <- function(
 
           if( input$spatialFeature%in%rownames(mat) )
           {
-            visiualVector <- mat[input$spatialFeature,]
-            spotID <- names(visiualVector)
-            names(visiualVector) <- paste0(
-              SpaCET_obj@input$spotCoordinates[names(visiualVector),1],"x",
-              SpaCET_obj@input$spotCoordinates[names(visiualVector),2])
+            visualVector <- mat[input$spatialFeature,]
+            spotID <- names(visualVector)
+            names(visualVector) <- paste0(
+              SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
+              SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
             d <- event_data("plotly_selected")
 
@@ -665,8 +665,8 @@ SpaCET.visualize.spatialFeature <- function(
               d <- cbind(d, SpotID="b")
               d <- cbind(d, Value="c")
               d[,"xy"] <- paste0(nrow(SpaCET_obj@input$image$grob$raster)-d[,4],"x",d[,3])
-              d[,"SpotID"] <- spotID[names(visiualVector)%in%d[,"xy"]]
-              d[,"Value"] <- visiualVector[names(visiualVector)%in%d[,"xy"]]
+              d[,"SpotID"] <- spotID[names(visualVector)%in%d[,"xy"]]
+              d[,"Value"] <- visualVector[names(visualVector)%in%d[,"xy"]]
               d <- d[,c("SpotID","Value")]
 
               DT::datatable(d, caption = "Your selected spots in the middle panel.",
@@ -696,7 +696,7 @@ SpaCET.visualize.spatialFeature <- function(
 
 
 visualSpatial <- function(
-    visiualVector,
+    visualVector,
     image,
     platform,
     scaleType,
@@ -718,7 +718,7 @@ visualSpatial <- function(
 
   if(grepl("visium", tolower(platform)))
   {
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
 
     if(imageBg & !is.na(image$path))
     {
@@ -789,17 +789,17 @@ visualSpatial <- function(
       y=coordi[,2],
       spotID=spotID
     )
-    rownames(fig.df) <- names(visiualVector)
+    rownames(fig.df) <- names(visualVector)
 
-    if(is.vector(visiualVector))
+    if(is.vector(visualVector))
     {
-      fig.df <- cbind(fig.df, value=visiualVector)
+      fig.df <- cbind(fig.df, value=visualVector)
     }else{
-      fig.df <- cbind(fig.df, t(visiualVector) )
+      fig.df <- cbind(fig.df, t(visualVector) )
     }
 
 
-    if(is.vector(visiualVector))
+    if(is.vector(visualVector))
     {
       # 1. initiate plot
       p <- ggplot(fig.df,aes(x=x,y=y,text=spotID))
@@ -866,7 +866,7 @@ visualSpatial <- function(
     {
       p+scale_colour_gradientn(name=legendName, colours = colors, limits=limits)
     }else{
-      if(is.vector(visiualVector))
+      if(is.vector(visualVector))
       {
         p+scale_colour_manual(name=legendName, values=colors)+
           guides(color = guide_legend(override.aes = list(size = legend.size)))
@@ -884,11 +884,11 @@ visualSpatial <- function(
       pix_x <- dim(r)[2]
       pix_y <- dim(r)[1]
 
-      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
       fig.df <- data.frame(
         x=coordi[,1],
         y=pix_y-coordi[,2],
-        value=visiualVector
+        value=visualVector
       )
 
       ggplot(fig.df,aes(x=x,y=y))+
@@ -910,15 +910,15 @@ visualSpatial <- function(
         )
 
     }else{ # not image
-      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+      coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
 
-      if(is.vector(visiualVector))
+      if(is.vector(visualVector))
       {
         fig.df <- data.frame(
           x=coordi[,1],
           y=coordi[,2],
           spotID=spotID,
-          value=visiualVector
+          value=visualVector
         )
 
         p <- ggplot(fig.df,aes(x=x,y=y))+
@@ -949,7 +949,7 @@ visualSpatial <- function(
           y=coordi[,2],
           spotID=spotID
         )
-        fig.df <- cbind(fig.df, t(visiualVector) )
+        fig.df <- cbind(fig.df, t(visualVector) )
 
         p <- ggplot()+
           scatterpie::geom_scatterpie(
@@ -978,7 +978,7 @@ visualSpatial <- function(
 
 
 visualSpatialPlotly <- function(
-    visiualVector,
+    visualVector,
     image,
     platform,
     scaleType,
@@ -1002,7 +1002,7 @@ visualSpatialPlotly <- function(
   # --- Coordinate preparation (matches visualSpatial logic) ---
   if(grepl("visium", tolower(platform)))
   {
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
 
     if(imageBg & !is.na(image$path))
     {
@@ -1084,7 +1084,7 @@ visualSpatialPlotly <- function(
 
   }else{
     # Non-Visium platforms
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visiualVector),"x"))),nrow=2))
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
     img_raster <- NULL
     xDiml <- NULL
     yDiml <- NULL
@@ -1109,8 +1109,8 @@ visualSpatialPlotly <- function(
     }
   }
 
-  rownames(fig.df) <- names(visiualVector)
-  fig.df$value <- visiualVector
+  rownames(fig.df) <- names(visualVector)
+  fig.df$value <- visualVector
 
   # --- Build Plotly figure ---
   if(scaleType == "color-continuous")
