@@ -1,3 +1,15 @@
+LR_SCORE_UPPER <- 1.5
+LR_SCORE_LOWER <- 0.5
+
+clipLRNetworkScore <- function(mat)
+{
+  mat[2, mat[2,] > LR_SCORE_UPPER] <- LR_SCORE_UPPER
+  mat[2, mat[2,] < LR_SCORE_LOWER] <- LR_SCORE_LOWER
+  mat[3,] <- -log10(mat[3,])
+  mat
+}
+
+
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj A SpaCET object.
@@ -186,9 +198,7 @@ SpaCET.visualize.spatialFeature <- function(
       }
 
       mat <- SpaCET_obj@results$CCI$LRNetworkScore
-      mat[2,mat[2,]> 1.5] <- 1.5
-      mat[2,mat[2,]< 0.5] <- 0.5
-      mat[3,] <- -log10(mat[3,])
+      mat <- clipLRNetworkScore(mat)
 
       scaleType="color-continuous"
       if(is.null(colors)) colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
