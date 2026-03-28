@@ -18,7 +18,6 @@ Imports:
     scatterpie,
     patchwork,
     png,
-    base64enc,
     shiny,
     plotly,
     DT,
@@ -35,6 +34,8 @@ Imports:
     sctransform,
     UCell,
     MUDAN
+Suggests:
+    base64enc
 biocViews:
     UCell
 remotes:

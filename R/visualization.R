@@ -1188,8 +1188,11 @@ visualSpatialPlotly <- function(
   # --- Add tissue image background ---
   if(grepl("visium", tolower(platform)) && imageBg && !is.na(image$path) && !is.null(img_raster))
   {
-    # Convert raster color matrix to RGB array and write as temporary PNG
-    tmp_img <- tempfile(fileext=".png")
+    # Convert raster color matrix to RGB array and encode as base64 PNG
+    if(!requireNamespace("base64enc", quietly=TRUE))
+    {
+      stop("Package 'base64enc' is required for image background in plotly mode. Install it with install.packages('base64enc').")
+    }
     raster_mat <- as.matrix(img_raster)
     rgb_vals <- grDevices::col2rgb(raster_mat, alpha=TRUE)
     img_array <- array(
@@ -1197,9 +1200,8 @@ visualSpatialPlotly <- function(
       dim=c(4, nrow(raster_mat), ncol(raster_mat))
     )
     img_array <- aperm(img_array, c(2, 3, 1))
-    png::writePNG(img_array, tmp_img)
-    img_base64 <- base64enc::dataURI(file=tmp_img, mime="image/png")
-    file.remove(tmp_img)
+    raw_png <- png::writePNG(img_array)
+    img_base64 <- base64enc::dataURI(data=raw_png, mime="image/png")
 
     fig <- plotly::layout(
       fig,
