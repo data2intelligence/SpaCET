@@ -449,42 +449,39 @@ SpaCET.visualize.spatialFeature <- function(
       stop("This function is only applicable to 10X Visium data.")
     }
 
-    library(shiny)
-    library(plotly)
-
     app <- list(
-      ui=fluidPage(
+      ui=shiny::fluidPage(
 
-        titlePanel("Interactive visualization from SpaCET"),
+        shiny::titlePanel("Interactive visualization from SpaCET"),
 
-        sidebarLayout(
+        shiny::sidebarLayout(
 
-          sidebarPanel(
-            p("1. Select a spatial feature.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
-            selectInput("spatialType", p("Spatial Feature Type:",style="color:black; text-align:center"), ""),
-            selectInput("spatialFeature", p("Spatial Feature:",style="color:black; text-align:center"), ""),
-            br(),
-            p("2. Adjust the style of spots.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
-            sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.1),
-            br(),
-            sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
-            br(),
+          shiny::sidebarPanel(
+            shiny::p("1. Select a spatial feature.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            shiny::selectInput("spatialType", shiny::p("Spatial Feature Type:",style="color:black; text-align:center"), ""),
+            shiny::selectInput("spatialFeature", shiny::p("Spatial Feature:",style="color:black; text-align:center"), ""),
+            shiny::br(),
+            shiny::p("2. Adjust the style of spots.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            shiny::sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.1),
+            shiny::br(),
+            shiny::sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
+            shiny::br(),
             style="background-color:papayawhip;border-left:8px solid orange",
             width = 3
           ),
 
-          mainPanel(
-            column(
-              br(),
-              plotlyOutput("overlayPlotly"),
-              br(),
+          shiny::mainPanel(
+            shiny::column(
+              shiny::br(),
+              plotly::plotlyOutput("overlayPlotly"),
+              shiny::br(),
               width = 7,
               style="border:1px solid darkgrey; height:592px; border-right:18px"
             ),
-            column(
-              br(),
+            shiny::column(
+              shiny::br(),
               DT::dataTableOutput("se"),
-              br(),
+              shiny::br(),
               width = 5,
               style="border:1px solid darkgrey; height:592px"
             )
@@ -496,7 +493,7 @@ SpaCET.visualize.spatialFeature <- function(
 
       server=function(input, output, session) {
 
-        observe({
+        shiny::observe({
           spatialTypes <- c("CellFraction","QualityControl","SignalingPattern","LRNetworkScore","Interface")
 
           if(is.null(SpaCET_obj@results$deconvolution$propMat))
@@ -519,10 +516,10 @@ SpaCET.visualize.spatialFeature <- function(
           {
             spatialTypes <- setdiff(spatialTypes,"Interface")
           }
-          updateSelectInput(session, "spatialType", choices = spatialTypes, selected=spatialTypes[1])
+          shiny::updateSelectInput(session, "spatialType", choices = spatialTypes, selected=spatialTypes[1])
         })
 
-        observe({
+        shiny::observe({
           if(input$spatialType=="QualityControl"){
             spatialFeatures <- rownames(SpaCET_obj@results$metrics)
           }else if(input$spatialType=="CellFraction"){
@@ -536,10 +533,10 @@ SpaCET.visualize.spatialFeature <- function(
           }else{
             spatialFeatures <- c()
           }
-          updateSelectInput(session, "spatialFeature", choices = spatialFeatures, selected=spatialFeatures[1])
+          shiny::updateSelectInput(session, "spatialFeature", choices = spatialFeatures, selected=spatialFeatures[1])
         })
 
-        output$overlayPlotly <- renderPlotly({
+        output$overlayPlotly <- plotly::renderPlotly({
           pointSize <- input$pointSize
           pointAlpha <- input$pointAlpha
 
@@ -562,10 +559,7 @@ SpaCET.visualize.spatialFeature <- function(
             legendName = "Fraction"
             limits = NULL
           }else if(input$spatialType=="LRNetworkScore"){
-            mat <- SpaCET_obj@results$CCI$LRNetworkScore
-            mat[2,mat[2,]> 1.5] <- 1.5
-            mat[2,mat[2,]< 0.5] <- 0.5
-            mat[3,] <- -log10(mat[3,])
+            mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
 
             scaleType="color-continuous"
             colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
@@ -619,7 +613,7 @@ SpaCET.visualize.spatialFeature <- function(
               spotID=spotID
               )
 
-            ggplotly(g,layerData=1,height=555) %>%
+            plotly::ggplotly(g,layerData=1,height=555) %>%
               plotly::layout(
                 dragmode = "lasso",
                 images=list(
@@ -649,10 +643,7 @@ SpaCET.visualize.spatialFeature <- function(
           }else if(input$spatialType=="CellFraction"){
             mat <- SpaCET_obj@results$deconvolution$propMat
           }else if(input$spatialType=="LRNetworkScore"){
-            mat <- SpaCET_obj@results$CCI$LRNetworkScore
-            mat[2,mat[2,]> 1.5] <- 1.5
-            mat[2,mat[2,]< 0.5] <- 0.5
-            mat[3,] <- -log10(mat[3,])
+            mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
           }else{
             mat <- SpaCET_obj@results$CCI$interface
           }
@@ -665,7 +656,7 @@ SpaCET.visualize.spatialFeature <- function(
               SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
               SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
-            d <- event_data("plotly_selected")
+            d <- plotly::event_data("plotly_selected")
 
             if(!is.null(d))
             {
