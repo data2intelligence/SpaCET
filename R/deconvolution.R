@@ -118,6 +118,37 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, signatureType=NULL, adj
 }
 
 
+PADJ_THRESHOLD <- 0.25
+WILCOX_PVAL_CUTOFF <- 0.05
+LARGE_DATASET_THRESHOLD <- 20000
+CHUNK_SIZE <- 5000
+
+clusterMalStats <- function(cor_sig, clustering, seq_depth)
+{
+  stat.df <- data.frame()
+  for(i in sort(unique(clustering)))
+  {
+    cor_sig_clustering <- cor_sig[clustering==i,]
+    seq_depth_clustering <- seq_depth[clustering==i]
+
+    global_frac <- sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<PADJ_THRESHOLD)/nrow(cor_sig)
+
+    stat.df[i,"cluster"] <- i
+    stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+    stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+    stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
+    stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<PADJ_THRESHOLD)/nrow(cor_sig_clustering)
+    stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+    stat.df[i,"clusterMal"] <-
+      stat.df[i,"seq_depth_diff"]>0 &
+      stat.df[i,"mean"]>0 &
+      stat.df[i,"wilcoxTestG0"]<WILCOX_PVAL_CUTOFF &
+      stat.df[i,"fraction_spot_padj"] >= global_frac
+  }
+  stat.df
+}
+
+
 inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
 {
   load( system.file("extdata", 'cancerDictionary.rda', package = 'SpaCET') )
@@ -217,27 +248,9 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          stat.df <- data.frame()
-          for(i in sort(unique(clustering)))
-          {
-            cor_sig_clustering <- cor_sig[clustering==i,]
-            seq_depth_clustering <- seq_depth[clustering==i]
-
-            stat.df[i,"cluster"] <- i
-            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
-            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <-
-              stat.df[i,"seq_depth_diff"]>0 &
-              stat.df[i,"mean"]>0 &
-              stat.df[i,"wilcoxTestG0"]<0.05 &
-              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-          }
-
-          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
+          if(sum(stat.df[,"clusterMal"])>0)
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
@@ -254,33 +267,13 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         for(CNA_expr in c("CNA"))
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
-
           if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
 
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          stat.df <- data.frame()
-          for(i in sort(unique(clustering)))
-          {
-            cor_sig_clustering <- cor_sig[clustering==i,]
-            seq_depth_clustering <- seq_depth[clustering==i]
-
-            stat.df[i,"cluster"] <- i
-            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
-            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <-
-              stat.df[i,"seq_depth_diff"]>0 &
-              stat.df[i,"mean"]>0 &
-              stat.df[i,"wilcoxTestG0"]<0.05 &
-              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-          }
-
-          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
+          if(sum(stat.df[,"clusterMal"])>0)
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
@@ -295,33 +288,13 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         for(CNA_expr in c("expr"))
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
-
           if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
 
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          stat.df <- data.frame()
-          for(i in sort(unique(clustering)))
-          {
-            cor_sig_clustering <- cor_sig[clustering==i,]
-            seq_depth_clustering <- seq_depth[clustering==i]
-
-            stat.df[i,"cluster"] <- i
-            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
-            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
-            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
-            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
-            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
-            stat.df[i,"clusterMal"] <-
-              stat.df[i,"seq_depth_diff"]>0 &
-              stat.df[i,"mean"]>0 &
-              stat.df[i,"wilcoxTestG0"]<0.05 &
-              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
-          }
-
-          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
+          if(sum(stat.df[,"clusterMal"])>0)
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
