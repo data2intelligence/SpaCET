@@ -274,7 +274,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
 
   if(sliceNum==1)
   {
-    if(class(Seurat_obj@assays$Spatial)=="Assay5")
+    if(inherits(Seurat_obj@assays$Spatial, "Assay5"))
     {
       st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
       colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
@@ -285,7 +285,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
 
     slice <- Seurat_obj@images[[1]]
 
-    if(class(slice)=="VisiumV2")
+    if(inherits(slice, "VisiumV2"))
     {
       st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
@@ -381,7 +381,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
       spot_start <- sum(spotNum[1:i])+1
       spot_end <- spot_start+ nrow(slice@coordinates) - 1
 
-      if(class(Seurat_obj@assays$Spatial)=="Assay5")
+      if(inherits(Seurat_obj@assays$Spatial, "Assay5"))
       {
         st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
         colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
@@ -393,7 +393,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
       st.matrix.data <- st.matrix.data[,spot_start:spot_end]
       colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
 
-      if(class(slice)=="VisiumV2")
+      if(inherits(slice, "VisiumV2"))
       {
         st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
