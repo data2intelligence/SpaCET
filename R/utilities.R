@@ -637,14 +637,26 @@ create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
   if(length(expr_file) == 0) stop("No expression matrix file found in cosmxPath.")
 
   message("Reading CosMx expression data...")
-  expr_data <- read.csv(expr_file[1], row.names=1, check.names=FALSE)
+  if(requireNamespace("data.table", quietly=TRUE))
+  {
+    expr_data <- as.data.frame(data.table::fread(expr_file[1], header=TRUE))
+    rownames(expr_data) <- expr_data[,1]; expr_data <- expr_data[,-1]
+  } else {
+    expr_data <- read.csv(expr_file[1], row.names=1, check.names=FALSE)
+  }
 
   # Find metadata file
   meta_file <- list.files(cosmxPath, pattern="metadata_file\\.csv$|metadata\\.csv$", full.names=TRUE, recursive=TRUE)
   if(length(meta_file) > 0)
   {
     message("Reading CosMx metadata...")
-    meta_data <- read.csv(meta_file[1], row.names=1, check.names=FALSE)
+    if(requireNamespace("data.table", quietly=TRUE))
+    {
+      meta_data <- as.data.frame(data.table::fread(meta_file[1], header=TRUE))
+      rownames(meta_data) <- meta_data[,1]; meta_data <- meta_data[,-1]
+    } else {
+      meta_data <- read.csv(meta_file[1], row.names=1, check.names=FALSE)
+    }
 
     # Filter by FOV if requested
     if(!is.null(fov) && "fov" %in% colnames(meta_data))
