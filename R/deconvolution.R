@@ -118,6 +118,257 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, signatureType=NULL, adj
 }
 
 
+#' @title Deconvolve bulk RNA-seq data set
+#' @description Estimate the cell fraction of cell lineages and sub lineages for bulk RNA-seq samples.
+#' Unlike \code{SpaCET.deconvolution}, this function does not require spatial information and
+#' estimates malignant cell fraction by direct correlation with cancer signatures rather than
+#' spatial clustering.
+#' @param SpaCET_obj A SpaCET object containing bulk RNA-seq counts.
+#' @param cancerType Cancer type of the current tumor data set. Use "normal" to skip malignant inference.
+#' @param signatureType Indicate the tumor signature type: NULL, "CNA", or "expr". Default: NULL (automatically detect).
+#' @param malProp Optional numeric vector of external malignant/tumor purity estimates per sample
+#'   (values in \[0, 1\]), e.g., from ABSOLUTE. If NULL, estimated from signatures. Default: NULL.
+#' @param coreNo Core number in parallel computation. Default: 6.
+#' @return A SpaCET object with deconvolution results.
+#' @examples
+#' SpaCET_obj <- SpaCET.deconvolution.bulk(SpaCET_obj, cancerType="BRCA", coreNo=6)
+#'
+#' @rdname SpaCET.deconvolution.bulk
+#' @export
+#'
+SpaCET.deconvolution.bulk <- function(SpaCET_obj, cancerType, signatureType=NULL, malProp=NULL, coreNo=6)
+{
+  coreNoDect <- parallel::detectCores(logical = FALSE)
+  if(coreNoDect < coreNo)
+  {
+    message(paste0("Since the number of your physical cores is ",coreNoDect,", coreNo=",coreNoDect,"-1 is used automatically."))
+    coreNo <- coreNoDect-1
+  }
+  if(Sys.info()[['sysname']] == "Windows")
+  {
+    message("Since Windows does not support > 1 core, coreNo=1 is used automatically.")
+    coreNo <- 1
+  }
+
+  st.matrix.data <- SpaCET_obj@input$counts
+  st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]
+
+  if(tolower(SpaCET_obj@input$organism)=="mouse") st.matrix.data <- mouse2human_mat(st.matrix.data)
+
+  # Load reference
+  load( system.file("extdata",'combRef_0.5.rda',package = 'SpaCET') )
+
+  if(cancerType%in%c("LIHC","CHOL"))
+  {
+    load( system.file("extdata",'Ref_Normal_LIHC.rda',package = 'SpaCET') )
+    olp <- intersect(rownames(Ref$refProfiles), rownames(Ref_Normal$refProfiles))
+    Ref$refProfiles <- cbind(Ref$refProfiles[olp,], Ref_Normal$refProfiles[olp,])
+    Ref$sigGenes <- append(Ref$sigGenes, Ref_Normal$sigGenes)
+    Ref$lineageTree <- append(Ref$lineageTree, Ref_Normal$lineageTree)
+  }
+
+  # Stage 1: Malignant fraction
+  if(tolower(cancerType) == "normal")
+  {
+    message("Stage 1. Infer malignant cell fraction (skip - normal tissue).")
+    malPropVec <- rep(0, ncol(st.matrix.data))
+    names(malPropVec) <- colnames(st.matrix.data)
+    malRes <- list("malRef"=NULL, "malProp"=malPropVec)
+  }else if(!is.null(malProp)){
+    message("Stage 1. Using external malignant purity estimates.")
+    malProp <- pmax(0, pmin(1, malProp))
+    if(is.null(names(malProp))) names(malProp) <- colnames(st.matrix.data)
+    malPropVec <- malProp[colnames(st.matrix.data)]
+
+    # Compute malignant reference from top-purity samples
+    top_idx <- which(malPropVec >= stats::quantile(malPropVec, 0.95))
+    if(length(top_idx) == 0) top_idx <- which.max(malPropVec)
+    malRef <- Matrix::rowMeans(
+      Matrix::t(Matrix::t(st.matrix.data[,top_idx,drop=F])*1e6/Matrix::colSums(st.matrix.data[,top_idx,drop=F]))
+    )
+    malRes <- list("malRef"=malRef, "malProp"=malPropVec)
+  }else{
+    message("Stage 1. Infer malignant cell fraction from signatures.")
+    malRes <- inferMal_bulk(
+      st.matrix.data,
+      cancerType=cancerType,
+      signatureType=signatureType
+    )
+  }
+
+  message(" ")
+  message("Stage 2. Hierarchically deconvolve non-malignant cell fraction.")
+
+  propMat <- SpatialDeconv(
+    ST=st.matrix.data,
+    Ref=Ref,
+    malProp=malRes$malProp,
+    malRef=malRes$malRef,
+    mode="standard",
+    coreNo=coreNo
+  )
+
+  SpaCET_obj@results$deconvolution$malRes <- malRes
+  SpaCET_obj@results$deconvolution$Ref <- Ref
+  SpaCET_obj@results$deconvolution$propMat <- propMat
+  SpaCET_obj
+}
+
+
+#' Estimate malignant fraction for bulk RNA-seq (no spatial clustering).
+#'
+#' Directly correlates each sample with CNA/expression cancer signatures,
+#' identifies high-purity tumor samples, and normalizes malignant fraction
+#' to [0, 1] via percentile clipping.
+#'
+#' @param st.matrix.data Genes x samples count matrix.
+#' @param cancerType Cancer type code.
+#' @param signatureType Force "CNA" or "expr", or NULL for auto.
+#' @return List with malRef and malProp.
+#' @keywords internal
+inferMal_bulk <- function(st.matrix.data, cancerType, signatureType)
+{
+  load( system.file("extdata", 'cancerDictionary.rda', package = 'SpaCET') )
+
+  # Validate cancer type
+  cancerTypes <- unique(c(names(cancerDictionary$CNA), names(cancerDictionary$expr)))
+  cancerTypes <- sapply(strsplit(cancerTypes,"_",fixed=T), function(x) return(x[2]))
+  if(!cancerType%in%c(cancerTypes,"PANCAN"))
+  {
+    warning("Cancer type '", cancerType, "' not found. Falling back to PANCAN expression signature.")
+    cancerType <- "PANCAN"
+  }
+  if(!is.null(signatureType))
+  {
+    if(!signatureType%in%c("CNA","expr"))
+    {
+      stop("The signatureType should be NULL, 'CNA', or 'expr'.")
+    }
+  }
+
+  nSamples <- ncol(st.matrix.data)
+
+  # CPM, log2, center (same normalization as spatial)
+  st.matrix.data.diff <- sweep(st.matrix.data, 2, Matrix::colSums(st.matrix.data), "/") * 1e6
+  st.matrix.data.diff[is.na(st.matrix.data.diff)] <- 0
+  if(methods::is(st.matrix.data.diff, "sparseMatrix"))
+  {
+    st.matrix.data.diff@x <- log2(st.matrix.data.diff@x + 1)
+  }else{
+    st.matrix.data.diff <- log2(st.matrix.data.diff + 1)
+  }
+  st.matrix.data.diff <- st.matrix.data.diff - Matrix::rowMeans(st.matrix.data.diff)
+
+  # Try signatures in order: CNA -> expr -> PANCAN
+  sig <- NULL
+  sigFound <- FALSE
+
+  if(!is.null(signatureType))
+  {
+    cancerTypeExists <- grepl(cancerType, names(cancerDictionary[[signatureType]]))
+    if(sum(cancerTypeExists) > 0)
+    {
+      sig <- as.matrix(cancerDictionary[[signatureType]][cancerTypeExists][[1]], ncol=1)
+      message(paste0("                  > Use ", signatureType, " signature: ", cancerType, "."))
+      sigFound <- TRUE
+    }
+  }else{
+    if(cancerType == "PANCAN")
+    {
+      comb_list <- list(c("expr","PANCAN"))
+    }else{
+      comb_list <- list(c("CNA",cancerType), c("expr",cancerType), c("expr","PANCAN"))
+    }
+
+    for(n in seq_along(comb_list))
+    {
+      CNA_expr <- comb_list[[n]][1]
+      ct <- comb_list[[n]][2]
+      cancerTypeExists <- grepl(ct, names(cancerDictionary[[CNA_expr]]))
+
+      if(sum(cancerTypeExists) > 0)
+      {
+        sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]], ncol=1)
+
+        # For bulk: directly correlate samples with signature (no clustering needed)
+        olp <- intersect(rownames(st.matrix.data.diff), rownames(sig))
+        if(length(olp) > 0)
+        {
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff[olp,]), sig[olp,,drop=F])
+          positive_mask <- cor_sig[,"cor_r"] > 0
+          significant_mask <- cor_sig[,"cor_padj"] < PADJ_THRESHOLD
+
+          if(sum(positive_mask & significant_mask) > 0)
+          {
+            message(paste0("                  > Use ", CNA_expr, " signature: ", ct, "."))
+            sigFound <- TRUE
+            break
+          }
+        }
+      }
+    }
+  }
+
+  if(!sigFound || is.null(sig))
+  {
+    message("                  > No signature matched. Setting malignant fraction to 0.")
+    malProp <- rep(0, nSamples)
+    names(malProp) <- colnames(st.matrix.data)
+    return(list("malRef"=NULL, "malProp"=malProp))
+  }
+
+  # Identify high-purity tumor samples
+  top5p <- max(1, round(nSamples * 0.05))
+  positive_mask <- cor_sig[,"cor_r"] > 0
+  significant_mask <- cor_sig[,"cor_padj"] < PADJ_THRESHOLD
+  tumor_mask <- positive_mask & significant_mask
+
+  if(sum(tumor_mask) >= top5p)
+  {
+    sorted_idx <- order(cor_sig[,"cor_r"], decreasing=TRUE)
+    nTop <- max(top5p, sum(tumor_mask))
+    spotMal <- rownames(cor_sig)[sorted_idx[1:nTop]]
+  }else{
+    sorted_idx <- order(cor_sig[,"cor_r"], decreasing=TRUE)
+    spotMal <- rownames(cor_sig)[sorted_idx[1:top5p]]
+  }
+
+  # Compute malignant reference (mean CPM of tumor samples)
+  malRef <- Matrix::rowMeans(
+    Matrix::t(Matrix::t(st.matrix.data[,spotMal,drop=F])*1e6/Matrix::colSums(st.matrix.data[,spotMal,drop=F]))
+  )
+
+  # Compute malignant fraction via correlation with tumor-derived signature
+  sig_from_mal <- apply(st.matrix.data.diff[,spotMal,drop=F], 1, mean)
+  sig_from_mal <- matrix(sig_from_mal)
+  rownames(sig_from_mal) <- rownames(st.matrix.data.diff)
+
+  cor_mal <- corMat(as.matrix(st.matrix.data.diff), sig_from_mal)
+
+  malProp <- cor_mal[,"cor_r"]
+  names(malProp) <- rownames(cor_mal)
+
+  # Clip to 5th-95th percentile, normalize to [0, 1]
+  malPropSorted <- sort(malProp)
+  p5 <- malPropSorted[top5p]
+  p95 <- malPropSorted[length(malPropSorted) - top5p + 1]
+
+  malProp[malProp <= p5] <- p5
+  malProp[malProp >= p95] <- p95
+
+  malRange <- max(malProp) - min(malProp)
+  if(malRange > 0)
+  {
+    malProp <- (malProp - min(malProp)) / malRange
+  }else{
+    malProp <- rep(0, length(malProp))
+    names(malProp) <- colnames(st.matrix.data)
+  }
+
+  list("malRef"=malRef, "malProp"=malProp)
+}
+
+
 PADJ_THRESHOLD <- 0.25
 WILCOX_PVAL_CUTOFF <- 0.05
 LARGE_DATASET_THRESHOLD <- 20000
