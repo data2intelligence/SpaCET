@@ -2,9 +2,8 @@
 title: "Bulk RNA-seq Deconvolution Benchmark"
 output: rmarkdown::html_vignette
 description: >
-  Fair pseudobulk benchmark for SpaCET bulk deconvolution using real scRNA-seq
-  data (Wu et al. 2021 BRCA). Subject-level train/test split ensures neither
-  method sees cells used to generate pseudobulk. Compares SpaCET with MuSiC.
+  Pseudobulk benchmark for SpaCET bulk deconvolution using Wu et al. 2021
+  BRCA scRNA-seq with a fair subject-level train/test split.
 vignette: >
   %\VignetteIndexEntry{Bulk RNA-seq Deconvolution Benchmark}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,642 +13,76 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 6
+  comment = "#>"
 )
 ```
 
-This tutorial benchmarks `SpaCET.deconvolution.bulk()` and
-`SpaCET.deconvolution.matched.scRNAseq()` using pseudobulk mixtures from
-real scRNA-seq data with a **fair subject-level train/test split**.
+This tutorial benchmarks `SpaCET.deconvolution.matched.scRNAseq()` on bulk
+RNA-seq using pseudobulk mixtures from Wu et al. 2021 (*Nature Genetics*,
+GSE176078) BRCA scRNA-seq.
 
-**Design:** Wu et al. 2021 (*Nature Genetics*, GSE176078) BRCA scRNA-seq is
-split 50/50 by patient. The TRAIN set provides the deconvolution reference;
-pseudobulk is generated from the TEST set only. This ensures no cell
-overlap between reference and evaluation data.
+**Fair evaluation:** The dataset is split 50/50 by patient. The TRAIN set
+provides the deconvolution reference; pseudobulk is generated exclusively
+from the TEST set, ensuring no cell overlap.
 
 **Four scenarios:**
 
-1. Uniform mixing (Dirichlet alpha=1.0)
-2. Sparse mixing (Dirichlet alpha=0.3)
-3. Tumor purity (60-90% malignant)
-4. Titration (0-90% malignant)
+| Scenario | Description |
+|----------|-------------|
+| Uniform  | Dirichlet alpha=1.0 (balanced mixing) |
+| Sparse   | Dirichlet alpha=0.3 (dominant cell types) |
+| Tumor Purity | 60–90% malignant cells |
+| Titration | 0–90% malignant cells |
 
 
-## Setup
+## Deconvolution
+
+Create a SpaCET object from bulk counts and run deconvolution with a matched
+scRNA-seq reference (TRAIN set):
 
 ```r
 library(SpaCET)
-library(Matrix)
-```
 
+# Wrap bulk RNA-seq counts (genes x samples) in a SpaCET object
+coords <- data.frame(X = seq_len(ncol(bulk_counts)), Y = rep(1, ncol(bulk_counts)))
+rownames(coords) <- colnames(bulk_counts)
+obj <- create.SpaCET.object(counts = bulk_counts, spotCoordinates = coords, platform = "OldST")
 
-## Step 1: Load scRNA-seq Data
-
-Download Wu et al. 2021 BRCA scRNA-seq from GEO (GSE176078). We expect a
-count matrix and cell metadata with columns `celltype_major` and `orig.ident`
-(patient/subject ID).
-
-```r
-# Load preprocessed scRNA-seq (adjust path to your data)
-# Expected format: counts (genes x cells), metadata with cell_type and subject_id
-data_path <- "data/BRCA_scRNA"
-
-sc_counts <- readRDS(file.path(data_path, "counts.rds"))       # genes x cells sparse matrix
-sc_meta   <- read.csv(file.path(data_path, "metadata.csv"),
-                       row.names = 1, stringsAsFactors = FALSE)
-
-# Standardize column names
-if ("celltype_major" %in% colnames(sc_meta) && !"cell_type" %in% colnames(sc_meta)) {
-  sc_meta$cell_type <- sc_meta$celltype_major
-}
-if ("orig.ident" %in% colnames(sc_meta) && !"subject_id" %in% colnames(sc_meta)) {
-  sc_meta$subject_id <- sc_meta$orig.ident
-}
-
-cat(sprintf("Loaded: %d cells x %d genes, %d subjects\n",
-            ncol(sc_counts), nrow(sc_counts),
-            length(unique(sc_meta$subject_id))))
-cat("Cell types:\n")
-print(table(sc_meta$cell_type))
-```
-
-
-## Step 2: Subject-Level Train/Test Split
-
-```r
-set.seed(42)
-subjects <- sort(unique(sc_meta$subject_id))
-subjects <- sample(subjects)  # shuffle
-mid <- length(subjects) %/% 2
-
-train_subjects <- subjects[1:mid]
-test_subjects  <- subjects[(mid + 1):length(subjects)]
-
-train_mask <- sc_meta$subject_id %in% train_subjects
-test_mask  <- sc_meta$subject_id %in% test_subjects
-
-sc_counts_train <- sc_counts[, train_mask]
-sc_meta_train   <- sc_meta[train_mask, ]
-
-sc_counts_test  <- sc_counts[, test_mask]
-sc_meta_test    <- sc_meta[test_mask, ]
-
-cat(sprintf("Train: %d cells, %d subjects\n", ncol(sc_counts_train), length(train_subjects)))
-cat(sprintf("Test:  %d cells, %d subjects\n", ncol(sc_counts_test), length(test_subjects)))
-```
-
-
-## Step 3: Generate Pseudobulk from TEST Set
-
-### Helpers
-
-```r
-#' Generate pseudobulk by Dirichlet mixing of real single cells.
-#'
-#' @param counts Genes x cells count matrix.
-#' @param cell_types Character vector of cell type labels (length = ncol(counts)).
-#' @param n_samples Number of pseudobulk samples.
-#' @param n_cells_per_sample Cells per mixture.
-#' @param alpha Dirichlet concentration (1.0 = uniform, <1.0 = sparser).
-#' @param seed Random seed.
-#' @return List with bulk_counts (genes x samples) and ground_truth (samples x types).
-generate_pseudobulk <- function(counts, cell_types, n_samples = 200,
-                                 n_cells_per_sample = 2000,
-                                 alpha = 1.0, seed = 42) {
-  set.seed(seed)
-  ct_levels <- sort(unique(cell_types))
-  n_types <- length(ct_levels)
-
-  type_indices <- lapply(ct_levels, function(ct) which(cell_types == ct))
-  names(type_indices) <- ct_levels
-
-  count_mat <- as.matrix(counts)
-  bulk <- matrix(0, nrow = nrow(count_mat), ncol = n_samples)
-  rownames(bulk) <- rownames(count_mat)
-  proportions <- matrix(0, nrow = n_samples, ncol = n_types)
-
-  for (i in seq_len(n_samples)) {
-    props <- rgamma(n_types, shape = alpha)
-    props <- props / sum(props)
-    proportions[i, ] <- props
-
-    cell_counts <- as.vector(rmultinom(1, n_cells_per_sample, props))
-    sample_sum <- rep(0, nrow(count_mat))
-    for (j in seq_along(ct_levels)) {
-      if (cell_counts[j] == 0) next
-      idx <- sample(type_indices[[ct_levels[j]]], cell_counts[j], replace = TRUE)
-      sample_sum <- sample_sum + rowSums(count_mat[, idx, drop = FALSE])
-    }
-    bulk[, i] <- sample_sum
-  }
-
-  sample_names <- paste0("Bulk_", formatC(seq_len(n_samples), width = 4, flag = "0"))
-  colnames(bulk) <- sample_names
-  colnames(proportions) <- ct_levels
-  gt <- data.frame(proportions, row.names = sample_names, check.names = FALSE)
-
-  list(bulk_counts = bulk, ground_truth = gt)
-}
-
-
-#' Generate pseudobulk with fixed malignant fraction, Dirichlet for rest.
-#'
-#' @param counts Genes x cells count matrix.
-#' @param cell_types Character vector of cell type labels.
-#' @param mal_type Name of the malignant cell type.
-#' @param n_samples Number of samples.
-#' @param n_cells_per_sample Cells per mixture.
-#' @param tumor_fractions Numeric vector of malignant fractions to sample from.
-#' @param seed Random seed.
-#' @return List with bulk_counts and ground_truth.
-generate_pseudobulk_tumor <- function(counts, cell_types,
-                                       mal_type = "Cancer Epithelial",
-                                       n_samples = 200,
-                                       n_cells_per_sample = 2000,
-                                       tumor_fractions = seq(0.6, 0.9, 0.05),
-                                       seed = 42) {
-  set.seed(seed)
-  ct_levels <- sort(unique(cell_types))
-  nonmal_types <- setdiff(ct_levels, mal_type)
-  all_types <- c(mal_type, nonmal_types)
-  n_all <- length(all_types)
-
-  type_indices <- lapply(ct_levels, function(ct) which(cell_types == ct))
-  names(type_indices) <- ct_levels
-
-  count_mat <- as.matrix(counts)
-  bulk <- matrix(0, nrow = nrow(count_mat), ncol = n_samples)
-  rownames(bulk) <- rownames(count_mat)
-  proportions <- matrix(0, nrow = n_samples, ncol = n_all)
-
-  for (i in seq_len(n_samples)) {
-    mal_frac <- sample(tumor_fractions, 1)
-    nonmal_props <- rgamma(length(nonmal_types), shape = 1)
-    nonmal_props <- nonmal_props / sum(nonmal_props) * (1 - mal_frac)
-
-    props <- c(mal_frac, nonmal_props)
-    proportions[i, ] <- props
-
-    cell_counts <- as.vector(rmultinom(1, n_cells_per_sample, props))
-    sample_sum <- rep(0, nrow(count_mat))
-    for (j in seq_along(all_types)) {
-      if (cell_counts[j] == 0) next
-      idx <- sample(type_indices[[all_types[j]]], cell_counts[j], replace = TRUE)
-      sample_sum <- sample_sum + rowSums(count_mat[, idx, drop = FALSE])
-    }
-    bulk[, i] <- sample_sum
-  }
-
-  sample_names <- paste0("Bulk_", formatC(seq_len(n_samples), width = 4, flag = "0"))
-  colnames(bulk) <- sample_names
-  colnames(proportions) <- all_types
-  gt <- data.frame(proportions, row.names = sample_names, check.names = FALSE)
-
-  list(bulk_counts = bulk, ground_truth = gt)
-}
-```
-
-### Generate 4 Scenarios
-
-```r
-# Scenario 1: Uniform (alpha=1.0)
-pb_uniform <- generate_pseudobulk(
-  sc_counts_test, sc_meta_test$cell_type,
-  n_samples = 200, n_cells_per_sample = 2000, alpha = 1.0, seed = 42
+# Deconvolve using matched scRNA-seq reference
+obj <- SpaCET.deconvolution.matched.scRNAseq(
+  obj,
+  sc_includeMalignant = TRUE,
+  cancerType          = "BRCA",
+  sc_counts           = sc_counts_train,
+  sc_annotation       = sc_annotation,
+  sc_lineageTree      = sc_lineageTree
 )
 
-# Scenario 2: Sparse (alpha=0.3)
-pb_sparse <- generate_pseudobulk(
-  sc_counts_test, sc_meta_test$cell_type,
-  n_samples = 200, n_cells_per_sample = 2000, alpha = 0.3, seed = 43
-)
-
-# Scenario 3: Tumor purity (60-90%)
-pb_tumor <- generate_pseudobulk_tumor(
-  sc_counts_test, sc_meta_test$cell_type,
-  mal_type = "Cancer Epithelial",
-  n_samples = 200, n_cells_per_sample = 2000,
-  tumor_fractions = seq(0.6, 0.9, 0.05), seed = 44
-)
-
-# Scenario 4: Titration (0-90%)
-pb_titration <- generate_pseudobulk_tumor(
-  sc_counts_test, sc_meta_test$cell_type,
-  mal_type = "Cancer Epithelial",
-  n_samples = 100, n_cells_per_sample = 2000,
-  tumor_fractions = seq(0, 0.9, 0.1), seed = 45
-)
-
-scenarios <- list(
-  uniform   = list(data = pb_uniform,   label = "Uniform (alpha=1.0)"),
-  sparse    = list(data = pb_sparse,    label = "Sparse (alpha=0.3)"),
-  tumor     = list(data = pb_tumor,     label = "Tumor Purity (60-90%)"),
-  titration = list(data = pb_titration, label = "Titration (0-90%)")
-)
-
-for (nm in names(scenarios)) {
-  cat(sprintf("  %s: %d samples\n", scenarios[[nm]]$label,
-              ncol(scenarios[[nm]]$data$bulk_counts)))
-}
+# Cell type proportions (types x samples)
+obj@results$deconvolution$propMat[1:5, 1:5]
 ```
 
 
-## Step 4: Cell Type Mapping
+## Results
 
-Wu et al. uses fine-grained cell type names. We collapse both ground truth
-and SpaCET estimates to a shared evaluation vocabulary.
+### Predicted vs Ground Truth
 
-```r
-# Wu et al. -> evaluation categories
-WU_TO_EVAL <- c(
-  "Cancer Epithelial" = "Malignant",
-  "CAFs"              = "CAF",
-  "Endothelial"       = "Endothelial",
-  "T-cells"           = "T_cells",
-  "B-cells"           = "B cell",
-  "Plasmablasts"      = "Plasma",
-  "Myeloid"           = "Myeloid",
-  "PVL"               = "PVL",
-  "Normal Epithelial" = "Normal_Epithelial"
-)
+<img src="img/bulk_scatter.png" width="100%" style="border:none" />
 
-# SpaCET fine types -> evaluation categories
-SPACET_TO_EVAL <- c(
-  "T CD4"            = "T_cells",
-  "T CD8"            = "T_cells",
-  "NK"               = "T_cells",
-  "Macrophage"       = "Myeloid",
-  "cDC"              = "Myeloid",
-  "pDC"              = "Myeloid",
-  "Macrophage other" = "Myeloid",
-  "CAF"              = "CAF",
-  "Endothelial"      = "Endothelial",
-  "B cell"           = "B cell",
-  "Plasma"           = "Plasma",
-  "Mast"             = "Other",
-  "Neutrophil"       = "Other",
-  "Unidentifiable"   = "Other",
-  "Malignant"        = "Malignant"
-)
+SpaCET accurately recovers cell type proportions across all four scenarios.
+Tumor-containing scenarios (purity, titration) benefit from SpaCET's
+malignant cell inference.
 
+### Per-Cell-Type Accuracy
 
-#' Collapse SpaCET propMat (types x samples) to evaluation categories.
-collapse_spacet_propmat <- function(prop_mat) {
-  eval_types <- unique(SPACET_TO_EVAL)
-  eval_types <- setdiff(eval_types, "Other")  # drop "Other" from evaluation
+<img src="img/bulk_pertype.png" width="100%" style="border:none" />
 
-  result <- matrix(0, nrow = length(eval_types), ncol = ncol(prop_mat))
-  rownames(result) <- eval_types
-  colnames(result) <- colnames(prop_mat)
+### Overall Performance
 
-  for (spacet_type in rownames(prop_mat)) {
-    eval_type <- SPACET_TO_EVAL[spacet_type]
-    if (!is.na(eval_type) && eval_type %in% eval_types) {
-      result[eval_type, ] <- result[eval_type, ] + prop_mat[spacet_type, ]
-    }
-  }
-  as.data.frame(t(result))  # samples x types
-}
+<img src="img/bulk_summary.png" width="100%" style="border:none" />
 
 
-#' Collapse ground truth from Wu names to evaluation categories.
-collapse_ground_truth <- function(gt) {
-  eval_types <- unique(WU_TO_EVAL)
-  eval_types <- setdiff(eval_types, c("PVL", "Normal_Epithelial"))  # drop minor
+## Reproducing This Benchmark
 
-  result <- data.frame(matrix(0, nrow = nrow(gt), ncol = length(eval_types)))
-  colnames(result) <- eval_types
-  rownames(result) <- rownames(gt)
-
-  for (wu_type in colnames(gt)) {
-    eval_type <- WU_TO_EVAL[wu_type]
-    if (!is.na(eval_type) && eval_type %in% eval_types) {
-      result[, eval_type] <- result[, eval_type] + gt[, wu_type]
-    }
-  }
-  result
-}
-```
-
-
-## Step 5: SpaCET Deconvolution with Matched scRNAseq (TRAIN Set)
-
-Build the reference from the TRAIN split and deconvolve pseudobulk.
-
-```r
-# Prepare sc_annotation (cellID, cellType)
-sc_annotation <- data.frame(
-  cellID   = colnames(sc_counts_train),
-  cellType = sc_meta_train$cell_type,
-  stringsAsFactors = FALSE
-)
-rownames(sc_annotation) <- sc_annotation$cellID
-
-# Lineage tree for Wu et al. cell types (flat -- each type is its own lineage)
-sc_lineageTree <- as.list(setNames(
-  unique(sc_meta_train$cell_type),
-  unique(sc_meta_train$cell_type)
-))
-
-# Helper: wrap bulk counts in SpaCET object
-make_bulk_spacet <- function(bulk_counts) {
-  coords <- data.frame(X = seq_len(ncol(bulk_counts)), Y = rep(1, ncol(bulk_counts)))
-  rownames(coords) <- colnames(bulk_counts)
-  create.SpaCET.object(counts = bulk_counts, spotCoordinates = coords, platform = "OldST")
-}
-
-# Run deconvolution on each scenario
-spacet_results <- list()
-
-for (nm in names(scenarios)) {
-  cat(sprintf("\nDeconvolving %s...\n", scenarios[[nm]]$label))
-  obj <- make_bulk_spacet(scenarios[[nm]]$data$bulk_counts)
-
-  obj <- SpaCET.deconvolution.matched.scRNAseq(
-    obj,
-    sc_includeMalignant  = TRUE,
-    cancerType           = "BRCA",
-    sc_counts            = sc_counts_train,
-    sc_annotation        = sc_annotation,
-    sc_lineageTree       = sc_lineageTree,
-    sc_downsampling      = TRUE,
-    sc_nCellEachLineage  = 200,
-    coreNo               = 1
-  )
-
-  pm <- obj@results$deconvolution$propMat
-  spacet_results[[nm]] <- collapse_spacet_propmat(pm)
-  cat(sprintf("  propMat: %d types x %d samples\n", nrow(pm), ncol(pm)))
-}
-```
-
-
-## Step 6: Export for MuSiC
-
-Export the TRAIN set reference and pseudobulk for running MuSiC externally.
-
-```r
-output_dir <- "outputs/t8_real"
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-
-# Subsample train set for manageable export (max 500 per type)
-set.seed(99)
-sub_idx <- unlist(lapply(unique(sc_meta_train$cell_type), function(ct) {
-  idx <- which(sc_meta_train$cell_type == ct)
-  sample(idx, min(500, length(idx)))
-}))
-sc_counts_export <- sc_counts_train[, sub_idx]
-sc_meta_export   <- sc_meta_train[sub_idx, ]
-
-# scRNA-seq reference
-write.csv(as.matrix(sc_counts_export), file.path(output_dir, "sc_counts.csv"))
-write.csv(
-  data.frame(cell_type = sc_meta_export$cell_type,
-             subject_id = sc_meta_export$subject_id,
-             row.names = colnames(sc_counts_export)),
-  file.path(output_dir, "sc_meta.csv")
-)
-
-# Pseudobulk + ground truth for each scenario
-for (nm in names(scenarios)) {
-  write.csv(scenarios[[nm]]$data$bulk_counts,
-            file.path(output_dir, paste0("bulk_", nm, ".csv")))
-  write.csv(scenarios[[nm]]$data$ground_truth,
-            file.path(output_dir, paste0("gt_", nm, ".csv")))
-}
-
-# MuSiC runner script
-music_script <- '
-library(MuSiC)
-library(Biobase)
-
-sc_counts <- as.matrix(read.csv("sc_counts.csv", row.names = 1, check.names = FALSE))
-sc_meta   <- read.csv("sc_meta.csv", row.names = 1)
-sc_pheno  <- new("AnnotatedDataFrame", data = sc_meta)
-sc_eset   <- ExpressionSet(assayData = sc_counts, phenoData = sc_pheno)
-
-for (scenario in c("uniform", "sparse", "tumor", "titration")) {
-  cat(sprintf("Running MuSiC for %s...\\n", scenario))
-  bulk <- as.matrix(read.csv(paste0("bulk_", scenario, ".csv"),
-                              row.names = 1, check.names = FALSE))
-  bulk_eset <- ExpressionSet(assayData = bulk)
-  result <- music_prop(bulk.eset = bulk_eset, sc.eset = sc_eset,
-                        clusters = "cell_type", verbose = TRUE)
-  write.csv(result$Est.prop.weighted,
-            paste0("music_", scenario, ".csv"))
-}
-cat("Done.\\n")
-'
-writeLines(music_script, file.path(output_dir, "run_music.R"))
-cat("MuSiC export written to", output_dir, "\n")
-```
-
-
-## Step 7: Evaluate
-
-```r
-#' Evaluate deconvolution: overall + per-type Pearson r, RMSE.
-evaluate <- function(est_df, gt_df, label) {
-  common <- intersect(colnames(est_df), colnames(gt_df))
-  common_samples <- intersect(rownames(est_df), rownames(gt_df))
-
-  if (length(common) == 0 || length(common_samples) == 0) {
-    warning(paste0("No common types/samples for ", label))
-    return(list(pearson_r = NA, spearman_rho = NA, rmse = NA, per_type = NULL))
-  }
-
-  est_aligned <- as.matrix(est_df[common_samples, common])
-  gt_aligned  <- as.matrix(gt_df[common_samples, common])
-
-  e_flat <- as.vector(est_aligned)
-  g_flat <- as.vector(gt_aligned)
-
-  pearson_r   <- cor(e_flat, g_flat, method = "pearson")
-  spearman_rho <- cor(e_flat, g_flat, method = "spearman")
-  rmse <- sqrt(mean((e_flat - g_flat)^2))
-
-  per_type <- data.frame(
-    cell_type = common,
-    pearson_r = sapply(common, function(ct) {
-      if (sd(gt_aligned[, ct]) < 1e-15) return(NA)
-      cor(est_aligned[, ct], gt_aligned[, ct])
-    }),
-    rmse = sapply(common, function(ct) {
-      sqrt(mean((est_aligned[, ct] - gt_aligned[, ct])^2))
-    }),
-    n = length(common_samples),
-    stringsAsFactors = FALSE, row.names = NULL
-  )
-
-  list(pearson_r = pearson_r, spearman_rho = spearman_rho,
-       rmse = rmse, per_type = per_type)
-}
-
-# Evaluate SpaCET
-spacet_metrics <- list()
-for (nm in names(scenarios)) {
-  gt_eval <- collapse_ground_truth(scenarios[[nm]]$data$ground_truth)
-  m <- evaluate(spacet_results[[nm]], gt_eval, nm)
-  spacet_metrics[[nm]] <- m
-  cat(sprintf("%-25s  r=%.4f  rho=%.4f  RMSE=%.4f\n",
-              scenarios[[nm]]$label, m$pearson_r, m$spearman_rho, m$rmse))
-}
-```
-
-### Load MuSiC Results (if available)
-
-```r
-music_metrics <- list()
-has_music <- FALSE
-
-for (nm in names(scenarios)) {
-  music_file <- file.path(output_dir, paste0("music_", nm, ".csv"))
-  if (!file.exists(music_file)) next
-
-  has_music <- TRUE
-  music_props <- read.csv(music_file, row.names = 1, check.names = FALSE)
-  # Collapse to evaluation categories
-  music_eval <- collapse_ground_truth(music_props)  # same mapping
-  gt_eval <- collapse_ground_truth(scenarios[[nm]]$data$ground_truth)
-
-  m <- evaluate(music_eval, gt_eval, paste0("music_", nm))
-  music_metrics[[nm]] <- m
-  cat(sprintf("MuSiC %-20s  r=%.4f\n", scenarios[[nm]]$label, m$pearson_r))
-}
-
-if (!has_music) {
-  cat("MuSiC results not found. Run: Rscript outputs/t8_real/run_music.R\n")
-}
-```
-
-
-## Step 8: Summary Table
-
-```r
-summary_rows <- list()
-for (nm in names(scenarios)) {
-  row <- data.frame(
-    Scenario = scenarios[[nm]]$label,
-    SpaCET_r = round(spacet_metrics[[nm]]$pearson_r, 4),
-    stringsAsFactors = FALSE
-  )
-  if (has_music && nm %in% names(music_metrics)) {
-    row$MuSiC_r <- round(music_metrics[[nm]]$pearson_r, 4)
-  }
-  summary_rows[[nm]] <- row
-}
-summary_table <- do.call(rbind, summary_rows)
-rownames(summary_table) <- NULL
-print(summary_table)
-```
-
-
-## Step 9: Figures
-
-### 9a. Scatter Plots (per scenario)
-
-```r
-plot_scatter <- function(est_df, gt_df, title_str, pearson_r) {
-  common <- intersect(colnames(est_df), colnames(gt_df))
-  common_samples <- intersect(rownames(est_df), rownames(gt_df))
-  colors <- rainbow(length(common), s = 0.7, v = 0.85)
-
-  plot(NULL, xlim = c(0, 1), ylim = c(0, 1),
-       xlab = "Ground Truth Fraction", ylab = "Predicted Fraction",
-       main = title_str)
-  abline(0, 1, lty = 2, col = "gray40")
-
-  for (i in seq_along(common)) {
-    ct <- common[i]
-    points(gt_df[common_samples, ct], est_df[common_samples, ct],
-           col = adjustcolor(colors[i], alpha.f = 0.5), pch = 16, cex = 0.6)
-  }
-  legend("topleft", legend = common, col = colors, pch = 16,
-         cex = 0.55, ncol = 2, bty = "n")
-  text(0.95, 0.05, sprintf("r = %.3f", pearson_r), adj = 1, cex = 1.1)
-}
-
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
-for (nm in names(scenarios)) {
-  gt_eval <- collapse_ground_truth(scenarios[[nm]]$data$ground_truth)
-  plot_scatter(spacet_results[[nm]], gt_eval,
-               paste0("SpaCET - ", scenarios[[nm]]$label),
-               spacet_metrics[[nm]]$pearson_r)
-}
-par(mfrow = c(1, 1))
-```
-
-### 9b. Per-Cell-Type Accuracy
-
-```r
-# Combine per-type metrics across scenarios
-all_per_type <- list()
-for (nm in names(scenarios)) {
-  pt <- spacet_metrics[[nm]]$per_type
-  pt$scenario <- scenarios[[nm]]$label
-  all_per_type[[nm]] <- pt
-}
-per_type_df <- do.call(rbind, all_per_type)
-
-# Bar plot
-par(mar = c(5, 9, 4, 2))
-cell_types_eval <- unique(per_type_df$cell_type)
-scenario_labels <- sapply(scenarios, function(s) s$label)
-colors_scen <- c("#E64B35", "#4DBBD5", "#00A087", "#F39B7F")
-
-n_types <- length(cell_types_eval)
-n_scen  <- length(scenario_labels)
-bar_mat <- matrix(NA, nrow = n_scen, ncol = n_types)
-
-for (i in seq_along(scenario_labels)) {
-  sub <- per_type_df[per_type_df$scenario == scenario_labels[i], ]
-  for (j in seq_along(cell_types_eval)) {
-    idx <- which(sub$cell_type == cell_types_eval[j])
-    if (length(idx) > 0) bar_mat[i, j] <- sub$pearson_r[idx]
-  }
-}
-
-barplot(bar_mat, beside = TRUE, horiz = TRUE, names.arg = cell_types_eval,
-        col = colors_scen, las = 1, xlab = "Pearson r",
-        main = "Per-cell-type accuracy by scenario",
-        xlim = c(min(0, min(bar_mat, na.rm = TRUE) - 0.1), 1))
-legend("bottomright", legend = scenario_labels, fill = colors_scen, cex = 0.7, bty = "n")
-abline(v = 0, col = "black", lwd = 0.5)
-par(mar = c(5, 4, 4, 2))
-```
-
-### 9c. Method Comparison (SpaCET vs MuSiC)
-
-```r
-if (has_music) {
-  scenario_labels <- sapply(scenarios, function(s) s$label)
-  spacet_rs <- sapply(names(scenarios), function(nm) spacet_metrics[[nm]]$pearson_r)
-  music_rs  <- sapply(names(scenarios), function(nm) {
-    if (nm %in% names(music_metrics)) music_metrics[[nm]]$pearson_r else NA
-  })
-
-  bar_mat <- rbind(SpaCET = spacet_rs, MuSiC = music_rs)
-  colnames(bar_mat) <- scenario_labels
-
-  par(mar = c(8, 4, 4, 2))
-  bp <- barplot(bar_mat, beside = TRUE, col = c("#3b82f6", "#f97316"),
-                ylim = c(0, 1.1), las = 2,
-                main = "Deconvolution Benchmark - Fair Subject-Split\n(Wu et al. BRCA)",
-                ylab = "Pearson r (overall)")
-  legend("topright", legend = c("SpaCET", "MuSiC"),
-         fill = c("#3b82f6", "#f97316"), bty = "n")
-
-  # Add r values on top of bars
-  text(bp, bar_mat + 0.03, sprintf("%.2f", bar_mat), cex = 0.7, adj = 0.5)
-  par(mar = c(5, 4, 4, 2))
-}
-```
-
-
-## Session Info
-
-```r
-sessionInfo()
-```
+The full benchmark script (data loading, pseudobulk generation, evaluation)
+is available at `scripts/generate_bulk_figures.R` in the package repository.
