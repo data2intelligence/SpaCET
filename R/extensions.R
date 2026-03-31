@@ -63,13 +63,10 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 
   # clustering
   set.seed(123)
-  suppressPackageStartupMessages(
-    library(MUDAN)
-  )
 
-  matnorm.info <- normalizeVariance(methods::as(st.matrix.data.mal, "dgCMatrix"),details=TRUE,verbose=FALSE)
+  matnorm.info <- MUDAN::normalizeVariance(methods::as(st.matrix.data.mal, "dgCMatrix"),details=TRUE,verbose=FALSE)
   matnorm <- log10(matnorm.info$mat+1)
-  pcs <- getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
+  pcs <- MUDAN::getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
 
   d <- as.dist(1-cor(t(pcs)))
   hc <- hclust(d, method='ward.D')
@@ -80,17 +77,11 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
   rownames(clustering) <- paste0("c",rownames(clustering))
 
   # silhouette
-  suppressPackageStartupMessages({
-    library(factoextra)
-    library(NbClust)
-    library(cluster)
-  })
-
   v <- c()
   for(i in cluster_numbers)
   {
     clustering0 <- cutree(hc,k=i)
-    sil <- silhouette(clustering0, d, Fun=mean)
+    sil <- cluster::silhouette(clustering0, d, Fun=mean)
     v <- c(v, mean(sil[,3]))
   }
 
@@ -122,15 +113,14 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
     tempMarkers <- c()
     for(j in setdiff(states,i))
     {
-      library(limma)
       TT <- as.numeric(Content%in%c(i))
       WT <- as.numeric(Content%in%c(j))
       design <- cbind(TT,WT)
-      fit <- lmFit(st.matrix.data.mal.log,design)
-      cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
-      fit2 <- contrasts.fit(fit, cont.matrix)
-      fit2 <- eBayes(fit2)
-      res <- topTable(fit2,coef=1,number=nrow(st.matrix.data.mal.log))
+      fit <- limma::lmFit(st.matrix.data.mal.log,design)
+      cont.matrix <- limma::makeContrasts(TTvsWT=TT-WT,levels=design)
+      fit2 <- limma::contrasts.fit(fit, cont.matrix)
+      fit2 <- limma::eBayes(fit2)
+      res <- limma::topTable(fit2,coef=1,number=nrow(st.matrix.data.mal.log))
 
       res <- res[order(res[,"t"],decreasing=T),]
 
@@ -476,15 +466,14 @@ generateRef <- function(
 
     run_limma <- function(cellTypeOther)
     {
-      library(limma)
       TT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]])
       WT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellTypeOther]])
       design <- cbind(TT,WT)
-      fit <- lmFit(sc.matrix.data.log2,design)
-      cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
-      fit2 <- contrasts.fit(fit, cont.matrix)
-      fit2 <- eBayes(fit2)
-      res <- topTable(fit2,coef=1,number=nrow(sc.matrix.data.log2))
+      fit <- limma::lmFit(sc.matrix.data.log2,design)
+      cont.matrix <- limma::makeContrasts(TTvsWT=TT-WT,levels=design)
+      fit2 <- limma::contrasts.fit(fit, cont.matrix)
+      fit2 <- limma::eBayes(fit2)
+      res <- limma::topTable(fit2,coef=1,number=nrow(sc.matrix.data.log2))
       res <- res[order(res[,"t"],decreasing=T),]
       res <- res[1:500,]
 
@@ -509,15 +498,14 @@ generateRef <- function(
           sc.matrix.data.norm[,sc.matrix.anno[,2]%in%cellTypeSub,drop=F],
           1,mean)
 
-        library(limma)
         TT <- as.numeric(sc.matrix.anno[,2]%in%cellTypeSub)
         WT <- as.numeric(sc.matrix.anno[,2]%in%setdiff(sc.matrix.tree[[cellType]],cellTypeSub))
         design <- cbind(TT,WT)
-        fit <- lmFit(sc.matrix.data.log2,design)
-        cont.matrix <- makeContrasts(TTvsWT=TT-WT,levels=design)
-        fit2 <- contrasts.fit(fit, cont.matrix)
-        fit2 <- eBayes(fit2)
-        res <- topTable(fit2,coef=1,number=nrow(sc.matrix.data.log2))
+        fit <- limma::lmFit(sc.matrix.data.log2,design)
+        cont.matrix <- limma::makeContrasts(TTvsWT=TT-WT,levels=design)
+        fit2 <- limma::contrasts.fit(fit, cont.matrix)
+        fit2 <- limma::eBayes(fit2)
+        res <- limma::topTable(fit2,coef=1,number=nrow(sc.matrix.data.log2))
         res <- res[order(res[,"t"],decreasing=T),]
         res <- res[1:500,]
 
@@ -798,8 +786,7 @@ calWeights <- function(SpaCET_obj, radius=200, k=NULL, sigma=100, diagAsZero=TRU
   x <- exp( -x^2 / (2*sigma^2) )
 
   # Create the sparse matrix using the 'i', 'j', and 'x' vectors
-  library(Matrix)
-  W <- sparseMatrix(i=i, j=j, x=x, dims=c(nrow(neighbor_indices), nrow(neighbor_indices)), repr="T")
+  W <- Matrix::sparseMatrix(i=i, j=j, x=x, dims=c(nrow(neighbor_indices), nrow(neighbor_indices)), repr="T")
   rownames(W) <- rownames(spotCoordinates)
   colnames(W) <- rownames(spotCoordinates)
 

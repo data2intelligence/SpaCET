@@ -9,6 +9,19 @@ setClass("SpaCET",
   )
 )
 
+# Visium hexagonal grid geometry constants
+VISIUM_SPOT_SPACING_UM <- 100
+VISIUM_HEX_SCALE_X <- 0.5
+VISIUM_HEX_SCALE_Y <- 0.5 * sqrt(3)
+
+addVisiumMicrometerCoords <- function(spotCoordinates)
+{
+  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * VISIUM_HEX_SCALE_X * VISIUM_SPOT_SPACING_UM
+  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * VISIUM_HEX_SCALE_Y * VISIUM_SPOT_SPACING_UM
+  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
+  spotCoordinates
+}
+
 
 #' @title Create a SpaCET object from 10X Visium
 #' @description Read an ST dataset to create a SpaCET object.
@@ -110,9 +123,7 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
 
   colnames(st.matrix.data) <- rownames(spotCoordinates)
 
-  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * 0.5 * 100
-  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * 0.5 * sqrt(3) * 100
-  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
+  spotCoordinates <- addVisiumMicrometerCoords(spotCoordinates)
 
   SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
@@ -263,7 +274,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
 
   if(sliceNum==1)
   {
-    if(class(Seurat_obj@assays$Spatial)=="Assay5")
+    if(inherits(Seurat_obj@assays$Spatial, "Assay5"))
     {
       st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
       colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
@@ -274,7 +285,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
 
     slice <- Seurat_obj@images[[1]]
 
-    if(class(slice)=="VisiumV2")
+    if(inherits(slice, "VisiumV2"))
     {
       st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
@@ -370,7 +381,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
       spot_start <- sum(spotNum[1:i])+1
       spot_end <- spot_start+ nrow(slice@coordinates) - 1
 
-      if(class(Seurat_obj@assays$Spatial)=="Assay5")
+      if(inherits(Seurat_obj@assays$Spatial, "Assay5"))
       {
         st.matrix.data <- Seurat_obj@assays$Spatial@layers$counts
         colnames(st.matrix.data) <- rownames(Seurat_obj@assays$Spatial@cells)
@@ -382,7 +393,7 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
       st.matrix.data <- st.matrix.data[,spot_start:spot_end]
       colnames(st.matrix.data) <- sapply(strsplit(colnames(st.matrix.data),"_",fixed=T),function(x) return(x[1])) #remove id
 
-      if(class(slice)=="VisiumV2")
+      if(inherits(slice, "VisiumV2"))
       {
         st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
@@ -588,4 +599,211 @@ mouse2human_mat <- function(mat) {
 
   rownames(out) <- lev
   out
+}
+
+
+#' @title Create a SpaCET object from NanoString CosMx
+#'
+#' @description Read NanoString CosMx SMI output into a SpaCET object.
+#'
+#' @param cosmxPath Path to the CosMx output folder containing the expression matrix and metadata.
+#' @param fov Field of view indices to include. Default NULL loads all FOVs.
+#' @param organism Species, either "human" (default) or "mouse".
+#'
+#' @return A SpaCET object.
+#'
+#' @examples
+#' \dontrun{
+#' SpaCET_obj <- create.SpaCET.object.CosMx(cosmxPath = "/path/to/cosmx_output")
+#' }
+#'
+#' @rdname create.SpaCET.object.CosMx
+#' @export
+#'
+create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
+{
+  if(!file.exists(cosmxPath))
+  {
+    stop("The cosmxPath does not exist. Please input the correct path.")
+  }
+
+  # Find expression matrix file
+  expr_file <- list.files(cosmxPath, pattern="exprMat_file\\.csv$|tx_file\\.csv$", full.names=TRUE, recursive=TRUE)
+  if(length(expr_file) == 0)
+  {
+    # Try alternative naming patterns
+    expr_file <- list.files(cosmxPath, pattern="(expression|counts).*\\.csv$", full.names=TRUE, recursive=TRUE)
+  }
+  if(length(expr_file) == 0) stop("No expression matrix file found in cosmxPath.")
+
+  message("Reading CosMx expression data...")
+  if(requireNamespace("data.table", quietly=TRUE))
+  {
+    expr_data <- as.data.frame(data.table::fread(expr_file[1], header=TRUE))
+    rownames(expr_data) <- expr_data[,1]; expr_data <- expr_data[,-1]
+  } else {
+    expr_data <- read.csv(expr_file[1], row.names=1, check.names=FALSE)
+  }
+
+  # Find metadata file
+  meta_file <- list.files(cosmxPath, pattern="metadata_file\\.csv$|metadata\\.csv$", full.names=TRUE, recursive=TRUE)
+  if(length(meta_file) > 0)
+  {
+    message("Reading CosMx metadata...")
+    if(requireNamespace("data.table", quietly=TRUE))
+    {
+      meta_data <- as.data.frame(data.table::fread(meta_file[1], header=TRUE))
+      rownames(meta_data) <- meta_data[,1]; meta_data <- meta_data[,-1]
+    } else {
+      meta_data <- read.csv(meta_file[1], row.names=1, check.names=FALSE)
+    }
+
+    # Filter by FOV if requested
+    if(!is.null(fov) && "fov" %in% colnames(meta_data))
+    {
+      keep_cells <- rownames(meta_data)[meta_data$fov %in% fov]
+      expr_data <- expr_data[, colnames(expr_data) %in% keep_cells, drop=FALSE]
+      meta_data <- meta_data[keep_cells, , drop=FALSE]
+    }
+
+    # Extract spatial coordinates
+    coord_cols <- intersect(c("CenterX_global_px", "CenterY_global_px",
+                               "x_global_px", "y_global_px",
+                               "CenterX_local_px", "CenterY_local_px"), colnames(meta_data))
+    if(length(coord_cols) >= 2)
+    {
+      spotCoordinates <- data.frame(
+        x = meta_data[, coord_cols[1]],
+        y = meta_data[, coord_cols[2]],
+        row.names = rownames(meta_data)
+      )
+    } else {
+      stop("Could not find spatial coordinate columns in CosMx metadata.")
+    }
+  } else {
+    stop("No metadata file found in cosmxPath.")
+  }
+
+  # Transpose if genes are in rows (CosMx format: cells x genes)
+  if(nrow(expr_data) > ncol(expr_data))
+  {
+    # Likely cells x genes, transpose to genes x cells
+    st.matrix.data <- Matrix::Matrix(t(as.matrix(expr_data)), sparse=TRUE)
+  } else {
+    st.matrix.data <- Matrix::Matrix(as.matrix(expr_data), sparse=TRUE)
+  }
+
+  # Ensure cell IDs match between expression and coordinates
+  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
+  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
+
+  st.matrix.data <- st.matrix.data[, common_cells]
+  spotCoordinates <- spotCoordinates[common_cells, ]
+
+  # Look for composite image
+  image_files <- list.files(cosmxPath, pattern="CellComposite.*\\.jpg$|CellComposite.*\\.png$|composite.*\\.png$",
+                             full.names=TRUE, recursive=TRUE)
+  imagePath <- if(length(image_files) > 0) image_files[1] else NA
+
+  message(paste0("CosMx data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
+
+  SpaCET_obj <- create.SpaCET.object(
+    counts=st.matrix.data,
+    spotCoordinates=spotCoordinates,
+    metaData=if(exists("meta_data")) meta_data[common_cells, , drop=FALSE] else NULL,
+    imagePath=imagePath,
+    platform="CosMx",
+    organism=organism
+  )
+
+  return(SpaCET_obj)
+}
+
+
+#' @title Create a SpaCET object from 10x Xenium
+#'
+#' @description Read 10x Genomics Xenium output into a SpaCET object.
+#'
+#' @param xeniumPath Path to the Xenium output folder.
+#' @param organism Species, either "human" (default) or "mouse".
+#'
+#' @return A SpaCET object.
+#'
+#' @examples
+#' \dontrun{
+#' SpaCET_obj <- create.SpaCET.object.Xenium(xeniumPath = "/path/to/xenium_output")
+#' }
+#'
+#' @rdname create.SpaCET.object.Xenium
+#' @export
+#'
+create.SpaCET.object.Xenium <- function(xeniumPath, organism="human")
+{
+  if(!file.exists(xeniumPath))
+  {
+    stop("The xeniumPath does not exist. Please input the correct path.")
+  }
+
+  # Read cell-feature matrix
+  matrix_dir <- file.path(xeniumPath, "cell_feature_matrix")
+  h5_file <- file.path(xeniumPath, "cell_feature_matrix.h5")
+
+  if(dir.exists(matrix_dir))
+  {
+    message("Reading Xenium cell-feature matrix from directory...")
+    st.matrix.data <- Matrix::readMM(file.path(matrix_dir, "matrix.mtx.gz"))
+    genes <- read.csv(file.path(matrix_dir, "features.tsv.gz"), header=FALSE, sep="\t")
+    barcodes <- read.csv(file.path(matrix_dir, "barcodes.tsv.gz"), header=FALSE, sep="\t")
+    rownames(st.matrix.data) <- genes[, 2]  # Gene symbols
+    colnames(st.matrix.data) <- barcodes[, 1]
+  } else if(file.exists(h5_file))
+  {
+    message("Reading Xenium cell-feature matrix from H5...")
+    st.matrix.data <- Seurat::Read10X_h5(h5_file)
+  } else {
+    stop("No cell_feature_matrix found. Expected directory or .h5 file in xeniumPath.")
+  }
+
+  # Read cell metadata with spatial coordinates
+  cells_file <- file.path(xeniumPath, "cells.csv.gz")
+  cells_parquet <- file.path(xeniumPath, "cells.parquet")
+
+  if(file.exists(cells_file))
+  {
+    message("Reading Xenium cell coordinates...")
+    cells <- read.csv(cells_file)
+  } else if(file.exists(cells_parquet))
+  {
+    cells <- as.data.frame(arrow::read_parquet(cells_parquet))
+  } else {
+    stop("No cells.csv.gz or cells.parquet found in xeniumPath.")
+  }
+
+  # Extract coordinates
+  rownames(cells) <- cells$cell_id
+  spotCoordinates <- data.frame(
+    x = cells$x_centroid,
+    y = cells$y_centroid,
+    row.names = cells$cell_id
+  )
+
+  # Align cell IDs
+  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
+  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
+
+  st.matrix.data <- st.matrix.data[, common_cells]
+  spotCoordinates <- spotCoordinates[common_cells, ]
+
+  message(paste0("Xenium data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
+
+  SpaCET_obj <- create.SpaCET.object(
+    counts=st.matrix.data,
+    spotCoordinates=spotCoordinates,
+    metaData=cells[common_cells, , drop=FALSE],
+    imagePath=NA,
+    platform="Xenium",
+    organism=organism
+  )
+
+  return(SpaCET_obj)
 }
