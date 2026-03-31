@@ -92,6 +92,8 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
 - [Spatially variable genes and co-expressed ligand–receptor
   interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
+- [Bulk RNA-seq deconvolution
+  benchmark](https://data2intelligence.github.io/SpaCET/articles/BulkDeconvolution.html)
 
 ## Data availability
 

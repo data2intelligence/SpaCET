@@ -23,6 +23,10 @@ navbar:
         href: articles/GeneSetScore.html
       - text: Spatially variable genes and co-expressed ligand–receptor interactions
         href: articles/SpatialCorrelation.html
+      - text: ----
+      - text: Bulk RNA-seq
+      - text: Bulk RNA-seq deconvolution benchmark
+        href: articles/BulkDeconvolution.html
     - text: News
       href: news/index.html
 
@@ -32,8 +36,8 @@ reference:
     - SpaCET-class
     - create.SpaCET.object
     - create.SpaCET.object.10X
-    - SpaCET.quality.control
-    - SpaCET.quality.control
+    - create.SpaCET.object.CosMx
+    - create.SpaCET.object.Xenium
     - SpaCET.quality.control
     - convert.Seurat
     - addTo.Seurat
@@ -41,6 +45,8 @@ reference:
   - title: Deconvolution of ST data
     contents:
     - SpaCET.deconvolution
+    - SpaCET.deconvolution.bulk
+    - inferMal_bulk
     - SpaCET.deconvolution.malignant
     - SpaCET.deconvolution.matched.scRNAseq
     - SpaCET.deconvolution.malignant.customized.scRNAseq
