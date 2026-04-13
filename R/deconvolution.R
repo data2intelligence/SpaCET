@@ -153,10 +153,13 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
 
     # clustering
     set.seed(123)
+    suppressPackageStartupMessages(
+      library(MUDAN)
+    )
 
-    matnorm.info <- MUDAN::normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
+    matnorm.info <- normalizeVariance(methods::as(st.matrix.data, "dgCMatrix"),details=TRUE,verbose=FALSE)
     matnorm <- log10(matnorm.info$mat+1)
-    pcs <- MUDAN::getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
+    pcs <- getPcs(matnorm[matnorm.info$ods,],nGenes=length(matnorm.info$ods),nPcs=30,verbose=FALSE)
 
     d <- as.dist(1-cor(t(pcs)))
     hc <- hclust(d, method='ward.D')
@@ -167,12 +170,17 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
     rownames(clustering) <- paste0("c",rownames(clustering))
 
     # silhouette
+    suppressPackageStartupMessages({
+      library(factoextra)
+      library(NbClust)
+      library(cluster)
+    })
 
     v <- c()
     for(i in cluster_numbers)
     {
       clustering0 <- cutree(hc,k=i)
-      sil <- cluster::silhouette(clustering0, d, Fun=mean)
+      sil <- silhouette(clustering0, d, Fun=mean)
       v <- c(v, mean(sil[,3]))
     }
 
@@ -209,9 +217,27 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
 
           cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          if(sum(stat.df[,"clusterMal"])>0)
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
+          {
+            cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <-
+              stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+          }
+
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
@@ -228,13 +254,33 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         for(CNA_expr in c("CNA"))
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+
           if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
 
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          if(sum(stat.df[,"clusterMal"])>0)
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
+          {
+            cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <-
+              stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+          }
+
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
@@ -249,13 +295,33 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
         for(CNA_expr in c("expr"))
         {
           cancerTypeExists <- grepl(cancerType,names(cancerDictionary[[CNA_expr]]))
+
           if(sum(cancerTypeExists)==0) stop(paste0("SpaCET does not include ",cancerType," ",CNA_expr," signature."))
 
           sig <- as.matrix(cancerDictionary[[CNA_expr]][cancerTypeExists][[1]],ncol=1)
-          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
-          stat.df <- clusterMalStats(cor_sig, clustering, seq_depth)
 
-          if(sum(stat.df[,"clusterMal"])>0)
+          cor_sig <- corMat(as.matrix(st.matrix.data.diff),sig)
+
+          stat.df <- data.frame()
+          for(i in sort(unique(clustering)))
+          {
+            cor_sig_clustering <- cor_sig[clustering==i,]
+            seq_depth_clustering <- seq_depth[clustering==i]
+
+            stat.df[i,"cluster"] <- i
+            stat.df[i,"spotNum"] <- nrow(cor_sig_clustering)
+            stat.df[i,"mean"] <- mean(cor_sig_clustering[,1])
+            stat.df[i,"wilcoxTestG0"] <- suppressWarnings(wilcox.test(cor_sig_clustering[,1],mu=0,alternative="greater")$p.value)
+            stat.df[i,"fraction_spot_padj"] <- sum(cor_sig_clustering[,"cor_r"]>0&cor_sig_clustering[,"cor_padj"]<0.25)/nrow(cor_sig_clustering)
+            stat.df[i,"seq_depth_diff"] <- mean(seq_depth_clustering)-mean(seq_depth)
+            stat.df[i,"clusterMal"] <-
+              stat.df[i,"seq_depth_diff"]>0 &
+              stat.df[i,"mean"]>0 &
+              stat.df[i,"wilcoxTestG0"]<0.05 &
+              stat.df[i,"fraction_spot_padj"] >= sum(cor_sig[,"cor_r"]>0&cor_sig[,"cor_padj"]<0.25)/nrow(cor_sig)
+          }
+
+          if(sum(stat.df[,"clusterMal"])>0) # find malignant spots.
           {
             message(paste0("                  > Use ",CNA_expr," signature: ",cancerType,"."))
             malFlag <- TRUE
@@ -554,92 +620,92 @@ SpatialDeconv <- function(
   ###### level 2 deconv ######
   for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
   {
-      if(!cellSpe%in%rownames(propMatLevel1)) next
+    if(!cellSpe%in%rownames(propMatLevel1)) next
 
-      message(paste0("                  > ",cellSpe,":"))
+    message(paste0("                  > ",cellSpe,":"))
 
-      cellsub <- Tree[[cellSpe]]
-      cellsub <- setdiff(cellsub,"Macrophage other")
+    cellsub <- Tree[[cellSpe]]
+    cellsub <- setdiff(cellsub,"Macrophage other")
 
-      if( length(setdiff(Level1,cellSpe)) > 0)
-      {
-        mixture <- mixtureMinusMal - tempReference[,setdiff(Level1,cellSpe),drop=F] %*% propMatLevel1[setdiff(Level1,cellSpe),,drop=F]
-      }else{
-        mixture <- mixtureMinusMal
-      }
-      Reference <- tempReference[,colnames(tempReference)%in%cellsub,drop=F]
-      Signature <- tempSignature[names(tempSignature)%in%cellsub] ######
+    if( length(setdiff(Level1,cellSpe)) > 0)
+    {
+      mixture <- mixtureMinusMal - tempReference[,setdiff(Level1,cellSpe),drop=F] %*% propMatLevel1[setdiff(Level1,cellSpe),,drop=F]
+    }else{
+      mixture <- mixtureMinusMal
+    }
+    Reference <- tempReference[,colnames(tempReference)%in%cellsub,drop=F]
+    Signature <- tempSignature[names(tempSignature)%in%cellsub] ######
 
-      nSpot <- dim(mixture)[2]
-      nCell <- dim(Reference)[2]
-      thetaSum <- propMatLevel1[cellSpe,]-1e-5
+    nSpot <- dim(mixture)[2]
+    nCell <- dim(Reference)[2]
+    thetaSum <- propMatLevel1[cellSpe,]-1e-5
 
-      Signature <- unique(unlist(Signature))
-      Signature <- Signature[Signature%in%olpGenes]
+    Signature <- unique(unlist(Signature))
+    Signature <- Signature[Signature%in%olpGenes]
 
-      mixture <- mixture[Signature,]
-      Reference <- Reference[Signature,,drop=F]
+    mixture <- mixture[Signature,]
+    Reference <- Reference[Signature,,drop=F]
 
-      ui <- rbind(diag(nCell), rep(1, nCell), rep(-1, nCell))
+    ui <- rbind(diag(nCell), rep(1, nCell), rep(-1, nCell))
 
-      propList <- pbmcapply::pbmclapply(
-        1:nSpot,
-        FUN=function(i){
-          theta <- rep(thetaSum[i]/nCell, nCell)
+    propList <- pbmcapply::pbmclapply(
+      1:nSpot,
+      FUN=function(i){
+        theta <- rep(thetaSum[i]/nCell, nCell)
 
-          if(thetaSum[i]>0.01)
+        if(thetaSum[i]>0.01)
+        {
+          if(cellSpe=="Macrophage")
           {
-            if(cellSpe=="Macrophage")
+            if(MacrophageOther)
             {
-              if(MacrophageOther)
-              {
-                ppmin <- 0
-              }else{
-                ppmin <- propMatLevel1[cellSpe,i]-2e-5
-              }
-              ppmax <- propMatLevel1[cellSpe,i]
+              ppmin <- 0
             }else{
               ppmin <- propMatLevel1[cellSpe,i]-2e-5
-              ppmax <- propMatLevel1[cellSpe,i]
             }
-
-            ci <- c(rep(0,nCell), ppmin, -ppmax)
-
-            f0 <- function(A, x, b){
-              sum( (A %*% x - b)^2 )
-            }
-            res <- stats::constrOptim(theta=theta, f=f0, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
-            prop <- res$par
-            names(prop) <- colnames(Reference)
-
-            bhat <- Reference %*% prop
-            f <- function(A, x, b){
-              sum( (A %*% x - b)^2 * ( 1 / ( (bhat +1) ) ) )
-            }
-
-            res <- stats::constrOptim(theta=theta, f=f, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
-            prop <- res$par
-            names(prop) <- colnames(Reference)
-
+            ppmax <- propMatLevel1[cellSpe,i]
           }else{
-            prop <- theta
+            ppmin <- propMatLevel1[cellSpe,i]-2e-5
+            ppmax <- propMatLevel1[cellSpe,i]
           }
 
-          return(prop)
-        },
-        mc.cores=coreNo
-      )
+          ci <- c(rep(0,nCell), ppmin, -ppmax)
 
-      propMat <- as.matrix(as.data.frame(propList))
-      colnames(propMat) <- colnames(mixture)
-      rownames(propMat) <- colnames(Reference)
+          f0 <- function(A, x, b){
+            sum( (A %*% x - b)^2 )
+          }
+          res <- stats::constrOptim(theta=theta, f=f0, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
+          prop <- res$par
+          names(prop) <- colnames(Reference)
 
-      if(mode=="standard"&MacrophageOther&cellSpe=="Macrophage")
-      {
-        propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
-      }
+          bhat <- Reference %*% prop
+          f <- function(A, x, b){
+            sum( (A %*% x - b)^2 * ( 1 / ( (bhat +1) ) ) )
+          }
 
-      propMatLevel1 <- rbind(propMatLevel1, propMat)
+          res <- stats::constrOptim(theta=theta, f=f, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
+          prop <- res$par
+          names(prop) <- colnames(Reference)
+
+        }else{
+          prop <- theta
+        }
+
+        return(prop)
+      },
+      mc.cores=coreNo
+    )
+
+    propMat <- as.matrix(as.data.frame(propList))
+    colnames(propMat) <- colnames(mixture)
+    rownames(propMat) <- colnames(Reference)
+
+    if(mode=="standard"&MacrophageOther&cellSpe=="Macrophage")
+    {
+      propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
+    }
+
+    propMatLevel1 <- rbind(propMatLevel1, propMat)
   }
 
   propMat <- propMatLevel1
