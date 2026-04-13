@@ -158,7 +158,6 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
       axis.title = element_text(size = 12, colour = "black")
     )
 
-  library(patchwork)
   p1+p2
 }
 
@@ -433,21 +432,21 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
     pv2 <- testRes[paste0(cellTypePair[1],"_",cellTypePair[2]),"groupCompare_pv"]
 
     Content <- unlist(groupMat[paste0(cellTypePair[1],"_",cellTypePair[2]),colnames(res_deconv)])
-    visiualVector <- Content
-    spotID <- names(visiualVector)
-    names(visiualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
+    visualVector <- Content
+    spotID <- names(visualVector)
+    names(visualVector) <- paste0(SpaCET_obj@input$spotCoordinates[,1],"x",SpaCET_obj@input$spotCoordinates[,2])
 
-    if(which(sort(unique(visiualVector))=="Both")==1)
+    if(which(sort(unique(visualVector))=="Both")==1)
     {
       icolors <- c("green","red","blue")
-    }else if(which(sort(unique(visiualVector))=="Both")==2){
+    }else if(which(sort(unique(visualVector))=="Both")==2){
       icolors <- c("red","green","blue")
     }else{
       icolors <- c("red","blue","green")
     }
 
     p1 <- visualSpatial(
-      visiualVector,
+      visualVector,
       SpaCET_obj@input$image,
       SpaCET_obj@input$platform,
       scaleType="color-discrete",
@@ -523,8 +522,7 @@ SpaCET.visualize.cellTypePair <- function(SpaCET_obj, cellTypePair)
         legend.position="none"
       )
 
-    library(patchwork)
-    p1+p2+p3
+      p1+p2+p3
   }
 }
 

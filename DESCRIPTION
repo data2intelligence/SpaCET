@@ -34,6 +34,9 @@ Imports:
     sctransform,
     UCell,
     MUDAN
+Suggests:
+    base64enc,
+    testthat (>= 3.0.0)
 biocViews:
     UCell
 remotes:
