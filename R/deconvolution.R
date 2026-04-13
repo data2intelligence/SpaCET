@@ -620,92 +620,92 @@ SpatialDeconv <- function(
   ###### level 2 deconv ######
   for(cellSpe in names(Tree)[unlist(lapply(Tree,function(x) length(x)>=2))])
   {
-    if(!cellSpe%in%rownames(propMatLevel1)) next
+      if(!cellSpe%in%rownames(propMatLevel1)) next
 
-    message(paste0("                  > ",cellSpe,":"))
+      message(paste0("                  > ",cellSpe,":"))
 
-    cellsub <- Tree[[cellSpe]]
-    cellsub <- setdiff(cellsub,"Macrophage other")
+      cellsub <- Tree[[cellSpe]]
+      cellsub <- setdiff(cellsub,"Macrophage other")
 
-    if( length(setdiff(Level1,cellSpe)) > 0)
-    {
-      mixture <- mixtureMinusMal - tempReference[,setdiff(Level1,cellSpe),drop=F] %*% propMatLevel1[setdiff(Level1,cellSpe),,drop=F]
-    }else{
-      mixture <- mixtureMinusMal
-    }
-    Reference <- tempReference[,colnames(tempReference)%in%cellsub,drop=F]
-    Signature <- tempSignature[names(tempSignature)%in%cellsub] ######
+      if( length(setdiff(Level1,cellSpe)) > 0)
+      {
+        mixture <- mixtureMinusMal - tempReference[,setdiff(Level1,cellSpe),drop=F] %*% propMatLevel1[setdiff(Level1,cellSpe),,drop=F]
+      }else{
+        mixture <- mixtureMinusMal
+      }
+      Reference <- tempReference[,colnames(tempReference)%in%cellsub,drop=F]
+      Signature <- tempSignature[names(tempSignature)%in%cellsub] ######
 
-    nSpot <- dim(mixture)[2]
-    nCell <- dim(Reference)[2]
-    thetaSum <- propMatLevel1[cellSpe,]-1e-5
+      nSpot <- dim(mixture)[2]
+      nCell <- dim(Reference)[2]
+      thetaSum <- propMatLevel1[cellSpe,]-1e-5
 
-    Signature <- unique(unlist(Signature))
-    Signature <- Signature[Signature%in%olpGenes]
+      Signature <- unique(unlist(Signature))
+      Signature <- Signature[Signature%in%olpGenes]
 
-    mixture <- mixture[Signature,]
-    Reference <- Reference[Signature,,drop=F]
+      mixture <- mixture[Signature,]
+      Reference <- Reference[Signature,,drop=F]
 
-    ui <- rbind(diag(nCell), rep(1, nCell), rep(-1, nCell))
+      ui <- rbind(diag(nCell), rep(1, nCell), rep(-1, nCell))
 
-    propList <- pbmcapply::pbmclapply(
-      1:nSpot,
-      FUN=function(i){
-        theta <- rep(thetaSum[i]/nCell, nCell)
+      propList <- pbmcapply::pbmclapply(
+        1:nSpot,
+        FUN=function(i){
+          theta <- rep(thetaSum[i]/nCell, nCell)
 
-        if(thetaSum[i]>0.01)
-        {
-          if(cellSpe=="Macrophage")
+          if(thetaSum[i]>0.01)
           {
-            if(MacrophageOther)
+            if(cellSpe=="Macrophage")
             {
-              ppmin <- 0
+              if(MacrophageOther)
+              {
+                ppmin <- 0
+              }else{
+                ppmin <- propMatLevel1[cellSpe,i]-2e-5
+              }
+              ppmax <- propMatLevel1[cellSpe,i]
             }else{
               ppmin <- propMatLevel1[cellSpe,i]-2e-5
+              ppmax <- propMatLevel1[cellSpe,i]
             }
-            ppmax <- propMatLevel1[cellSpe,i]
+
+            ci <- c(rep(0,nCell), ppmin, -ppmax)
+
+            f0 <- function(A, x, b){
+              sum( (A %*% x - b)^2 )
+            }
+            res <- stats::constrOptim(theta=theta, f=f0, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
+            prop <- res$par
+            names(prop) <- colnames(Reference)
+
+            bhat <- Reference %*% prop
+            f <- function(A, x, b){
+              sum( (A %*% x - b)^2 * ( 1 / ( (bhat +1) ) ) )
+            }
+
+            res <- stats::constrOptim(theta=theta, f=f, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
+            prop <- res$par
+            names(prop) <- colnames(Reference)
+
           }else{
-            ppmin <- propMatLevel1[cellSpe,i]-2e-5
-            ppmax <- propMatLevel1[cellSpe,i]
+            prop <- theta
           }
 
-          ci <- c(rep(0,nCell), ppmin, -ppmax)
+          return(prop)
+        },
+        mc.cores=coreNo
+      )
 
-          f0 <- function(A, x, b){
-            sum( (A %*% x - b)^2 )
-          }
-          res <- stats::constrOptim(theta=theta, f=f0, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
-          prop <- res$par
-          names(prop) <- colnames(Reference)
+      propMat <- as.matrix(as.data.frame(propList))
+      colnames(propMat) <- colnames(mixture)
+      rownames(propMat) <- colnames(Reference)
 
-          bhat <- Reference %*% prop
-          f <- function(A, x, b){
-            sum( (A %*% x - b)^2 * ( 1 / ( (bhat +1) ) ) )
-          }
+      if(mode=="standard"&MacrophageOther&cellSpe=="Macrophage")
+      {
+        propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
+      }
 
-          res <- stats::constrOptim(theta=theta, f=f, grad=NULL, ui=ui, ci=ci, A=Reference, b=mixture[,i])
-          prop <- res$par
-          names(prop) <- colnames(Reference)
-
-        }else{
-          prop <- theta
-        }
-
-        return(prop)
-      },
-      mc.cores=coreNo
-    )
-
-    propMat <- as.matrix(as.data.frame(propList))
-    colnames(propMat) <- colnames(mixture)
-    rownames(propMat) <- colnames(Reference)
-
-    if(mode=="standard"&MacrophageOther&cellSpe=="Macrophage")
-    {
-      propMat <- rbind(propMat, "Macrophage other"=propMatLevel1[cellSpe,]-colSums(propMat))
-    }
-
-    propMatLevel1 <- rbind(propMatLevel1, propMat)
+      propMatLevel1 <- rbind(propMatLevel1, propMat)
   }
 
   propMat <- propMatLevel1

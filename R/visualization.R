@@ -1,141 +1,3 @@
-LR_SCORE_UPPER <- 1.5
-LR_SCORE_LOWER <- 0.5
-
-clipLRNetworkScore <- function(mat)
-{
-  mat[2, mat[2,] > LR_SCORE_UPPER] <- LR_SCORE_UPPER
-  mat[2, mat[2,] < LR_SCORE_LOWER] <- LR_SCORE_LOWER
-  mat[3,] <- -log10(mat[3,])
-  mat
-}
-
-
-prepareSpatialData <- function(SpaCET_obj, spatialType, spatialFeatures,
-                               scaleTypeForGeneExpression, sameScaleForFraction, colors)
-{
-  legendName <- NULL
-  limits <- NULL
-
-  if(spatialType == "QualityControl"){
-    if(is.null(SpaCET_obj@results$metrics)) stop("Please run SpaCET.quality.control first.")
-    mat <- SpaCET_obj@results$metrics
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("lightblue", "blue", "darkblue")
-    legendName <- "Count"
-
-  }else if(spatialType == "GeneExpression"){
-    mat <- SpaCET_obj@input$counts
-    if(scaleTypeForGeneExpression=="RawCounts"){
-      legendName <- "Counts"
-    }else if(scaleTypeForGeneExpression=="LogRawCounts"){
-      mat@x <- log2(mat@x+1)
-      legendName <- "LogCounts"
-    }else if(scaleTypeForGeneExpression=="LogTPM/10"){
-      mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
-      mat@x <- log2(mat@x+1)
-      legendName <- "LogTPM/10"
-    }else if(scaleTypeForGeneExpression=="LogTPM"){
-      mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
-      mat@x <- log2(mat@x+1)
-      legendName <- "LogTPM"
-    }else{
-      stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
-    }
-    geneFlag <- spatialFeatures%in%rownames(mat)
-    if(sum(geneFlag)!=length(geneFlag)){
-      excluded <- spatialFeatures[!geneFlag]
-      warning("The following genes are excluded because they are not official gene symbols.")
-      message(excluded)
-      spatialFeatures <- spatialFeatures[geneFlag]
-    }
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("#4d9221", "yellow", "#c51b7d")
-
-  }else if(spatialType == "CellFraction"){
-    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
-    mat <- SpaCET_obj@results$deconvolution$propMat
-    if(!is.list(spatialFeatures)){
-      if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
-    }else{
-      if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
-        stop("Please assign a name for each element of your cell-type list.")
-      for(i in names(spatialFeatures)){
-        if(sum(spatialFeatures[[i]]%in%rownames(mat)) != length(spatialFeatures[[i]])){
-          wrongCellTypes <- paste0(spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
-          stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
-        }
-        mat <- rbind(mat, i=colSums(mat[spatialFeatures[[i]],,drop=F]))
-        rownames(mat)[nrow(mat)] <- i
-      }
-      spatialFeatures <- names(spatialFeatures)
-    }
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("blue", "yellow", "red")
-    legendName <- "Fraction"
-    if(sameScaleForFraction) limits <- c(0,1)
-
-  }else if(spatialType == "MostAbundantCellType"){
-    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
-    mat <- SpaCET_obj@results$deconvolution$propMat
-    scaleType <- "color-discrete"
-    legendName <- "Cell Type"
-
-  }else if(spatialType == "CellTypeComposition"){
-    if(is.null(SpaCET_obj@results$deconvolution$propMat)) stop("Please run cell type deconvolution first.")
-    mat <- SpaCET_obj@results$deconvolution$propMat
-    scaleType <- "color-discrete"
-    legendName <- "Cell Type"
-
-  }else if(spatialType == "LRNetworkScore"){
-    if(is.null(SpaCET_obj@results$CCI$LRNetworkScore)) stop("Please run SpaCET.CCI.LRNetworkScore first.")
-    mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("blue","blue","blue","blue","cyan","cyan","yellow")
-
-  }else if(spatialType == "Interface"){
-    if(is.null(SpaCET_obj@results$CCI$interface)) stop("Please run SpaCET.identify.interface first.")
-    mat <- SpaCET_obj@results$CCI$interface
-    scaleType <- "color-discrete"
-    legendName <- "Spot"
-
-  }else if(spatialType == "GeneSetScore"){
-    if(is.null(SpaCET_obj@results$GeneSetScore)) stop("Please run SpaCET.GeneSetScore first.")
-    mat <- SpaCET_obj@results$GeneSetScore
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("#91bfdb","#fee090","#d73027")
-    legendName <- "Score"
-
-  }else if(spatialType == "SecretedProteinActivity"){
-    if(is.null(SpaCET_obj@results$SecAct_output$SecretedProteinActivity)) stop("Please run SecAct.signaling.inference first.")
-    mat <- SpaCET_obj@results$SecAct_output$SecretedProteinActivity$zscore
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
-    legendName <- "Activity"
-
-  }else if(spatialType == "SignalingPattern"){
-    if(is.null(SpaCET_obj@results$SecAct_output$pattern)) stop("Please run SecAct.signaling.pattern first.")
-    mat <- SpaCET_obj@results$SecAct_output$pattern$signal.H
-    if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
-    else spatialFeatures <- as.character(spatialFeatures)
-    scaleType <- "color-continuous"
-    if(is.null(colors)) colors <- c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
-    legendName <- "Signal"
-
-  }else if(spatialType == "metaData"){
-    mat <- t(SpaCET_obj@input$metaData)
-    if(length(spatialFeatures) > 1) stop("Please input one feature once.")
-    scaleType <- "color-discrete"
-    legendName <- spatialFeatures
-
-  }else{
-    stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
-  }
-
-  list(mat=mat, scaleType=scaleType, colors=colors, legendName=legendName,
-       limits=limits, spatialFeatures=spatialFeatures)
-}
-
-
 #' @title Spatial feature visualization
 #' @description Visualize multiple types of spatial features in ST data.
 #' @param SpaCET_obj A SpaCET object.
@@ -152,13 +14,8 @@ prepareSpatialData <- function(SpaCET_obj, spatialType, spatialFeatures,
 #' @param CustomizedAreaScale A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.
 #' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
 #' @param legend.size The size of the legend.
-#' @param interactive Controls interactivity mode. \code{FALSE} (default) returns a static ggplot.
-#' \code{TRUE} launches the Shiny interactive app (Visium only).
-#' \code{"plotly"} returns a standalone Plotly htmlwidget with zoom, pan, and hover
-#' tooltips — works in RStudio, R Markdown, and Jupyter. Supports all spatial types
-#' except CellTypeComposition.
-#' @return A ggplot2 object (when \code{interactive=FALSE}), a plotly htmlwidget
-#' (when \code{interactive="plotly"}), or launches a Shiny app (when \code{interactive=TRUE}).
+#' @param interactive Logical: should the interactive app be activited?
+#' @return A ggplot2 object.
 #' @details
 #' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
 #' "QualityControl" refers to quality control metrics. User can visualize the total counts of UMI and genes across all spots.
@@ -197,25 +54,206 @@ SpaCET.visualize.spatialFeature <- function(
     stop("Please set imageSize as one of them, CompleteImage, CaptureArea, CustomizedArea.")
   }
 
-  if(identical(interactive, "plotly") && spatialType == "CellTypeComposition")
+  if(interactive==FALSE)
   {
-    stop("CellTypeComposition is not supported in plotly mode. Use interactive=FALSE or interactive=TRUE.")
-  }
 
-  if(identical(interactive, FALSE) || identical(interactive, "plotly"))
-  {
-    prep <- prepareSpatialData(SpaCET_obj, spatialType, spatialFeatures,
-                               scaleTypeForGeneExpression, sameScaleForFraction, colors)
-    mat <- prep$mat
-    scaleType <- prep$scaleType
-    colors <- prep$colors
-    legendName <- prep$legendName
-    limits <- prep$limits
-    spatialFeatures <- prep$spatialFeatures
+    if(spatialType == "QualityControl")
+    {
+      if(is.null(SpaCET_obj@results$metrics))
+      {
+        stop("Please run SpaCET.quality.control first.")
+      }
 
+      mat <- SpaCET_obj@results$metrics
 
-    plotly_list <- list()
-    pp <- NULL
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("lightblue", "blue", "darkblue")
+      legendName = "Count"
+      limits = NULL
+    }else if(spatialType == "GeneExpression"){
+      mat <- SpaCET_obj@input$counts
+
+      if(scaleTypeForGeneExpression=="RawCounts")
+      {
+        legendName = "Counts"
+      }else if(scaleTypeForGeneExpression=="LogRawCounts"){
+        mat@x <- log2(mat@x+1)
+        legendName = "LogCounts"
+      }else if(scaleTypeForGeneExpression=="LogTPM/10"){
+        mat <- Matrix::t(Matrix::t(mat)*1e5/Matrix::colSums(mat))
+        mat@x <- log2(mat@x+1)
+        legendName = "LogTPM/10"
+      }else if(scaleTypeForGeneExpression=="LogTPM"){
+        mat <- Matrix::t(Matrix::t(mat)*1e6/Matrix::colSums(mat))
+        mat@x <- log2(mat@x+1)
+        legendName = "LogTPM"
+      }else{
+        stop("Please set scaleTypeForGeneExpression as one of four scale types, i.e., RawCounts, LogRawCounts, LogTPM/10, LogTPM.")
+      }
+
+      geneFlag <- spatialFeatures%in%rownames(mat)
+      if(sum(geneFlag)!=length(geneFlag))
+      {
+        excluded <- spatialFeatures[!geneFlag]
+        warning("The following genes are excluded because they are not official gene symbols.")
+        message(excluded)
+        spatialFeatures <- spatialFeatures[geneFlag]
+      }
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#4d9221", "yellow", "#c51b7d")
+      limits = NULL
+    }else if(spatialType == "CellFraction"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      if(!is.list(spatialFeatures))
+      {
+        if("All"%in%spatialFeatures) spatialFeatures <- rownames(mat)
+
+      }else{
+        if(is.null(names(spatialFeatures)) | ""%in%names(spatialFeatures))
+        {
+          stop("Please assign a name for each element of your cell-type list.")
+        }
+
+        for(i in names(spatialFeatures))
+        {
+          if( sum( spatialFeatures[[i]]%in%rownames(mat) ) != length(spatialFeatures[[i]]) )
+          {
+            wrongCellTypes <- paste0( spatialFeatures[[i]][!spatialFeatures[[i]]%in%rownames(mat)], collapse=", ")
+            stop(paste0("The following cell-type names are not in the deconvolution results. Please check your input.\n", wrongCellTypes))
+          }
+          mat <- rbind(mat,i=colSums(mat[spatialFeatures[[i]],,drop=F]))
+          rownames(mat)[nrow(mat)] <- i
+        }
+        spatialFeatures <- names(spatialFeatures)
+      }
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("blue", "yellow", "red")
+      legendName = "Fraction"
+
+      if(sameScaleForFraction)
+      {
+        limits = c(0,1)
+      }else{
+        limits = NULL
+      }
+
+    }else if(spatialType == "MostAbundantCellType"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      scaleType="color-discrete"
+      legendName = "Cell Type"
+      limits = NULL
+
+    }else if(spatialType == "CellTypeComposition"){
+      if(is.null(SpaCET_obj@results$deconvolution$propMat))
+      {
+        stop("Please run cell type deconvolution first.")
+      }
+
+      mat <- SpaCET_obj@results$deconvolution$propMat
+
+      scaleType="color-discrete"
+      legendName = "Cell Type"
+      limits = NULL
+
+    }else if(spatialType == "LRNetworkScore"){
+      if(is.null(SpaCET_obj@results$CCI$LRNetworkScore))
+      {
+        stop("Please run SpaCET.CCI.LRNetworkScore first.")
+      }
+
+      mat <- SpaCET_obj@results$CCI$LRNetworkScore
+      mat[2,mat[2,]> 1.5] <- 1.5
+      mat[2,mat[2,]< 0.5] <- 0.5
+      mat[3,] <- -log10(mat[3,])
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
+      limits = NULL
+
+    }else if(spatialType == "Interface"){
+      if(is.null(SpaCET_obj@results$CCI$interface))
+      {
+        stop("Please run SpaCET.identify.interface first.")
+      }
+
+      mat <- SpaCET_obj@results$CCI$interface
+
+      scaleType="color-discrete"
+      legendName = "Spot"
+      limits = NULL
+    }else if(spatialType == "GeneSetScore"){
+      if(is.null(SpaCET_obj@results$GeneSetScore))
+      {
+        stop("Please run SpaCET.GeneSetScore first.")
+      }
+
+      mat <- SpaCET_obj@results$GeneSetScore
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#91bfdb","#fee090","#d73027")
+      legendName = "Score"
+      limits = NULL
+    }else if(spatialType == "SecretedProteinActivity"){
+      if(is.null(SpaCET_obj@results$SecAct_output$SecretedProteinActivity))
+      {
+        stop("Please run SecAct.signaling.inference first.")
+      }
+
+      mat <- SpaCET_obj@results$SecAct_output$SecretedProteinActivity$zscore
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#b8e186","#b8e186","#b8e186","#de77ae","#c51b7d")
+      legendName = "Activity"
+      limits = NULL
+    }else if(spatialType == "SignalingPattern"){
+      if(is.null(SpaCET_obj @results $SecAct_output $pattern))
+      {
+        stop("Please run SecAct.signaling.pattern first.")
+      }
+
+      mat <- SpaCET_obj @results $SecAct_output $pattern $signal.H
+
+      if("All"%in%spatialFeatures)
+      {
+        spatialFeatures <- rownames(mat)
+      }else{
+        spatialFeatures <- as.character(spatialFeatures)
+      }
+
+      scaleType="color-continuous"
+      if(is.null(colors)) colors = c("#000004","#1A1042","#4A1079","#D9466B","#FCFDBF")
+      legendName = "Signal"
+      limits = NULL
+    }else if(spatialType == "metaData"){
+
+      mat <- t(SpaCET_obj@input$metaData)
+
+      if(length(spatialFeatures) > 1)
+      {
+        stop("Please input one feature once.")
+      }
+
+      scaleType="color-discrete"
+      legendName = spatialFeatures
+      limits = NULL
+    }else{
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
+    }
+
 
     for(spatialFeature in spatialFeatures)
     {
@@ -315,72 +353,41 @@ SpaCET.visualize.spatialFeature <- function(
         SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
         SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
-      if(identical(interactive, "plotly"))
+      p <- visualSpatial(
+        visualVector,
+        image=SpaCET_obj@input$image,
+        platform=SpaCET_obj@input$platform,
+        scaleType=scaleType,
+        colors=colors,
+        pointSize=pointSize,
+        pointAlpha=pointAlpha,
+        limits=limits,
+        titleName=spatialFeature,
+        legendName=legendName,
+        legend.position=legend.position,
+        legend.size=legend.size,
+        imageBg=imageBg,
+        imageSize=imageSize,
+        CustomizedAreaScale=CustomizedAreaScale,
+        spotID=spotID)
+
+      library(patchwork)
+      if(!is.null("pp"))
       {
-        p <- visualSpatialPlotly(
-          visualVector,
-          image=SpaCET_obj@input$image,
-          platform=SpaCET_obj@input$platform,
-          scaleType=scaleType,
-          colors=colors,
-          pointSize=pointSize,
-          pointAlpha=pointAlpha,
-          limits=limits,
-          titleName=spatialFeature,
-          legendName=legendName,
-          imageBg=imageBg,
-          imageSize=imageSize,
-          CustomizedAreaScale=CustomizedAreaScale,
-          spotID=spotID)
-
-        plotly_list[[length(plotly_list)+1]] <- p
-
+        pp <- pp + p
       }else{
-        p <- visualSpatial(
-          visualVector,
-          image=SpaCET_obj@input$image,
-          platform=SpaCET_obj@input$platform,
-          scaleType=scaleType,
-          colors=colors,
-          pointSize=pointSize,
-          pointAlpha=pointAlpha,
-          limits=limits,
-          titleName=spatialFeature,
-          legendName=legendName,
-          legend.position=legend.position,
-          legend.size=legend.size,
-          imageBg=imageBg,
-          imageSize=imageSize,
-          CustomizedAreaScale=CustomizedAreaScale,
-          spotID=spotID)
-
-        if(!is.null(pp))
-        {
-          pp <- pp + p
-        }else{
-          pp <- p
-        }
+        pp <- p
       }
     }
 
-    if(identical(interactive, "plotly"))
+    pp <- pp + patchwork::plot_layout(nrow = nrow)
+
+    if(sameScaleForFraction)
     {
-      if(length(plotly_list)==1)
-      {
-        plotly_list[[1]]
-      }else{
-        plotly::subplot(plotly_list, nrows=nrow, shareX=FALSE, shareY=FALSE, titleX=TRUE, titleY=TRUE)
-      }
-    }else{
-      pp <- pp + patchwork::plot_layout(nrow = nrow)
-
-      if(sameScaleForFraction)
-      {
-        pp <- pp + patchwork::plot_layout(guides = "collect")
-      }
-
-      pp
+      pp <- pp + patchwork::plot_layout(guides = "collect")
     }
+
+    pp
 
   }else{
     if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
@@ -388,39 +395,42 @@ SpaCET.visualize.spatialFeature <- function(
       stop("This function is only applicable to 10X Visium data.")
     }
 
+    library(shiny)
+    library(plotly)
+
     app <- list(
-      ui=shiny::fluidPage(
+      ui=fluidPage(
 
-        shiny::titlePanel("Interactive visualization from SpaCET"),
+        titlePanel("Interactive visualization from SpaCET"),
 
-        shiny::sidebarLayout(
+        sidebarLayout(
 
-          shiny::sidebarPanel(
-            shiny::p("1. Select a spatial feature.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
-            shiny::selectInput("spatialType", shiny::p("Spatial Feature Type:",style="color:black; text-align:center"), ""),
-            shiny::selectInput("spatialFeature", shiny::p("Spatial Feature:",style="color:black; text-align:center"), ""),
-            shiny::br(),
-            shiny::p("2. Adjust the style of spots.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
-            shiny::sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.1),
-            shiny::br(),
-            shiny::sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
-            shiny::br(),
+          sidebarPanel(
+            p("1. Select a spatial feature.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            selectInput("spatialType", p("Spatial Feature Type:",style="color:black; text-align:center"), ""),
+            selectInput("spatialFeature", p("Spatial Feature:",style="color:black; text-align:center"), ""),
+            br(),
+            p("2. Adjust the style of spots.",style="color:black; font-weight: bold; font-size:18px;; margin-bottom:33px"),
+            sliderInput("pointSize", "Spot size", min=0, max=2, value=1, step=0.1),
+            br(),
+            sliderInput("pointAlpha", "Spot opacity", min=0, max=1, value=1, step=0.1),
+            br(),
             style="background-color:papayawhip;border-left:8px solid orange",
             width = 3
           ),
 
-          shiny::mainPanel(
-            shiny::column(
-              shiny::br(),
-              plotly::plotlyOutput("overlayPlotly"),
-              shiny::br(),
+          mainPanel(
+            column(
+              br(),
+              plotlyOutput("overlayPlotly"),
+              br(),
               width = 7,
               style="border:1px solid darkgrey; height:592px; border-right:18px"
             ),
-            shiny::column(
-              shiny::br(),
+            column(
+              br(),
               DT::dataTableOutput("se"),
-              shiny::br(),
+              br(),
               width = 5,
               style="border:1px solid darkgrey; height:592px"
             )
@@ -432,7 +442,7 @@ SpaCET.visualize.spatialFeature <- function(
 
       server=function(input, output, session) {
 
-        shiny::observe({
+        observe({
           spatialTypes <- c("CellFraction","QualityControl","SignalingPattern","LRNetworkScore","Interface")
 
           if(is.null(SpaCET_obj@results$deconvolution$propMat))
@@ -455,10 +465,10 @@ SpaCET.visualize.spatialFeature <- function(
           {
             spatialTypes <- setdiff(spatialTypes,"Interface")
           }
-          shiny::updateSelectInput(session, "spatialType", choices = spatialTypes, selected=spatialTypes[1])
+          updateSelectInput(session, "spatialType", choices = spatialTypes, selected=spatialTypes[1])
         })
 
-        shiny::observe({
+        observe({
           if(input$spatialType=="QualityControl"){
             spatialFeatures <- rownames(SpaCET_obj@results$metrics)
           }else if(input$spatialType=="CellFraction"){
@@ -472,10 +482,10 @@ SpaCET.visualize.spatialFeature <- function(
           }else{
             spatialFeatures <- c()
           }
-          shiny::updateSelectInput(session, "spatialFeature", choices = spatialFeatures, selected=spatialFeatures[1])
+          updateSelectInput(session, "spatialFeature", choices = spatialFeatures, selected=spatialFeatures[1])
         })
 
-        output$overlayPlotly <- plotly::renderPlotly({
+        output$overlayPlotly <- renderPlotly({
           pointSize <- input$pointSize
           pointAlpha <- input$pointAlpha
 
@@ -498,7 +508,10 @@ SpaCET.visualize.spatialFeature <- function(
             legendName = "Fraction"
             limits = NULL
           }else if(input$spatialType=="LRNetworkScore"){
-            mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
+            mat <- SpaCET_obj@results$CCI$LRNetworkScore
+            mat[2,mat[2,]> 1.5] <- 1.5
+            mat[2,mat[2,]< 0.5] <- 0.5
+            mat[3,] <- -log10(mat[3,])
 
             scaleType="color-continuous"
             colors = c("blue","blue","blue","blue","cyan","cyan","yellow")
@@ -552,7 +565,7 @@ SpaCET.visualize.spatialFeature <- function(
               spotID=spotID
               )
 
-            plotly::ggplotly(g,layerData=1,height=555) %>%
+            ggplotly(g,layerData=1,height=555) %>%
               plotly::layout(
                 dragmode = "lasso",
                 images=list(
@@ -582,7 +595,10 @@ SpaCET.visualize.spatialFeature <- function(
           }else if(input$spatialType=="CellFraction"){
             mat <- SpaCET_obj@results$deconvolution$propMat
           }else if(input$spatialType=="LRNetworkScore"){
-            mat <- clipLRNetworkScore(SpaCET_obj@results$CCI$LRNetworkScore)
+            mat <- SpaCET_obj@results$CCI$LRNetworkScore
+            mat[2,mat[2,]> 1.5] <- 1.5
+            mat[2,mat[2,]< 0.5] <- 0.5
+            mat[3,] <- -log10(mat[3,])
           }else{
             mat <- SpaCET_obj@results$CCI$interface
           }
@@ -595,7 +611,7 @@ SpaCET.visualize.spatialFeature <- function(
               SpaCET_obj@input$spotCoordinates[names(visualVector),1],"x",
               SpaCET_obj@input$spotCoordinates[names(visualVector),2])
 
-            d <- plotly::event_data("plotly_selected")
+            d <- event_data("plotly_selected")
 
             if(!is.null(d))
             {
@@ -654,18 +670,82 @@ visualSpatial <- function(
     spotID
 )
 {
+  library(ggplot2)
+
   if(grepl("visium", tolower(platform)))
   {
-    prep <- prepareSpatialCoords(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
-    fig.df <- prep$fig.df
-    xDiml <- prep$xDiml
-    yDiml <- prep$yDiml
+    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
 
-    # Update image grob raster for ggplot annotation_custom
-    if(!is.null(prep$img_raster))
+    if(imageBg & !is.na(image$path))
     {
-      image$grob$raster <- prep$img_raster
+      if(imageSize=="CaptureArea")
+      {
+        left_edge <- floor( min(coordi[,1])*0.95)
+        right_edge <- ceiling( max(coordi[,1])*1.02 )
+        bottom_edge <- floor( min(coordi[,2])*0.95 )
+        top_edge <- ceiling( max(coordi[,2])*1.02 )
+
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
+
+        image$grob$raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+      }
+
+      if(imageSize=="CustomizedArea")
+      {
+        if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
+        {
+          stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
+        }
+        range1 <- max(coordi[,1]) - min(coordi[,1])
+        range2 <- max(coordi[,2]) - min(coordi[,2])
+        CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
+        CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
+
+        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * 0.95)
+        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * 1.02 )
+        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * 0.95 )
+        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * 1.02 )
+
+        if(left_edge < 1) left_edge <- 1
+        if(bottom_edge < 1) bottom_edge <- 1 # some coordi <- 0
+
+        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
+        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
+
+        image$grob$raster <- image$grob$raster[
+          left_edge:right_edge,
+          bottom_edge:top_edge
+        ]
+
+        coordi[,1] <- coordi[,1]-left_edge
+        coordi[,2] <- coordi[,2]-bottom_edge
+      }
+
+      xDiml <- dim(image$grob$raster)[1] # dim pixel
+      yDiml <- dim(image$grob$raster)[2] # dim pixel
+
+    }else{
+      # no image
+      xDiml <- max(coordi[,1])
+      yDiml <- max(coordi[,2])
     }
+
+    fig.df <- data.frame(
+      x=xDiml-coordi[,1],
+      y=coordi[,2],
+      spotID=spotID
+    )
+    rownames(fig.df) <- names(visualVector)
 
     if(is.vector(visualVector))
     {
@@ -850,282 +930,4 @@ visualSpatial <- function(
     }# not image
 
   } # not visium
-}
-
-
-prepareSpatialCoords <- function(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
-{
-  EDGE_PAD_INNER <- 0.95
-  EDGE_PAD_OUTER <- 1.02
-
-  if(grepl("visium", tolower(platform)))
-  {
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
-    img_raster <- NULL
-
-    if(imageBg & !is.na(image$path))
-    {
-      if(imageSize=="CaptureArea")
-      {
-        left_edge <- floor( min(coordi[,1])*EDGE_PAD_INNER)
-        right_edge <- ceiling( max(coordi[,1])*EDGE_PAD_OUTER )
-        bottom_edge <- floor( min(coordi[,2])*EDGE_PAD_INNER )
-        top_edge <- ceiling( max(coordi[,2])*EDGE_PAD_OUTER )
-
-        if(left_edge < 1) left_edge <- 1
-        if(bottom_edge < 1) bottom_edge <- 1
-
-        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
-        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
-
-        img_raster <- image$grob$raster[left_edge:right_edge, bottom_edge:top_edge]
-        coordi[,1] <- coordi[,1]-left_edge
-        coordi[,2] <- coordi[,2]-bottom_edge
-      }
-
-      if(imageSize=="CustomizedArea")
-      {
-        if( length(CustomizedAreaScale)!=4 | sum(CustomizedAreaScale>=0 &CustomizedAreaScale<=1)!=4 )
-        {
-          stop("Please assign four numbers (0~1) to CustomizedAreaScale.")
-        }
-        range1 <- max(coordi[,1]) - min(coordi[,1])
-        range2 <- max(coordi[,2]) - min(coordi[,2])
-        CustomizedAreaScale_3 <- 1-CustomizedAreaScale[3]
-        CustomizedAreaScale_4 <- 1-CustomizedAreaScale[4]
-
-        left_edge <- floor( (min(coordi[,1]) + (range1 * CustomizedAreaScale_4)) * EDGE_PAD_INNER)
-        right_edge <- ceiling( (min(coordi[,1]) + (range1 * CustomizedAreaScale_3)) * EDGE_PAD_OUTER )
-        bottom_edge <- floor( (min(coordi[,2]) + (range2 * CustomizedAreaScale[1])) * EDGE_PAD_INNER )
-        top_edge <- ceiling( (min(coordi[,2])+ (range2 * CustomizedAreaScale[2])) * EDGE_PAD_OUTER )
-
-        if(left_edge < 1) left_edge <- 1
-        if(bottom_edge < 1) bottom_edge <- 1
-
-        if(right_edge > dim(image$grob$raster)[1]) right_edge <- dim(image$grob$raster)[1]
-        if(top_edge > dim(image$grob$raster)[2]) top_edge <- dim(image$grob$raster)[2]
-
-        img_raster <- image$grob$raster[left_edge:right_edge, bottom_edge:top_edge]
-        coordi[,1] <- coordi[,1]-left_edge
-        coordi[,2] <- coordi[,2]-bottom_edge
-      }
-
-      if(is.null(img_raster)) img_raster <- image$grob$raster
-
-      xDiml <- dim(img_raster)[1]
-      yDiml <- dim(img_raster)[2]
-    }else{
-      xDiml <- max(coordi[,1])
-      yDiml <- max(coordi[,2])
-    }
-
-    fig.df <- data.frame(
-      x=xDiml-coordi[,1],
-      y=coordi[,2],
-      spotID=spotID
-    )
-
-  }else{
-    # Non-Visium platforms
-    coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
-    img_raster <- NULL
-    xDiml <- NULL
-    yDiml <- NULL
-
-    if(imageBg & !is.na(image$path))
-    {
-      r <- jpeg::readJPEG(image)
-      xDiml <- dim(r)[2]
-      yDiml <- dim(r)[1]
-
-      fig.df <- data.frame(
-        x=coordi[,1],
-        y=yDiml-coordi[,2],
-        spotID=spotID
-      )
-    }else{
-      fig.df <- data.frame(
-        x=coordi[,1],
-        y=coordi[,2],
-        spotID=spotID
-      )
-    }
-  }
-
-  rownames(fig.df) <- names(visualVector)
-
-  list(
-    fig.df=fig.df,
-    img_raster=img_raster,
-    xDiml=xDiml,
-    yDiml=yDiml
-  )
-}
-
-
-visualSpatialPlotly <- function(
-    visualVector,
-    image,
-    platform,
-    scaleType,
-    colors,
-    limits,
-    pointSize,
-    pointAlpha,
-    titleName,
-    legendName,
-    imageBg,
-    imageSize,
-    CustomizedAreaScale,
-    spotID
-)
-{
-  if(!requireNamespace("plotly", quietly=TRUE))
-  {
-    stop("Package 'plotly' is required for interactive plotly mode. Install it with install.packages('plotly').")
-  }
-
-  # --- Coordinate preparation ---
-  prep <- prepareSpatialCoords(visualVector, image, platform, imageBg, imageSize, CustomizedAreaScale, spotID)
-  fig.df <- prep$fig.df
-  img_raster <- prep$img_raster
-  xDiml <- prep$xDiml
-  yDiml <- prep$yDiml
-
-  fig.df$value <- visualVector
-
-  # --- Build Plotly figure ---
-  if(scaleType == "color-continuous")
-  {
-    # Build colorscale from colors vector
-    n_colors <- length(colors)
-    colorscale <- lapply(seq_along(colors), function(i){
-      list((i-1)/(n_colors-1), colors[i])
-    })
-
-    hover_text <- paste0(
-      "Spot: ", fig.df$spotID, "<br>",
-      titleName, ": ", round(as.numeric(fig.df$value), 4)
-    )
-
-    fig <- plotly::plot_ly(
-      data=fig.df,
-      x=~y,
-      y=~x,
-      type="scattergl",
-      mode="markers",
-      marker=list(
-        size=pointSize*5,
-        opacity=pointAlpha,
-        color=as.numeric(fig.df$value),
-        colorscale=colorscale,
-        colorbar=list(title=legendName),
-        cmin=if(!is.null(limits)) limits[1] else NULL,
-        cmax=if(!is.null(limits)) limits[2] else NULL
-      ),
-      text=hover_text,
-      hoverinfo="text"
-    )
-
-  }else{
-    # Discrete color scale: one trace per category
-    categories <- unique(fig.df$value)
-
-    if(length(colors) >= length(categories))
-    {
-      color_map <- setNames(colors[1:length(categories)], categories)
-    }else{
-      color_map <- setNames(
-        grDevices::colorRampPalette(colors)(length(categories)),
-        categories
-      )
-    }
-
-    fig <- plotly::plot_ly()
-
-    for(cat in categories)
-    {
-      sub <- fig.df[fig.df$value == cat,]
-      hover_text <- paste0("Spot: ", sub$spotID, "<br>", titleName, ": ", cat)
-
-      fig <- plotly::add_trace(
-        fig,
-        data=sub,
-        x=~y,
-        y=~x,
-        type="scattergl",
-        mode="markers",
-        marker=list(
-          size=pointSize*5,
-          opacity=pointAlpha,
-          color=color_map[[cat]]
-        ),
-        text=hover_text,
-        hoverinfo="text",
-        name=cat
-      )
-    }
-  }
-
-  # --- Add tissue image background ---
-  if(grepl("visium", tolower(platform)) && imageBg && !is.na(image$path) && !is.null(img_raster))
-  {
-    # Convert raster color matrix to RGB array and encode as base64 PNG
-    if(!requireNamespace("base64enc", quietly=TRUE))
-    {
-      stop("Package 'base64enc' is required for image background in plotly mode. Install it with install.packages('base64enc').")
-    }
-    raster_mat <- as.matrix(img_raster)
-    rgb_vals <- grDevices::col2rgb(raster_mat, alpha=TRUE)
-    img_array <- array(
-      as.numeric(rgb_vals)/255,
-      dim=c(4, nrow(raster_mat), ncol(raster_mat))
-    )
-    img_array <- aperm(img_array, c(2, 3, 1))
-    raw_png <- png::writePNG(img_array)
-    img_base64 <- base64enc::dataURI(data=raw_png, mime="image/png")
-
-    fig <- plotly::layout(
-      fig,
-      images=list(
-        list(
-          source=img_base64,
-          xref="x",
-          yref="y",
-          x=0,
-          y=xDiml,
-          sizex=yDiml,
-          sizey=xDiml,
-          sizing="stretch",
-          opacity=0.5,
-          layer="below"
-        )
-      )
-    )
-  }
-
-  # --- Layout ---
-  fig <- plotly::layout(
-    fig,
-    title=list(text=titleName, x=0.5),
-    xaxis=list(
-      showgrid=FALSE,
-      zeroline=FALSE,
-      showticklabels=FALSE,
-      title="",
-      scaleanchor="y",
-      scaleratio=1
-    ),
-    yaxis=list(
-      showgrid=FALSE,
-      zeroline=FALSE,
-      showticklabels=FALSE,
-      title=""
-    ),
-    plot_bgcolor="white",
-    paper_bgcolor="white",
-    dragmode="zoom"
-  )
-
-  fig
 }

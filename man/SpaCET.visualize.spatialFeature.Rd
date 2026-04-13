@@ -51,15 +51,10 @@ SpaCET.visualize.spatialFeature(
 
 \item{legend.size}{The size of the legend.}
 
-\item{interactive}{Controls interactivity mode. \code{FALSE} (default) returns a static ggplot.
-\code{TRUE} launches the Shiny interactive app (Visium only).
-\code{"plotly"} returns a standalone Plotly htmlwidget with zoom, pan, and hover
-tooltips — works in RStudio, R Markdown, and Jupyter. Supports all spatial types
-except CellTypeComposition.}
+\item{interactive}{Logical: should the interactive app be activited?}
 }
 \value{
-A ggplot2 object (when \code{interactive=FALSE}), a plotly htmlwidget
-(when \code{interactive="plotly"}), or launches a Shiny app (when \code{interactive=TRUE}).
+A ggplot2 object.
 }
 \description{
 Visualize multiple types of spatial features in ST data.

@@ -9,19 +9,6 @@ setClass("SpaCET",
   )
 )
 
-# Visium hexagonal grid geometry constants
-VISIUM_SPOT_SPACING_UM <- 100
-VISIUM_HEX_SCALE_X <- 0.5
-VISIUM_HEX_SCALE_Y <- 0.5 * sqrt(3)
-
-addVisiumMicrometerCoords <- function(spotCoordinates)
-{
-  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * VISIUM_HEX_SCALE_X * VISIUM_SPOT_SPACING_UM
-  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * VISIUM_HEX_SCALE_Y * VISIUM_SPOT_SPACING_UM
-  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
-  spotCoordinates
-}
-
 
 #' @title Create a SpaCET object from 10X Visium
 #' @description Read an ST dataset to create a SpaCET object.
@@ -123,7 +110,9 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
 
   colnames(st.matrix.data) <- rownames(spotCoordinates)
 
-  spotCoordinates <- addVisiumMicrometerCoords(spotCoordinates)
+  spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * 0.5 * 100
+  spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * 0.5 * sqrt(3) * 100
+  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
 
   SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
@@ -668,8 +657,8 @@ create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
 
     # Extract spatial coordinates
     coord_cols <- intersect(c("CenterX_global_px", "CenterY_global_px",
-                               "x_global_px", "y_global_px",
-                               "CenterX_local_px", "CenterY_local_px"), colnames(meta_data))
+                              "x_global_px", "y_global_px",
+                              "CenterX_local_px", "CenterY_local_px"), colnames(meta_data))
     if(length(coord_cols) >= 2)
     {
       spotCoordinates <- data.frame(
@@ -702,7 +691,7 @@ create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
 
   # Look for composite image
   image_files <- list.files(cosmxPath, pattern="CellComposite.*\\.jpg$|CellComposite.*\\.png$|composite.*\\.png$",
-                             full.names=TRUE, recursive=TRUE)
+                            full.names=TRUE, recursive=TRUE)
   imagePath <- if(length(image_files) > 0) image_files[1] else NA
 
   message(paste0("CosMx data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
