@@ -591,6 +591,95 @@ mouse2human_mat <- function(mat) {
 }
 
 
+#' @title Create a SpaCET object from 10x Xenium
+#'
+#' @description Read 10x Genomics Xenium output into a SpaCET object.
+#'
+#' @param xeniumPath Path to the Xenium output folder.
+#' @param organism Species, either "human" (default) or "mouse".
+#'
+#' @return A SpaCET object.
+#'
+#' @examples
+#' \dontrun{
+#' SpaCET_obj <- create.SpaCET.object.Xenium(xeniumPath = "/path/to/xenium_output")
+#' }
+#'
+#' @rdname create.SpaCET.object.Xenium
+#' @export
+#'
+create.SpaCET.object.Xenium <- function(xeniumPath, organism="human")
+{
+  if(!file.exists(xeniumPath))
+  {
+    stop("The xeniumPath does not exist. Please input the correct path.")
+  }
+
+  # Read cell-feature matrix
+  matrix_dir <- file.path(xeniumPath, "cell_feature_matrix")
+  h5_file <- file.path(xeniumPath, "cell_feature_matrix.h5")
+
+  if(dir.exists(matrix_dir))
+  {
+    message("Reading Xenium cell-feature matrix from directory...")
+    st.matrix.data <- Matrix::readMM(file.path(matrix_dir, "matrix.mtx.gz"))
+    genes <- read.csv(file.path(matrix_dir, "features.tsv.gz"), header=FALSE, sep="\t")
+    barcodes <- read.csv(file.path(matrix_dir, "barcodes.tsv.gz"), header=FALSE, sep="\t")
+    rownames(st.matrix.data) <- genes[, 2]  # Gene symbols
+    colnames(st.matrix.data) <- barcodes[, 1]
+  } else if(file.exists(h5_file))
+  {
+    message("Reading Xenium cell-feature matrix from H5...")
+    st.matrix.data <- Seurat::Read10X_h5(h5_file)
+  } else {
+    stop("No cell_feature_matrix found. Expected directory or .h5 file in xeniumPath.")
+  }
+
+  # Read cell metadata with spatial coordinates
+  cells_file <- file.path(xeniumPath, "cells.csv.gz")
+  cells_parquet <- file.path(xeniumPath, "cells.parquet")
+
+  if(file.exists(cells_file))
+  {
+    message("Reading Xenium cell coordinates...")
+    cells <- read.csv(cells_file)
+  } else if(file.exists(cells_parquet))
+  {
+    cells <- as.data.frame(arrow::read_parquet(cells_parquet))
+  } else {
+    stop("No cells.csv.gz or cells.parquet found in xeniumPath.")
+  }
+
+  # Extract coordinates
+  rownames(cells) <- cells$cell_id
+  spotCoordinates <- data.frame(
+    x = cells$x_centroid,
+    y = cells$y_centroid,
+    row.names = cells$cell_id
+  )
+
+  # Align cell IDs
+  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
+  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
+
+  st.matrix.data <- st.matrix.data[, common_cells]
+  spotCoordinates <- spotCoordinates[common_cells, ]
+
+  message(paste0("Xenium data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
+
+  SpaCET_obj <- create.SpaCET.object(
+    counts=st.matrix.data,
+    spotCoordinates=spotCoordinates,
+    metaData=cells[common_cells, , drop=FALSE],
+    imagePath=NA,
+    platform="Xenium",
+    organism=organism
+  )
+
+  return(SpaCET_obj)
+}
+
+
 #' @title Create a SpaCET object from NanoString CosMx
 #'
 #' @description Read NanoString CosMx SMI output into a SpaCET object.
@@ -702,95 +791,6 @@ create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
     metaData=if(exists("meta_data")) meta_data[common_cells, , drop=FALSE] else NULL,
     imagePath=imagePath,
     platform="CosMx",
-    organism=organism
-  )
-
-  return(SpaCET_obj)
-}
-
-
-#' @title Create a SpaCET object from 10x Xenium
-#'
-#' @description Read 10x Genomics Xenium output into a SpaCET object.
-#'
-#' @param xeniumPath Path to the Xenium output folder.
-#' @param organism Species, either "human" (default) or "mouse".
-#'
-#' @return A SpaCET object.
-#'
-#' @examples
-#' \dontrun{
-#' SpaCET_obj <- create.SpaCET.object.Xenium(xeniumPath = "/path/to/xenium_output")
-#' }
-#'
-#' @rdname create.SpaCET.object.Xenium
-#' @export
-#'
-create.SpaCET.object.Xenium <- function(xeniumPath, organism="human")
-{
-  if(!file.exists(xeniumPath))
-  {
-    stop("The xeniumPath does not exist. Please input the correct path.")
-  }
-
-  # Read cell-feature matrix
-  matrix_dir <- file.path(xeniumPath, "cell_feature_matrix")
-  h5_file <- file.path(xeniumPath, "cell_feature_matrix.h5")
-
-  if(dir.exists(matrix_dir))
-  {
-    message("Reading Xenium cell-feature matrix from directory...")
-    st.matrix.data <- Matrix::readMM(file.path(matrix_dir, "matrix.mtx.gz"))
-    genes <- read.csv(file.path(matrix_dir, "features.tsv.gz"), header=FALSE, sep="\t")
-    barcodes <- read.csv(file.path(matrix_dir, "barcodes.tsv.gz"), header=FALSE, sep="\t")
-    rownames(st.matrix.data) <- genes[, 2]  # Gene symbols
-    colnames(st.matrix.data) <- barcodes[, 1]
-  } else if(file.exists(h5_file))
-  {
-    message("Reading Xenium cell-feature matrix from H5...")
-    st.matrix.data <- Seurat::Read10X_h5(h5_file)
-  } else {
-    stop("No cell_feature_matrix found. Expected directory or .h5 file in xeniumPath.")
-  }
-
-  # Read cell metadata with spatial coordinates
-  cells_file <- file.path(xeniumPath, "cells.csv.gz")
-  cells_parquet <- file.path(xeniumPath, "cells.parquet")
-
-  if(file.exists(cells_file))
-  {
-    message("Reading Xenium cell coordinates...")
-    cells <- read.csv(cells_file)
-  } else if(file.exists(cells_parquet))
-  {
-    cells <- as.data.frame(arrow::read_parquet(cells_parquet))
-  } else {
-    stop("No cells.csv.gz or cells.parquet found in xeniumPath.")
-  }
-
-  # Extract coordinates
-  rownames(cells) <- cells$cell_id
-  spotCoordinates <- data.frame(
-    x = cells$x_centroid,
-    y = cells$y_centroid,
-    row.names = cells$cell_id
-  )
-
-  # Align cell IDs
-  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
-  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
-
-  st.matrix.data <- st.matrix.data[, common_cells]
-  spotCoordinates <- spotCoordinates[common_cells, ]
-
-  message(paste0("Xenium data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
-
-  SpaCET_obj <- create.SpaCET.object(
-    counts=st.matrix.data,
-    spotCoordinates=spotCoordinates,
-    metaData=cells[common_cells, , drop=FALSE],
-    imagePath=NA,
-    platform="Xenium",
     organism=organism
   )
 
