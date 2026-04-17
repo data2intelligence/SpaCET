@@ -82,12 +82,17 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 
 ## Tutorial
 
+##### Core
+
 - [Cell type deconvolution and interaction
   analysis](https://data2intelligence.github.io/SpaCET/articles/visium_BC.html)  
 - [Deconvolution with a matched scRNA-seq data
   set](https://data2intelligence.github.io/SpaCET/articles/oldST_PDAC.html)
 - [Application to high resolution spatial transcriptomics
   data](https://data2intelligence.github.io/SpaCET/articles/hiresST_CRC.html)
+
+##### Misc
+
 - [Gene set score calculation for spatial
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
 - [Spatially variable genes and co-expressed ligand–receptor
