@@ -82,7 +82,11 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 
 ## Tutorial
 
-##### Core
+SpaCET is applicable for deconvolving spatial transcriptomics data
+across different platforms and resolutions. In addition, it can compute
+gene set scores and assess spatial correlations.
+
+#### Core
 
 - [Cell type deconvolution and interaction
   analysis](https://data2intelligence.github.io/SpaCET/articles/visium_BC.html)  
@@ -91,7 +95,7 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 - [Application to high resolution spatial transcriptomics
   data](https://data2intelligence.github.io/SpaCET/articles/hiresST_CRC.html)
 
-##### Misc
+#### Misc
 
 - [Gene set score calculation for spatial
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
