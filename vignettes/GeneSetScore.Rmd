@@ -78,7 +78,7 @@ rownames(SpaCET_obj@results$GeneSetScore)
 SpaCET.visualize.spatialFeature(
   SpaCET_obj, 
   spatialType = "GeneSetScore", 
-  spatialFeatures = c("CancerCellState_Cycle","CancerCellState_cEMT")
+  spatialFeatures = c("CancerCellState_Cell_cycle","CancerCellState_complete_EMT")
 )
 ```
 <img src="img/GS2.png" width="100%" style="border:none" />
