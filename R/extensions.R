@@ -513,19 +513,19 @@ SpaCET.deconvolution.matched.scRNAseq <- function(SpaCET_obj, sc_includeMalignan
 #'   "Endothelial" = "Endothelial"
 #' )
 #'
-#' SpaCET_obj <- SpaCET.deconvolution.bulk.matched.scRNAseq(
+#' propMat <- SpaCET.deconvolution.matched.scRNAseq.for.bulk(
 #'   counts        = bulk_counts,
 #'   sc_counts     = sc_counts,
 #'   sc_annotation = sc_annotation,
 #'   sc_lineageTree = lineageTree
 #' )
 #'
-#' propMat <- SpaCET_obj@results$deconvolution$propMat
 #' }
 #'
-#' @rdname SpaCET.deconvolution.bulk.matched.scRNAseq
+#' @rdname SpaCET.deconvolution.matched.scRNAseq.for.bulk
 #' @export
-SpaCET.deconvolution.bulk.matched.scRNAseq <- function(
+#'
+SpaCET.deconvolution.matched.scRNAseq.for.bulk <- function(
   counts,
   sc_counts,
   sc_annotation,
@@ -581,6 +581,8 @@ SpaCET.deconvolution.bulk.matched.scRNAseq <- function(
     sc_nCellEachLineage = sc_nCellEachLineage,
     coreNo = coreNo
   )
+
+  SpaCET_obj@results$deconvolution$propMat
 }
 
 
