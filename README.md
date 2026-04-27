@@ -21,7 +21,8 @@ particularly at the tumor-immune interface. Of note, although SpaCET
 does not require any input cell references for the analysis of tumor ST
 data, SpaCET can still incorporate a matched scRNA-seq dataset as
 customized references to conduct cell type deconvolution of any ST
-dataset. Please see the tutorials below for step-by-step guidance.
+dataset. Check the tutorials below for details on how to use the
+package.
 
 <img src="man/figures/workflow.png" width="100%" />
 
