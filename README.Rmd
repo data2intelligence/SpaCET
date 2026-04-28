@@ -43,6 +43,10 @@ remotes::install_deps("Path_to_the_source_code", force = TRUE)
 install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ``` 
 
+#### 🔶 Alternative installation options
+
+If you are not familiar with R, you can use the Python version of SpaCET available <a href="https://github.com/psychemistz/spatial-gpu" target="_blank">here</a>.
+
 ## Dependencies
 
 * R version >= 4.2.0. 
