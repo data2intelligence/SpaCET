@@ -28,14 +28,14 @@ package.
 
 ## Installation
 
-To install `SpaCET`, we recommend using `devtools`:
+To install `SpaCET` R package, we recommend using `devtools`:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("data2intelligence/SpaCET")
 ```
 
-Or user can install `SpaCET` from the source code. Click
+Or user can install `SpaCET` R package from the source code. Click
 <a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank">here</a>
 to download it.
 
