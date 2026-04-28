@@ -70,8 +70,8 @@ SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
 ## Tutorial
 
 SpaCET is applicable for deconvolving spatial transcriptomics data
-across different platforms and resolutions. In addition, it can compute
-gene set scores and assess spatial correlations.
+across different platforms and cellular resolutions. In addition, it can
+compute gene set scores and assess spatial correlations.
 
 #### Core
 
