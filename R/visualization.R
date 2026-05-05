@@ -372,7 +372,7 @@ SpaCET.visualize.spatialFeature <- function(
         spotID=spotID)
 
       library(patchwork)
-      if(!is.null("pp"))
+      if(exists("pp"))
       {
         pp <- pp + p
       }else{
