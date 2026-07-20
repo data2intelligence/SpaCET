@@ -84,4 +84,4 @@ This [Link](https://doi.org/10.5281/zenodo.14976008){target="_blank"} provides a
 For questions, bug reports, or feature requests, please submit an [issue](https://github.com/data2intelligence/SpaCET/issues). To keep the issue tracker focused and constructive, advertising or promotional content is not permitted.
 
 ## Citation
-Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. **Nature Communications** 14, 568 (2023). [[Full Text](https://www.nature.com/articles/s41467-023-36062-6){target="_blank"}]
+Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang. Estimation of cell lineages in tumors from spatial transcriptomics data. **Nature Communications** 14, 568 (2023). [[Full Text](https://doi.org/10.1038/s41467-023-36062-6){target="_blank"}]

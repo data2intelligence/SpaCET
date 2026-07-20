@@ -49,26 +49,8 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
     stop("The visiumPath does not exist. Please input the correct path.")
   }
 
-  if(file.exists(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")))
-  {
-    st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_bc_matrix/matrix.mtx.gz")) #dgT
-    st.matrix.data <- methods::as(st.matrix.data, "CsparseMatrix")
-
-    st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
-    st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_bc_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
-
-    if(ncol(st.matrix.gene)==1)
-    {
-      rownames(st.matrix.data) <- st.matrix.gene[,1]
-    }else{
-      rownames(st.matrix.data) <- st.matrix.gene[,2]
-    }
-    colnames(st.matrix.data) <- st.matrix.anno[,1]
-  }else{
-    st.matrix.data <- Seurat::Read10X_h5(filename = paste0(visiumPath,"/filtered_feature_bc_matrix.h5"))
-  }
-
   jsonFile <- jsonlite::fromJSON(paste0(visiumPath,"/spatial/scalefactors_json.json"))
+
 
   if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
   {
@@ -86,6 +68,34 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
   rownames(barcode) <- barcode[,"barcode"]
 
   barcode <- barcode[barcode[,"in_tissue"]==1,]
+
+  visiumPathFiles <- list.files(visiumPath)
+  if(sum(grepl("filtered_feature_bc_matrix",list.files(visiumPath)))>0)
+  {
+    matrix_name <- "bc"
+  }else{
+    matrix_name <- "cell"
+  }
+
+  if(file.exists(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/matrix.mtx.gz")))
+  {
+    st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/matrix.mtx.gz")) #dgT
+    st.matrix.data <- methods::as(st.matrix.data, "CsparseMatrix")
+
+    st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
+    st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
+
+    if(ncol(st.matrix.gene)==1)
+    {
+      rownames(st.matrix.data) <- st.matrix.gene[,1]
+    }else{
+      rownames(st.matrix.data) <- st.matrix.gene[,2]
+    }
+    colnames(st.matrix.data) <- st.matrix.anno[,1]
+  }else{
+    st.matrix.data <- Seurat::Read10X_h5(filename = paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix.h5"))
+  }
+
 
   olp <- intersect(colnames(st.matrix.data),rownames(barcode))
   st.matrix.data <- st.matrix.data[,olp,drop=F]
@@ -278,10 +288,26 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
     {
       st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
-      spotCoordinates <- data.frame(
-        pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
-        pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
-      )
+      if ("coords_x_orientation" %in% slotNames(slice))
+      {
+        if(slice@coords_x_orientation == "horizontal")
+        {
+          spotCoordinates <- data.frame(
+            pixel_row=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres,
+            pixel_col=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres
+          )
+        }else{
+          spotCoordinates <- data.frame(
+            pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+            pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
+          )
+        }
+      } else {
+        spotCoordinates <- data.frame(
+          pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+          pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
+        )
+      }
 
       metaData <- data.frame(
         barcode=colnames(st.matrix.data)
@@ -386,10 +412,26 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
       {
         st.matrix.data <- st.matrix.data[,slice@boundaries$centroids@cells]
 
-        spotCoordinates <- data.frame(
-          pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
-          pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
-        )
+        if ("coords_x_orientation" %in% slotNames(slice))
+        {
+          if(slice@coords_x_orientation == "horizontal")
+          {
+            spotCoordinates <- data.frame(
+              pixel_row=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres,
+              pixel_col=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres
+            )
+          }else{
+            spotCoordinates <- data.frame(
+              pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+              pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
+            )
+          }
+        } else {
+          spotCoordinates <- data.frame(
+            pixel_row=slice@boundaries$centroids@coords[,1] * slice@scale.factors$lowres,
+            pixel_col=slice@boundaries$centroids@coords[,2] * slice@scale.factors$lowres
+          )
+        }
 
         metaData <- data.frame(
           barcode=colnames(st.matrix.data)

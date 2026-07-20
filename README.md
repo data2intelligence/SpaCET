@@ -114,5 +114,5 @@ content is not permitted.
 Beibei Ru, Jinlin Huang, Yu Zhang, Kenneth Aldape, Peng Jiang.
 Estimation of cell lineages in tumors from spatial transcriptomics data.
 **Nature Communications** 14, 568 (2023).
-\[<a href="https://www.nature.com/articles/s41467-023-36062-6"
+\[<a href="https://doi.org/10.1038/s41467-023-36062-6"
 target="_blank">Full Text</a>\]
