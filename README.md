@@ -41,6 +41,8 @@ to download it.
 
 ``` r
 # install.packages("remotes")
+
+# install SpaCET dependencies
 remotes::install_deps("Path_to_the_source_code", force = TRUE)
 
 # install SpaCET in the R environment.
@@ -49,8 +51,8 @@ install.packages("Path_to_the_source_code", repos = NULL, type="source")
 
 #### 🔶 Alternative installation options
 
-If you are not familiar with R, you can use the Python version of SpaCET
-available
+If you are not familiar with R language, you can use the Python version
+of SpaCET available
 <a href="https://github.com/psychemistz/spatial-gpu" target="_blank">here</a>.
 
 ## Dependencies
