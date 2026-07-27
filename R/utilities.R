@@ -126,6 +126,12 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
     spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * 0.5 * sqrt(3) * 100
     spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
   }
+  if(platform=="VisiumHD")
+  {
+    bin_size_um <- jsonFile$bin_size_um
+    spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * bin_size_um
+    spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * bin_size_um
+  }
 
   SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
