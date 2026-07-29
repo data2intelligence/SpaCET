@@ -19,9 +19,11 @@ navbar:
         href: articles/hiresST_CRC.html
       - text: ----
       - text: Misc
+      - text: Creating a SpaCET object
+        href: articles/SpaCET_object.html
       - text: Gene set score calculation for spatial spots
         href: articles/GeneSetScore.html
-      - text: Spatially variable genes and co-expressed ligand–receptor interactions
+      - text: Spatially variable genes and ligand–receptor pairs
         href: articles/SpatialCorrelation.html
     - text: News
       href: news/index.html
@@ -32,8 +34,6 @@ reference:
     - SpaCET-class
     - create.SpaCET.object
     - create.SpaCET.object.10X
-    - create.SpaCET.object.CosMx
-    - create.SpaCET.object.Xenium
     - SpaCET.quality.control
     - convert.Seurat
     - addTo.Seurat
@@ -44,6 +44,7 @@ reference:
     - SpaCET.deconvolution.malignant
     - SpaCET.deconvolution.malignant.customized.scRNAseq
     - SpaCET.deconvolution.matched.scRNAseq
+    - SpaCET.calculate.mostAbundantCellType
 
   - title: Cell-cell interaction analysis
     contents:

@@ -19,6 +19,8 @@ SpaCET.SpatialCorrelation(
 
 \item{item}{A vector or two-column matrix. See details.}
 
+\item{W}{Weight matrix.}
+
 \item{nPermutation}{Permutation number.}
 }
 \value{

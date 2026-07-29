@@ -16,7 +16,9 @@ create.SpaCET.object(
 \arguments{
 \item{counts}{Count matrix with gene name (row) x spot ID (column).}
 
-\item{spotCoordinates}{Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
+\item{spotCoordinates}{Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i.e., X and Y coordinates, respectively, which represent the position of spots in H&E image.}
+
+\item{metaData}{Meta data matrix with spot ID (row) x meta information (column).}
 
 \item{imagePath}{Path to the H&E image file. Can be NA if it is not available.}
 

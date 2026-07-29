@@ -40,12 +40,10 @@ Or user can install `SpaCET` R package from the source code. Click
 to download it.
 
 ``` r
-# install.packages("remotes")
-
 # install SpaCET dependencies
 remotes::install_deps("Path_to_the_source_code", force = TRUE)
 
-# install SpaCET in the R environment.
+# install SpaCET R package
 install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ```
 
@@ -69,7 +67,7 @@ of SpaCET available
 library(SpaCET)
 
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
-SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+SpaCET_obj <- create.SpaCET.object.10X(dataPath = visiumPath, platform = "Visium", organism = "human")
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 
 SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
@@ -92,10 +90,12 @@ compute gene set scores and assess spatial correlations.
 
 #### Misc
 
+- [Creating a SpaCET
+  object](https://data2intelligence.github.io/SpaCET/articles/SpaCET_object.html)
 - [Gene set score calculation for spatial
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
-- [Spatially variable genes and co-expressed ligand–receptor
-  interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
+- [Spatially variable genes and ligand–receptor
+  pairs](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
 
 ## Data availability
 

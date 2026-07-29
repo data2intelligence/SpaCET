@@ -16,7 +16,7 @@ SpaCET.deconvolution.malignant(
 
 \item{Malignant}{Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".}
 
-\item{malignantCutoff}{Fraction cutoff for defining spots with high abundant malignant cells. Default: 0.7.}
+\item{malignantCutoff}{Fraction cutoff for defining spots with highly abundant malignant cells. Default: 0.7.}
 
 \item{coreNo}{Core number in parallel.}
 }

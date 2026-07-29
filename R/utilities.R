@@ -10,80 +10,139 @@ setClass("SpaCET",
 )
 
 
-#' @title Create a SpaCET object from 10X Visium
+#' @title Create a SpaCET object from 10X Genomics platforms
 #' @description Read an ST dataset to create a SpaCET object.
-#' @param visiumPath Path to the Space Ranger output folder. See ‘details’ for more information.
+#' @param dataPath  Path to a Visium, Visium HD, or Xenium output directory.
+#' See \emph{Details} for the directory expected for each platform.
+#' @param visiumPath Path to the Space Ranger output folder. This is a deprecated parameter. Please use `dataPath` instead.
+#' @param platform A character string indicating the platform, i.e., "Visium", "VisiumHD", or "Xenium".
 #' @param organism Organism of the sample, e.g., human or mouse.
 #' @return A SpaCET object.
 #' @details
-#' If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
-#' Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-#' which has both (1) sequencing data, i.e., `filtered_feature_bc_matrix.h5` file or `filtered_feature_bc_matrix` folder,
-#'
-#' The "filtered_feature_bc_matrix" folder includes \cr
-#' "barcodes.tsv.gz": spot level barcodes; \cr
-#' "features.tsv.gz": list of genes; \cr
-#' "matrix.mtx.gz": (sparse) matrix of counts.
-#'
-#' and (2) image folder `spatial`.
-#'
-#' The "spatial" folder includes \cr
-#' “tissue_positions_list.csv” : barcodes and spatial information; \cr
-#' “tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
-#' “scalefactors_json.json” : scaling factors for adjusting the coordinates.
-#'
+#' The directory supplied through \code{dataPath} depends on the platform:
+#' \itemize{
+#'   \item{\strong{Visium}: the Space Ranger output directory.}
+#'   \item{\strong{Binned Visium HD}: one
+#'   \code{binned_outputs/square_*um} directory.}
+#'   \item{\strong{Segmented Visium HD}: the
+#'   \code{segmented_outputs} directory.}
+#'   \item{\strong{Xenium}: the Xenium output directory.}
+#' }
 #'
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
-#' SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+#' SpaCET_obj <- create.SpaCET.object.10X(dataPath = visiumPath, platform = "Visium", organism="human")
 #'
 #' @rdname create.SpaCET.object.10X
 #' @export
-#' @importFrom Matrix readMM
-#' @importFrom jsonlite fromJSON
 #'
-create.SpaCET.object.10X <- function(visiumPath, organism="human")
+create.SpaCET.object.10X <- function(dataPath=NULL, visiumPath=NULL, platform="Visium", organism="human")
+{
+  if(is.null(dataPath)) dataPath <- visiumPath
+  if(!dir.exists(dataPath)) stop("The dataPath does not exist. Please input the correct path.")
+
+  allowed <- c("visium", "visiumhd", "xenium")
+
+  if(length(platform) != 1L || !tolower(platform) %in% allowed)
+  {
+    stop("platform must be one of: ", paste(allowed, collapse=", "))
+  }
+
+  switch(
+    tolower(platform),
+    visium   = create.SpaCET.object.10X.Visium(visiumPath=dataPath, platform=platform, organism=organism),
+    visiumhd = create.SpaCET.object.10X.Visium(visiumPath=dataPath, platform=platform, organism=organism),
+    xenium   = create.SpaCET.object.10X.Xenium(xeniumPath=dataPath, platform=platform, organism=organism)
+  )
+}
+
+
+create.SpaCET.object.10X.Visium <- function(visiumPath, platform, organism)
 {
   if(!file.exists(visiumPath))
   {
     stop("The visiumPath does not exist. Please input the correct path.")
   }
 
+  # read spatial folder
   jsonFile <- jsonlite::fromJSON(paste0(visiumPath,"/spatial/scalefactors_json.json"))
 
+  if(file.exists(file.path(visiumPath, "/spatial/tissue_lowres_image.png")))
+  {
+    imageName <- "tissue_lowres_image.png"
+    imageScalef <- jsonFile$tissue_lowres_scalef
+  }else{
+    imageName <- "tissue_hires_image.png"
+    imageScalef <- jsonFile$tissue_hires_scalef
+  }
+  imagePath <- paste0(visiumPath,"/spatial/",imageName)
 
   if(file.exists(paste0(visiumPath,"/spatial/tissue_positions_list.csv")))
   {
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions_list.csv"),as.is=T,header=FALSE)
+    colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
     platform <- "Visium"
+    positionType <-  "bc"
   }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.csv"))){
     barcode <- read.csv(paste0(visiumPath,"/spatial/tissue_positions.csv"),as.is=T,header=TRUE)
     platform <- "Visium"
-  }else{
+    positionType <-  "bc"
+  }else if(file.exists(paste0(visiumPath,"/spatial/tissue_positions.parquet"))){
     barcode <- as.data.frame(arrow::read_parquet(paste0(visiumPath,"/spatial/tissue_positions.parquet")))
     platform <- "VisiumHD"
+    positionType <-  "bc"
+  }else{
+    segmentation <- Seurat::Read10X_Segmentations(
+      image.dir=paste0(visiumPath,"/spatial/"),
+      data.dir=gsub("segmented_outputs","",visiumPath),
+      image.name=imageName,
+      segmentation.type="cell",
+      compact=TRUE
+    )
+
+    barcode <- data.frame(
+      barcode=segmentation@boundaries$centroids@cells,
+      in_tissue=1L,
+      pxl_row_in_fullres=segmentation@boundaries$centroids@coords[,2],
+      pxl_col_in_fullres=segmentation@boundaries$centroids@coords[,1],
+      stringsAsFactors=FALSE
+    )
+
+    platform <- "VisiumHD"
+    positionType <-  "cell"
   }
 
-  colnames(barcode) <- c("barcode","in_tissue","array_row","array_col","pxl_row_in_fullres","pxl_col_in_fullres")
   rownames(barcode) <- barcode[,"barcode"]
-
   barcode <- barcode[barcode[,"in_tissue"]==1,]
 
-  visiumPathFiles <- list.files(visiumPath)
-  if(sum(grepl("filtered_feature_bc_matrix",list.files(visiumPath)))>0)
+  barcode[["pixel_row"]] <- round(barcode[,"pxl_row_in_fullres"]*imageScalef,3)
+  barcode[["pixel_col"]] <- round(barcode[,"pxl_col_in_fullres"]*imageScalef,3)
+
+  if(platform=="VisiumHD")
   {
-    matrix_name <- "bc"
+    if(positionType=="cell")
+    {
+      barcode[["coordinate_x_um"]] <- barcode[,"pxl_col_in_fullres"] * jsonFile$microns_per_pixel
+      barcode[["coordinate_y_um"]] <- barcode[,"pxl_row_in_fullres"] * jsonFile$microns_per_pixel
+      barcode[["coordinate_y_um"]] <- max(barcode[["coordinate_y_um"]]) - barcode[["coordinate_y_um"]]
+    }else{
+      barcode[["coordinate_x_um"]] <- barcode[,"array_col"] * jsonFile$bin_size_um
+      barcode[["coordinate_y_um"]] <- barcode[,"array_row"] * jsonFile$bin_size_um
+    }
   }else{
-    matrix_name <- "cell"
+    barcode[["coordinate_x_um"]] <- barcode[,"array_col"] * 0.5 * 100
+    barcode[["coordinate_y_um"]] <- barcode[,"array_row"] * 0.5 * sqrt(3) * 100
+    barcode[["coordinate_y_um"]] <- max(barcode[["coordinate_y_um"]]) - barcode[["coordinate_y_um"]]
   }
 
-  if(file.exists(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/matrix.mtx.gz")))
+  # read expression value
+  if(file.exists(paste0(visiumPath,"/filtered_feature_",positionType,"_matrix/matrix.mtx.gz")))
   {
-    st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/matrix.mtx.gz")) #dgT
+    st.matrix.data <- Matrix::readMM(paste0(visiumPath,"/filtered_feature_",positionType,"_matrix/matrix.mtx.gz")) #dgT
     st.matrix.data <- methods::as(st.matrix.data, "CsparseMatrix")
 
-    st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
-    st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
+    st.matrix.gene <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",positionType,"_matrix/features.tsv.gz"),as.is=T,header=F,sep="\t"))
+    st.matrix.anno <- as.matrix(read.csv(paste0(visiumPath,"/filtered_feature_",positionType,"_matrix/barcodes.tsv.gz"),as.is=T,header=F,sep="\t"))
 
     if(ncol(st.matrix.gene)==1)
     {
@@ -92,47 +151,35 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
       rownames(st.matrix.data) <- st.matrix.gene[,2]
     }
     colnames(st.matrix.data) <- st.matrix.anno[,1]
+
+  }else if(file.exists(paste0(visiumPath,"/filtered_feature_",positionType,"_matrix.h5"))) {
+    st.matrix.data <- Seurat::Read10X_h5(filename = paste0(visiumPath,"/filtered_feature_",positionType,"_matrix.h5"))
   }else{
-    st.matrix.data <- Seurat::Read10X_h5(filename = paste0(visiumPath,"/filtered_feature_",matrix_name,"_matrix.h5"))
+    stop(paste0("No filtered_feature_",positionType,"_matrix found. Expected directory or .h5 file in visiumPath."))
   }
 
-
-  olp <- intersect(colnames(st.matrix.data),rownames(barcode))
-  st.matrix.data <- st.matrix.data[,olp,drop=F]
+  # overlap the spots between spatial and expression
+  olp <- intersect(rownames(barcode),colnames(st.matrix.data))
   barcode <- barcode[olp,,drop=F]
+  st.matrix.data <- st.matrix.data[,olp,drop=F]
 
-  if(file.exists(paste0(visiumPath,"/spatial/tissue_lowres_image.png")))
+  # generate data for object
+  if(positionType=="bc")
   {
-    imagePath <- paste0(visiumPath,"/spatial/tissue_lowres_image.png")
-    barcode[["pixel_row"]] <- round(barcode[,"pxl_row_in_fullres"]*jsonFile$tissue_lowres_scalef,3)
-    barcode[["pixel_col"]] <- round(barcode[,"pxl_col_in_fullres"]*jsonFile$tissue_lowres_scalef,3)
+    spotCoordinates <- barcode[,c("pixel_row","pixel_col","array_row","array_col","coordinate_x_um","coordinate_y_um")]
+    spotNames <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
   }else{
-    imagePath <- paste0(visiumPath,"/spatial/tissue_hires_image.png")
-    barcode[["pixel_row"]] <- round(barcode[,"pxl_row_in_fullres"]*jsonFile$tissue_hires_scalef,3)
-    barcode[["pixel_col"]] <- round(barcode[,"pxl_col_in_fullres"]*jsonFile$tissue_hires_scalef,3)
+    spotCoordinates <- barcode[,c("pixel_row","pixel_col","coordinate_x_um","coordinate_y_um")]
+    spotNames <- barcode[,"barcode"]
   }
-
-  spotCoordinates <- barcode[,c("pixel_row","pixel_col","array_row","array_col")]
-  rownames(spotCoordinates) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
 
   metaData <- barcode[,"barcode",drop=FALSE]
-  rownames(metaData) <- paste0(barcode[,"array_row"],"x",barcode[,"array_col"])
 
-  colnames(st.matrix.data) <- rownames(spotCoordinates)
+  colnames(st.matrix.data) <- spotNames
+  rownames(spotCoordinates) <- spotNames
+  rownames(metaData) <- spotNames
 
-  if(platform=="Visium")
-  {
-    spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * 0.5 * 100
-    spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * 0.5 * sqrt(3) * 100
-    spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
-  }
-  if(platform=="VisiumHD")
-  {
-    bin_size_um <- jsonFile$bin_size_um
-    spotCoordinates[["coordinate_x_um"]] <- spotCoordinates[,"array_col"] * bin_size_um
-    spotCoordinates[["coordinate_y_um"]] <- spotCoordinates[,"array_row"] * bin_size_um
-  }
-
+  # create object
   SpaCET_obj <- create.SpaCET.object(
     counts=st.matrix.data,
     spotCoordinates=spotCoordinates,
@@ -146,10 +193,183 @@ create.SpaCET.object.10X <- function(visiumPath, organism="human")
 }
 
 
+create.SpaCET.object.10X.Xenium <- function(xeniumPath, platform, organism)
+{
+  if(!file.exists(xeniumPath))
+  {
+    stop("The xeniumPath does not exist. Please input the correct path.")
+  }
+
+  # Read cell-feature matrix
+  matrix_dir <- file.path(xeniumPath, "cell_feature_matrix")
+  h5_file <- file.path(xeniumPath, "cell_feature_matrix.h5")
+
+  if(dir.exists(matrix_dir))
+  {
+    matrix_file <- file.path(matrix_dir, "matrix.mtx.gz")
+    features_file <- file.path(matrix_dir, "features.tsv.gz")
+    barcodes_file <- file.path(matrix_dir, "barcodes.tsv.gz")
+    required_files <- c(matrix_file, features_file, barcodes_file)
+
+    if(!all(file.exists(required_files)))
+    {
+      stop(
+        "The cell_feature_matrix directory is incomplete. Expected matrix.mtx.gz, ",
+        "features.tsv.gz, and barcodes.tsv.gz."
+      )
+    }
+
+    message("Reading Xenium cell-feature matrix from directory...")
+    st.matrix.data <- Matrix::readMM(matrix_file)
+    features <- read.delim(
+      features_file,
+      header=FALSE,
+      stringsAsFactors=FALSE,
+      check.names=FALSE
+    )
+    barcodes <- read.delim(
+      barcodes_file,
+      header=FALSE,
+      stringsAsFactors=FALSE,
+      check.names=FALSE
+    )
+
+    if(nrow(features) != nrow(st.matrix.data) ||
+       nrow(barcodes) != ncol(st.matrix.data))
+    {
+      stop("The dimensions of the Xenium matrix, features, and barcodes do not match.")
+    }
+
+    if(ncol(features) >= 3)
+    {
+      gene_features <- features[, 3] == "Gene Expression"
+      if(!any(gene_features))
+      {
+        stop("No 'Gene Expression' features were found in features.tsv.gz.")
+      }
+      st.matrix.data <- st.matrix.data[gene_features, , drop=FALSE]
+      features <- features[gene_features, , drop=FALSE]
+    }else{
+      warning(
+        "features.tsv.gz does not contain a feature-type column; all features will be retained."
+      )
+    }
+
+    feature_names <- if(ncol(features) >= 2) features[, 2] else features[, 1]
+    rownames(st.matrix.data) <- feature_names
+    colnames(st.matrix.data) <- barcodes[, 1]
+
+  }else if(file.exists(h5_file)) {
+    message("Reading Xenium cell-feature matrix from H5...")
+    st.matrix.data <- Seurat::Read10X_h5(h5_file)
+
+    if(is.list(st.matrix.data))
+    {
+      if("Gene Expression" %in% names(st.matrix.data))
+      {
+        st.matrix.data <- st.matrix.data[["Gene Expression"]]
+      }else{
+        gene_matrices <- lapply(
+          st.matrix.data,
+          function(x) {
+            if(is.list(x) && "Gene Expression" %in% names(x))
+            {
+              x[["Gene Expression"]]
+            }else{
+              NULL
+            }
+          }
+        )
+        gene_matrices <- Filter(Negate(is.null), gene_matrices)
+
+        if(length(gene_matrices) == 1)
+        {
+          st.matrix.data <- gene_matrices[[1]]
+        }else{
+          stop("Could not identify a unique 'Gene Expression' matrix in cell_feature_matrix.h5.")
+        }
+      }
+    }
+  } else {
+    stop("No cell_feature_matrix found. Expected directory or .h5 file in xeniumPath.")
+  }
+
+  if(!inherits(st.matrix.data, "Matrix") && !is.matrix(st.matrix.data))
+  {
+    stop("The Xenium gene-expression data were not read as a matrix.")
+  }
+
+  # Read cell metadata with spatial coordinates
+  cells_file <- file.path(xeniumPath, "cells.csv.gz")
+  cells_parquet <- file.path(xeniumPath, "cells.parquet")
+
+  if(file.exists(cells_file))
+  {
+    message("Reading Xenium cell coordinates...")
+    cells <- read.csv(cells_file)
+  } else if(file.exists(cells_parquet))
+  {
+    cells <- as.data.frame(arrow::read_parquet(cells_parquet))
+  } else {
+    stop("No cells.csv.gz or cells.parquet found in xeniumPath.")
+  }
+
+  required_columns <- c("cell_id", "x_centroid", "y_centroid")
+  missing_columns <- setdiff(required_columns, colnames(cells))
+  if(length(missing_columns) > 0)
+  {
+    stop(
+      "The Xenium cell table is missing required columns: ",
+      paste(missing_columns, collapse=", "),
+      "."
+    )
+  }
+
+  cells$cell_id <- as.character(cells$cell_id)
+  if(anyNA(cells$cell_id) || any(cells$cell_id == "") || anyDuplicated(cells$cell_id))
+  {
+    stop("The cell_id column in the Xenium cell table must contain unique, non-missing IDs.")
+  }
+
+  # Extract coordinates
+  rownames(cells) <- cells$cell_id
+  spotCoordinates <- data.frame(
+    coordinate_x_um = cells$x_centroid,
+    coordinate_y_um = cells$y_centroid,
+    row.names = cells$cell_id
+  )
+  spotCoordinates[["coordinate_y_um"]] <- max(spotCoordinates[["coordinate_y_um"]]) - spotCoordinates[["coordinate_y_um"]]
+
+  # Align cell IDs
+  common_cells <- colnames(st.matrix.data)[
+    colnames(st.matrix.data) %in% rownames(spotCoordinates)
+  ]
+  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
+
+  st.matrix.data <- st.matrix.data[, common_cells, drop=FALSE]
+  spotCoordinates <- spotCoordinates[common_cells, , drop=FALSE]
+
+  message(paste0("Xenium data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
+
+
+  SpaCET_obj <- create.SpaCET.object(
+    counts=st.matrix.data,
+    spotCoordinates=spotCoordinates,
+    metaData=cells[common_cells, , drop=FALSE],
+    imagePath=NA,
+    platform="Xenium",
+    organism=organism
+  )
+
+  return(SpaCET_obj)
+}
+
+
 #' @title Create a SpaCET object
 #' @description Read an ST dataset to create a SpaCET object.
 #' @param counts Count matrix with gene name (row) x spot ID (column).
-#' @param spotCoordinates Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i,e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
+#' @param spotCoordinates Spot coordinate matrix with spot ID (row) x coordinates (column). This matrix should include two columns, i.e., X and Y coordinates, respectively, which represent the position of spots in H&E image.
+#' @param metaData Meta data matrix with spot ID (row) x meta information (column).
 #' @param imagePath Path to the H&E image file. Can be NA if it is not available.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
 #' @param organism Organism of the sample, e.g., human or mouse.
@@ -187,7 +407,7 @@ create.SpaCET.object <- function(counts, spotCoordinates, metaData=NULL, imagePa
     {
       stop("The image under the imagePath does not exist. Please input the correct path. User can set imagePath=NA if the current ST dataset does not have a matched H&E image.")
     }else{
-      if(grepl("visium", tolower(platform)))
+      if(tolower(platform)%in%c("visium","visiumhd"))
       {
         r <- png::readPNG(imagePath)
         rg <- grid::rasterGrob(r, width=grid::unit(1,"npc"), height=grid::unit(1,"npc"))
@@ -260,8 +480,8 @@ SpaCET.quality.control  <- function(SpaCET_obj, min.genes=1)
 
 
 #' @title Convert Seurat to SpaCET
-#' @description Convert an Seurat object to a SpaCET object.
-#' @param Seurat_obj An Seurat object.
+#' @description Convert a Seurat object to a SpaCET object.
+#' @param Seurat_obj A Seurat object.
 #' @param platform A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.
 #' @param visiumPath Path to the Space Ranger output folder (Optional). If setting, this function will retrieve more information from the raw output.
 #' @param organism Organism of the sample, e.g., human or mouse.
@@ -525,10 +745,10 @@ convert.Seurat <- function(Seurat_obj, platform, visiumPath=NULL, organism="huma
 
 
 #' @title Add SpaCET to Seurat
-#' @description Add deconvolution results from a SpaCET object to an Seurat object as a new assay.
+#' @description Add deconvolution results from a SpaCET object to a Seurat object as a new assay.
 #' @param SpaCET_obj A SpaCET object.
 #' @param Seurat_obj A Seurat object.
-#' @return An Seurat object.
+#' @return A Seurat object.
 #' @examples
 #' visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 #' Seurat_obj <- Seurat::Load10X_Spatial(data.dir = visiumPath)
@@ -642,208 +862,119 @@ mouse2human_mat <- function(mat) {
 }
 
 
-#' @title Create a SpaCET object from 10x Xenium
-#'
-#' @description Read 10x Genomics Xenium output into a SpaCET object.
-#'
-#' @param xeniumPath Path to the Xenium output folder.
-#' @param organism Species, either "human" (default) or "mouse".
-#'
-#' @return A SpaCET object.
-#'
-#' @examples
-#' \dontrun{
-#' SpaCET_obj <- create.SpaCET.object.Xenium(xeniumPath = "/path/to/xenium_output")
-#' }
-#'
-#' @rdname create.SpaCET.object.Xenium
-#' @export
-#'
-create.SpaCET.object.Xenium <- function(xeniumPath, organism="human")
-{
-  if(!file.exists(xeniumPath))
-  {
-    stop("The xeniumPath does not exist. Please input the correct path.")
-  }
-
-  # Read cell-feature matrix
-  matrix_dir <- file.path(xeniumPath, "cell_feature_matrix")
-  h5_file <- file.path(xeniumPath, "cell_feature_matrix.h5")
-
-  if(dir.exists(matrix_dir))
-  {
-    message("Reading Xenium cell-feature matrix from directory...")
-    st.matrix.data <- Matrix::readMM(file.path(matrix_dir, "matrix.mtx.gz"))
-    genes <- read.csv(file.path(matrix_dir, "features.tsv.gz"), header=FALSE, sep="\t")
-    barcodes <- read.csv(file.path(matrix_dir, "barcodes.tsv.gz"), header=FALSE, sep="\t")
-    rownames(st.matrix.data) <- genes[, 2]  # Gene symbols
-    colnames(st.matrix.data) <- barcodes[, 1]
-  } else if(file.exists(h5_file))
-  {
-    message("Reading Xenium cell-feature matrix from H5...")
-    st.matrix.data <- Seurat::Read10X_h5(h5_file)
-  } else {
-    stop("No cell_feature_matrix found. Expected directory or .h5 file in xeniumPath.")
-  }
-
-  # Read cell metadata with spatial coordinates
-  cells_file <- file.path(xeniumPath, "cells.csv.gz")
-  cells_parquet <- file.path(xeniumPath, "cells.parquet")
-
-  if(file.exists(cells_file))
-  {
-    message("Reading Xenium cell coordinates...")
-    cells <- read.csv(cells_file)
-  } else if(file.exists(cells_parquet))
-  {
-    cells <- as.data.frame(arrow::read_parquet(cells_parquet))
-  } else {
-    stop("No cells.csv.gz or cells.parquet found in xeniumPath.")
-  }
-
-  # Extract coordinates
-  rownames(cells) <- cells$cell_id
-  spotCoordinates <- data.frame(
-    x = cells$x_centroid,
-    y = cells$y_centroid,
-    row.names = cells$cell_id
-  )
-
-  # Align cell IDs
-  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
-  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
-
-  st.matrix.data <- st.matrix.data[, common_cells]
-  spotCoordinates <- spotCoordinates[common_cells, ]
-
-  message(paste0("Xenium data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
-
-  SpaCET_obj <- create.SpaCET.object(
-    counts=st.matrix.data,
-    spotCoordinates=spotCoordinates,
-    metaData=cells[common_cells, , drop=FALSE],
-    imagePath=NA,
-    platform="Xenium",
-    organism=organism
-  )
-
-  return(SpaCET_obj)
-}
-
-
-#' @title Create a SpaCET object from NanoString CosMx
-#'
-#' @description Read NanoString CosMx SMI output into a SpaCET object.
-#'
-#' @param cosmxPath Path to the CosMx output folder containing the expression matrix and metadata.
-#' @param fov Field of view indices to include. Default NULL loads all FOVs.
-#' @param organism Species, either "human" (default) or "mouse".
-#'
-#' @return A SpaCET object.
-#'
-#' @examples
-#' \dontrun{
-#' SpaCET_obj <- create.SpaCET.object.CosMx(cosmxPath = "/path/to/cosmx_output")
-#' }
-#'
-#' @rdname create.SpaCET.object.CosMx
-#' @export
-#'
-create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
-{
-  if(!file.exists(cosmxPath))
-  {
-    stop("The cosmxPath does not exist. Please input the correct path.")
-  }
-
-  # Find expression matrix file
-  expr_file <- list.files(cosmxPath, pattern="exprMat_file\\.csv$|tx_file\\.csv$", full.names=TRUE, recursive=TRUE)
-  if(length(expr_file) == 0)
-  {
-    # Try alternative naming patterns
-    expr_file <- list.files(cosmxPath, pattern="(expression|counts).*\\.csv$", full.names=TRUE, recursive=TRUE)
-  }
-  if(length(expr_file) == 0) stop("No expression matrix file found in cosmxPath.")
-
-  message("Reading CosMx expression data...")
-  if(requireNamespace("data.table", quietly=TRUE))
-  {
-    expr_data <- as.data.frame(data.table::fread(expr_file[1], header=TRUE))
-    rownames(expr_data) <- expr_data[,1]; expr_data <- expr_data[,-1]
-  } else {
-    expr_data <- read.csv(expr_file[1], row.names=1, check.names=FALSE)
-  }
-
-  # Find metadata file
-  meta_file <- list.files(cosmxPath, pattern="metadata_file\\.csv$|metadata\\.csv$", full.names=TRUE, recursive=TRUE)
-  if(length(meta_file) > 0)
-  {
-    message("Reading CosMx metadata...")
-    if(requireNamespace("data.table", quietly=TRUE))
-    {
-      meta_data <- as.data.frame(data.table::fread(meta_file[1], header=TRUE))
-      rownames(meta_data) <- meta_data[,1]; meta_data <- meta_data[,-1]
-    } else {
-      meta_data <- read.csv(meta_file[1], row.names=1, check.names=FALSE)
-    }
-
-    # Filter by FOV if requested
-    if(!is.null(fov) && "fov" %in% colnames(meta_data))
-    {
-      keep_cells <- rownames(meta_data)[meta_data$fov %in% fov]
-      expr_data <- expr_data[, colnames(expr_data) %in% keep_cells, drop=FALSE]
-      meta_data <- meta_data[keep_cells, , drop=FALSE]
-    }
-
-    # Extract spatial coordinates
-    coord_cols <- intersect(c("CenterX_global_px", "CenterY_global_px",
-                              "x_global_px", "y_global_px",
-                              "CenterX_local_px", "CenterY_local_px"), colnames(meta_data))
-    if(length(coord_cols) >= 2)
-    {
-      spotCoordinates <- data.frame(
-        x = meta_data[, coord_cols[1]],
-        y = meta_data[, coord_cols[2]],
-        row.names = rownames(meta_data)
-      )
-    } else {
-      stop("Could not find spatial coordinate columns in CosMx metadata.")
-    }
-  } else {
-    stop("No metadata file found in cosmxPath.")
-  }
-
-  # Transpose if genes are in rows (CosMx format: cells x genes)
-  if(nrow(expr_data) > ncol(expr_data))
-  {
-    # Likely cells x genes, transpose to genes x cells
-    st.matrix.data <- Matrix::Matrix(t(as.matrix(expr_data)), sparse=TRUE)
-  } else {
-    st.matrix.data <- Matrix::Matrix(as.matrix(expr_data), sparse=TRUE)
-  }
-
-  # Ensure cell IDs match between expression and coordinates
-  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
-  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
-
-  st.matrix.data <- st.matrix.data[, common_cells]
-  spotCoordinates <- spotCoordinates[common_cells, ]
-
-  # Look for composite image
-  image_files <- list.files(cosmxPath, pattern="CellComposite.*\\.jpg$|CellComposite.*\\.png$|composite.*\\.png$",
-                            full.names=TRUE, recursive=TRUE)
-  imagePath <- if(length(image_files) > 0) image_files[1] else NA
-
-  message(paste0("CosMx data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
-
-  SpaCET_obj <- create.SpaCET.object(
-    counts=st.matrix.data,
-    spotCoordinates=spotCoordinates,
-    metaData=if(exists("meta_data")) meta_data[common_cells, , drop=FALSE] else NULL,
-    imagePath=imagePath,
-    platform="CosMx",
-    organism=organism
-  )
-
-  return(SpaCET_obj)
-}
+# @title Create a SpaCET object from NanoString CosMx
+#
+# @description Read NanoString CosMx SMI output into a SpaCET object.
+#
+# @param cosmxPath Path to the CosMx output folder containing the expression matrix and metadata.
+# @param fov Field of view indices to include. Default NULL loads all FOVs.
+# @param organism Species, either "human" (default) or "mouse".
+#
+# @return A SpaCET object.
+#
+# @examples
+# \dontrun{
+# SpaCET_obj <- create.SpaCET.object.CosMx(cosmxPath = "/path/to/cosmx_output")
+# }
+#
+# @rdname create.SpaCET.object.CosMx
+# @export
+#
+#create.SpaCET.object.CosMx <- function(cosmxPath, fov=NULL, organism="human")
+#{
+#  if(!file.exists(cosmxPath))
+#  {
+#    stop("The cosmxPath does not exist. Please input the correct path.")
+#  }
+#
+#  # Find expression matrix file
+#  expr_file <- list.files(cosmxPath, pattern="exprMat_file\\.csv$|tx_file\\.csv$", full.names=TRUE, recursive=TRUE)
+#  if(length(expr_file) == 0)
+#  {
+#    # Try alternative naming patterns
+#    expr_file <- list.files(cosmxPath, pattern="(expression|counts).*\\.csv$", full.names=TRUE, recursive=TRUE)
+#  }
+#  if(length(expr_file) == 0) stop("No expression matrix file found in cosmxPath.")
+#
+#  message("Reading CosMx expression data...")
+#  if(requireNamespace("data.table", quietly=TRUE))
+#  {
+#    expr_data <- as.data.frame(data.table::fread(expr_file[1], header=TRUE))
+#    rownames(expr_data) <- expr_data[,1]; expr_data <- expr_data[,-1]
+#  } else {
+#    expr_data <- read.csv(expr_file[1], row.names=1, check.names=FALSE)
+#  }
+#
+#  # Find metadata file
+#  meta_file <- list.files(cosmxPath, pattern="metadata_file\\.csv$|metadata\\.csv$", full.names=TRUE, recursive=TRUE)
+#  if(length(meta_file) > 0)
+#  {
+#    message("Reading CosMx metadata...")
+#    if(requireNamespace("data.table", quietly=TRUE))
+#    {
+#      meta_data <- as.data.frame(data.table::fread(meta_file[1], header=TRUE))
+#      rownames(meta_data) <- meta_data[,1]; meta_data <- meta_data[,-1]
+#    } else {
+#      meta_data <- read.csv(meta_file[1], row.names=1, check.names=FALSE)
+#    }
+#
+#    # Filter by FOV if requested
+#    if(!is.null(fov) && "fov" %in% colnames(meta_data))
+#    {
+#      keep_cells <- rownames(meta_data)[meta_data$fov %in% fov]
+#      expr_data <- expr_data[, colnames(expr_data) %in% keep_cells, drop=FALSE]
+#      meta_data <- meta_data[keep_cells, , drop=FALSE]
+#    }
+#
+#    # Extract spatial coordinates
+#    coord_cols <- intersect(c("CenterX_global_px", "CenterY_global_px",
+#                              "x_global_px", "y_global_px",
+#                              "CenterX_local_px", "CenterY_local_px"), colnames(meta_data))
+#    if(length(coord_cols) >= 2)
+#    {
+#      spotCoordinates <- data.frame(
+#        x = meta_data[, coord_cols[1]],
+#        y = meta_data[, coord_cols[2]],
+#        row.names = rownames(meta_data)
+#      )
+#    } else {
+#      stop("Could not find spatial coordinate columns in CosMx metadata.")
+#    }
+#  } else {
+#    stop("No metadata file found in cosmxPath.")
+#  }
+#
+#  # Transpose if genes are in rows (CosMx format: cells x genes)
+#  if(nrow(expr_data) > ncol(expr_data))
+#  {
+#    # Likely cells x genes, transpose to genes x cells
+#    st.matrix.data <- Matrix::Matrix(t(as.matrix(expr_data)), sparse=TRUE)
+#  } else {
+#    st.matrix.data <- Matrix::Matrix(as.matrix(expr_data), sparse=TRUE)
+#  }
+#
+#  # Ensure cell IDs match between expression and coordinates
+#  common_cells <- intersect(colnames(st.matrix.data), rownames(spotCoordinates))
+#  if(length(common_cells) == 0) stop("No matching cell IDs between expression data and coordinates.")
+#
+#  st.matrix.data <- st.matrix.data[, common_cells]
+#  spotCoordinates <- spotCoordinates[common_cells, ]
+#
+#  # Look for composite image
+#  image_files <- list.files(cosmxPath, pattern="CellComposite.*\\.jpg$|CellComposite.*\\.png$|composite.*\\.png$",
+#                            full.names=TRUE, recursive=TRUE)
+#  imagePath <- if(length(image_files) > 0) image_files[1] else NA
+#
+#  message(paste0("CosMx data loaded: ", nrow(st.matrix.data), " genes x ", ncol(st.matrix.data), " cells"))
+#
+#  SpaCET_obj <- create.SpaCET.object(
+#    counts=st.matrix.data,
+#    spotCoordinates=spotCoordinates,
+#    metaData=if(exists("meta_data")) meta_data[common_cells, , drop=FALSE] else NULL,
+#    imagePath=imagePath,
+#    platform="CosMx",
+#    organism=organism
+#  )
+#
+#  return(SpaCET_obj)
+#}

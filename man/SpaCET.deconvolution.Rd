@@ -19,7 +19,7 @@ SpaCET.deconvolution(
 
 \item{signatureType}{Indicate the tumor signature type, NULL, CNA, expr, or seq_depth. Default: NULL (automatically detect CNA or expr).}
 
-\item{adjacentNormal}{Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.}
+\item{adjacentNormal}{Indicate whether your sample is normal tissue adjacent to the tumor. If TRUE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.}
 
 \item{coreNo}{Core number in parallel computation.}
 }

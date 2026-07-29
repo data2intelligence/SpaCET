@@ -2,12 +2,22 @@
 % Please edit documentation in R/utilities.R
 \name{create.SpaCET.object.10X}
 \alias{create.SpaCET.object.10X}
-\title{Create a SpaCET object from 10X Visium}
+\title{Create a SpaCET object from 10X Genomics platforms}
 \usage{
-create.SpaCET.object.10X(visiumPath, organism = "human")
+create.SpaCET.object.10X(
+  dataPath = NULL,
+  visiumPath = NULL,
+  platform = "Visium",
+  organism = "human"
+)
 }
 \arguments{
-\item{visiumPath}{Path to the Space Ranger output folder. See ‘details’ for more information.}
+\item{dataPath}{Path to a Visium, Visium HD, or Xenium output directory.
+See \emph{Details} for the directory expected for each platform.}
+
+\item{visiumPath}{Path to the Space Ranger output folder. This is a deprecated parameter. Please use `dataPath` instead.}
+
+\item{platform}{A character string indicating the platform, i.e., "Visium", "VisiumHD", or "Xenium".}
 
 \item{organism}{Organism of the sample, e.g., human or mouse.}
 }
@@ -18,24 +28,18 @@ A SpaCET object.
 Read an ST dataset to create a SpaCET object.
 }
 \details{
-If users are analyzing an ST data set from 10X Visium platform, they only need to input "visiumPath".
-Please make sure that "visiumPath" points to the standard output folder of 10X Space Ranger,
-which has both (1) sequencing data, i.e., `filtered_feature_bc_matrix.h5` file or `filtered_feature_bc_matrix` folder,
-
-The "filtered_feature_bc_matrix" folder includes \cr
-"barcodes.tsv.gz": spot level barcodes; \cr
-"features.tsv.gz": list of genes; \cr
-"matrix.mtx.gz": (sparse) matrix of counts.
-
-and (2) image folder `spatial`.
-
-The "spatial" folder includes \cr
-“tissue_positions_list.csv” : barcodes and spatial information; \cr
-“tissue_lowres_image.png” : hematoxylin and eosin (H&E) image; \cr
-“scalefactors_json.json” : scaling factors for adjusting the coordinates.
+The directory supplied through \code{dataPath} depends on the platform:
+\itemize{
+  \item{\strong{Visium}: the Space Ranger output directory.}
+  \item{\strong{Binned Visium HD}: one
+  \code{binned_outputs/square_*um} directory.}
+  \item{\strong{Segmented Visium HD}: the
+  \code{segmented_outputs} directory.}
+  \item{\strong{Xenium}: the Xenium output directory.}
+}
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
-SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+SpaCET_obj <- create.SpaCET.object.10X(dataPath = visiumPath, platform = "Visium", organism="human")
 
 }

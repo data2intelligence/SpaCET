@@ -24,7 +24,7 @@ In this vignette, we demonstrate the use of `SpaCET` to identify (1) spatially v
 
 ## Create SpaCET object
 
-To read your ST data into R, user can create an SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x Space Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
+To read your ST data into R, user can create a SpaCET object by using `create.SpaCET.object` or `create.SpaCET.object.10X`. Specifically, if users are analyzing an ST dataset from 10x Visium, they only need to input "visiumPath" by using `create.SpaCET.object.10X`. Please make sure that "visiumPath" points to the standard output folders of 10x Space Ranger, which has both "filtered_feature_bc_matrix" and "spatial" folders.
 
 ``` r
 library(SpaCET)
@@ -33,8 +33,8 @@ library(SpaCET)
 # user can set the paths to their own data.
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
 
-# load ST data to create an SpaCET object.
-SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+# load ST data to create a SpaCET object.
+SpaCET_obj <- create.SpaCET.object.10X(dataPath = visiumPath, platform = "Visium", organism = "human")
 
 # calculate the QC metrics
 SpaCET_obj <- SpaCET.quality.control(SpaCET_obj)

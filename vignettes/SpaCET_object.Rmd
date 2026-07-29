@@ -1,0 +1,379 @@
+---
+title: "Creating a SpaCET object"
+output: rmarkdown::html_vignette
+description: >
+  Creating a SpaCET object.
+vignette: >
+  %\VignetteIndexEntry{Creating a SpaCET object}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+---
+output: github_document
+---
+
+This tutorial describes the structure of a `SpaCET` object and the two ways
+to create one:
+
+1. automatically from Visium, Visium HD, or Xenium output with
+   `create.SpaCET.object.10X`;
+2. manually from a prepared count matrix and spatial coordinates with
+   `create.SpaCET.object`.
+
+Use the automatic constructor when the original 10x output directory is
+available. Use the manual constructor for other platforms or when the
+input files have already been processed.
+
+## What is a SpaCET object?
+
+A `SpaCET` object is an S4 object with two slots:
+
+| Slot | Contents |
+|---|---|
+| `input` | Count matrix, spatial coordinates, optional metadata, image information, platform, and organism |
+| `results` | Results added by quality control, deconvolution, spatial correlation, and interaction analyses |
+
+Immediately after object creation, the input data are stored in
+`SpaCET_obj@input`, while `SpaCET_obj@results` is usually empty.
+
+The following example uses the original spatial transcriptomics pancreatic
+ductal adenocarcinoma dataset from the
+[`oldST_PDAC` vignette](oldST_PDAC.html).
+
+```{r inspect-object, eval=FALSE}
+library(SpaCET)
+
+oldST_path <- system.file("extdata", "oldST_PDAC", package = "SpaCET")
+load(file.path(oldST_path, "st_PDAC.rda"))
+
+SpaCET_obj <- create.SpaCET.object(
+  counts = counts,
+  spotCoordinates = spotCoordinates,
+  metaData = NULL,
+  imagePath = NA,
+  platform = "oldST",
+  organism = "human"
+)
+
+str(SpaCET_obj)
+```
+
+A newly created object has the following general structure:
+
+``` text
+Formal class 'SpaCET' with 2 slots
+  ..@ input  :List of 6
+  .. ..$ counts         : sparse matrix of genes x spatial locations
+  .. ..$ spotCoordinates: data.frame of locations x coordinates
+  .. ..$ metaData       : optional data.frame
+  .. ..$ image          : list containing the image path and raster
+  .. ..$ platform       : character
+  .. ..$ organism       : character
+  ..@ results: list()
+```
+
+## Automatically create a SpaCET object
+
+All supported 10x platforms use the same public constructor:
+
+| Platform and data | Constructor call | Input directory |
+|---|---|---|
+| Visium | `platform = "Visium"` | Space Ranger output |
+| Visium HD, binned | `platform = "VisiumHD"` | One `binned_outputs/square_*um` directory |
+| Visium HD, segmented | `platform = "VisiumHD"` | The `segmented_outputs` directory |
+| Xenium | `platform = "Xenium"` | Xenium output |
+
+### 10x Visium
+
+The bundled breast cancer dataset is also used in the
+[`visium_BC` vignette](visium_BC.html).
+
+```{r automatic-visium, eval=FALSE}
+library(SpaCET)
+
+visium_path <- system.file("extdata", "Visium_BC", package = "SpaCET")
+
+SpaCET_obj <- create.SpaCET.object.10X(
+  dataPath = visium_path,
+  platform = "Visium",
+  organism = "human"
+)
+
+SpaCET_obj@input$platform
+dim(SpaCET_obj@input$counts)
+head(SpaCET_obj@input$spotCoordinates)
+```
+
+The directory should contain the following core files:
+
+``` text
+Visium_output/
+├── filtered_feature_bc_matrix/
+│   ├── barcodes.tsv.gz
+│   ├── features.tsv.gz
+│   └── matrix.mtx.gz
+├── filtered_feature_bc_matrix.h5
+└── spatial/
+    ├── scalefactors_json.json
+    ├── tissue_positions.csv
+    ├── tissue_hires_image.png
+    └── tissue_lowres_image.png
+```
+
+Either the MEX directory or `filtered_feature_bc_matrix.h5` is sufficient.
+Depending on the Space Ranger version, the positions file may instead be
+named `tissue_positions_list.csv`.
+
+
+### 10x Visium HD binned output
+
+Visium HD provides multiple bin sizes. Select one bin size and pass that
+directory to the constructor.
+
+```{r automatic-visium-hd-binned, eval=FALSE}
+visium_hd_bin_path <- file.path(
+  "/path/to/space_ranger/outs",
+  "binned_outputs",
+  "square_016um"
+)
+
+SpaCET_obj <- create.SpaCET.object.10X(
+  dataPath = visium_hd_bin_path,
+  platform = "VisiumHD",
+  organism = "human"
+)
+
+SpaCET_obj@input$platform
+dim(SpaCET_obj@input$counts)
+head(SpaCET_obj@input$spotCoordinates)
+```
+
+A selected bin directory should contain:
+
+``` text
+square_016um/
+├── filtered_feature_bc_matrix/
+├── filtered_feature_bc_matrix.h5
+└── spatial/
+    ├── scalefactors_json.json
+    ├── tissue_positions.parquet
+    ├── tissue_hires_image.png
+    └── tissue_lowres_image.png
+```
+
+The returned object uses square bins as spatial observations and records
+the platform as `"VisiumHD"`.
+
+### 10x Visium HD segmented output
+
+For cell-segmented Visium HD output, set `dataPath` directly to the
+`segmented_outputs` directory.
+
+```{r automatic-visium-hd-segmented, eval=FALSE}
+visium_hd_cell_path <- file.path(
+  "/path/to/space_ranger/outs",
+  "segmented_outputs"
+)
+
+SpaCET_obj <- create.SpaCET.object.10X(
+  dataPath = visium_hd_cell_path,
+  platform = "VisiumHD",
+  organism = "human"
+)
+
+SpaCET_obj@input$platform
+dim(SpaCET_obj@input$counts)
+head(SpaCET_obj@input$spotCoordinates)
+head(SpaCET_obj@input$metaData)
+```
+
+The segmented directory should contain:
+
+``` text
+segmented_outputs/
+├── cell_segmentations.geojson
+├── filtered_feature_cell_matrix/
+├── filtered_feature_cell_matrix.h5
+└── spatial/
+    ├── scalefactors_json.json
+    ├── tissue_hires_image.png
+    └── tissue_lowres_image.png
+```
+
+The constructor reads cell centroids from the segmentation output, matches
+them to the cell IDs in `filtered_feature_cell_matrix`, and stores the cell
+IDs in `SpaCET_obj@input$metaData$barcode`.
+
+### 10x Xenium
+
+Set `platform = "Xenium"` to read a standard Xenium output directory. The
+constructor reads the cell-feature matrix and cell centroids, aligns their
+cell IDs, and stores the complete cell table as metadata.
+
+```{r automatic-xenium, eval=FALSE}
+xenium_path <- "/path/to/xenium_output"
+
+SpaCET_obj <- create.SpaCET.object.10X(
+  dataPath = xenium_path,
+  platform = "Xenium",
+  organism = "human"
+)
+
+SpaCET_obj@input$platform
+dim(SpaCET_obj@input$counts)
+head(SpaCET_obj@input$spotCoordinates)
+head(SpaCET_obj@input$metaData)
+```
+
+The Xenium directory should include:
+
+``` text
+xenium_output/
+├── cell_feature_matrix/
+│   ├── barcodes.tsv.gz
+│   ├── features.tsv.gz
+│   └── matrix.mtx.gz
+├── cell_feature_matrix.h5
+├── cells.csv.gz
+└── cells.parquet
+```
+
+Either the MEX directory or `cell_feature_matrix.h5` is sufficient.
+Likewise, either `cells.csv.gz` or `cells.parquet` can provide the cell
+table. The cell table must contain `cell_id`, `x_centroid`, and
+`y_centroid`.
+
+## Manually create a SpaCET object
+
+Use `create.SpaCET.object` when platform output is unavailable, when the
+files have already been processed, or when a custom format is being used.
+The primary inputs are:
+
+1. `counts`: a gene-by-location count matrix;
+2. `spotCoordinates`: a location-by-coordinate matrix or data frame;
+3. `imagePath`: the path to a matched tissue image, or `NA`;
+4. `platform`: the spatial transcriptomics platform.
+
+`metaData` is optional. When supplied, each row must correspond to one
+column of `counts`.
+
+### Original spatial transcriptomics data
+
+The bundled PDAC example stores the count matrix and coordinates in
+`st_PDAC.rda`.
+
+```{r manual-oldst, eval=FALSE}
+library(SpaCET)
+
+oldST_path <- system.file("extdata", "oldST_PDAC", package = "SpaCET")
+load(file.path(oldST_path, "st_PDAC.rda"))
+
+# Genes are rows and spots are columns.
+counts[1:6, 1:5]
+
+# Spots are rows and coordinate variables are columns.
+head(spotCoordinates)
+
+SpaCET_obj <- create.SpaCET.object(
+  counts = counts,
+  spotCoordinates = spotCoordinates,
+  metaData = NULL,
+  imagePath = NA,
+  platform = "oldST",
+  organism = "human"
+)
+```
+
+### High-resolution spatial transcriptomics data
+
+The same constructor can be used for high-resolution platforms. The
+Slide-seq colorectal cancer example from the
+[`hiresST_CRC` vignette](hiresST_CRC.html) supplies a sparse count matrix
+and bead coordinates.
+
+```{r manual-hires, eval=FALSE}
+library(SpaCET)
+
+hires_path <- system.file("extdata", "hiresST_CRC", package = "SpaCET")
+load(file.path(hires_path, "counts.rda"))
+load(file.path(hires_path, "spotCoordinates.rda"))
+
+counts[1:6, 1:5]
+head(spotCoordinates)
+
+SpaCET_obj <- create.SpaCET.object(
+  counts = counts,
+  spotCoordinates = spotCoordinates,
+  metaData = NULL,
+  imagePath = NA,
+  platform = "SlideSeq",
+  organism = "human"
+)
+```
+
+### Single-cell-resolution CosMx data
+
+Prepared single-cell-resolution data can be loaded in the same way. The
+liver hepatocellular carcinoma CosMx dataset can be downloaded from
+[Zenodo](https://zenodo.org/records/15006880/files/LIHC_CosMx_data.rda) or
+the
+[NIH HPC mirror](https://hpc.nih.gov/~Jiang_Lab/SecAct_Package/LIHC_CosMx_data.rda).
+The downloaded R data file contains `counts`, `spotCoordinates`, and
+`metaData`.
+
+```{r manual-cosmx, eval=FALSE}
+library(SpaCET)
+
+load("LIHC_CosMx_data.rda")
+
+# Count-matrix dimensions: genes x cells.
+dim(counts)
+#> [1]   1000 460441
+
+spotCoordinates[1:5, ]
+#>             coordinate_x_um coordinate_y_um
+#> c_2_100_733         6708.16         9033.40
+#> c_2_101_240         7500.24         8861.56
+#> c_2_101_339         7605.60         8736.04
+#> c_2_101_452         7629.84         9172.60
+#> c_2_102_179         7868.24         8993.68
+
+metaData[1:5, ]
+#>                    cellType         niche
+#> c_2_100_733      Tumor_core tumor subtype
+#> c_2_101_240 Tumor_interface     interface
+#> c_2_101_339      Tumor_core         tumor
+#> c_2_101_452      Tumor_core tumor subtype
+#> c_2_102_179      Tumor_core         tumor
+
+SpaCET_obj <- create.SpaCET.object(
+  counts = counts,
+  spotCoordinates = spotCoordinates,
+  metaData = metaData,
+  imagePath = NA,
+  platform = "CosMx",
+  organism = "human"
+)
+```
+
+### Add location-level metadata
+
+Metadata can contain annotations, sample groups, quality-control fields, or
+other information associated with spatial locations.
+
+```{r manual-metadata, eval=FALSE}
+metaData <- data.frame(
+  region = rep(c("tumor", "stroma"), length.out = ncol(counts)),
+  row.names = colnames(counts)
+)
+
+SpaCET_obj <- create.SpaCET.object(
+  counts = counts,
+  spotCoordinates = spotCoordinates,
+  metaData = metaData,
+  imagePath = NA,
+  platform = "SlideSeq",
+  organism = "human"
+)
+```
+

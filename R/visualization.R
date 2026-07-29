@@ -14,7 +14,7 @@
 #' @param CustomizedAreaScale A vector of four numbers (0~1) for scale of the Customized Area, i.e., x_left, x_right, y_bottom, y_top.
 #' @param legend.position The position of the legend. Set it as "none" if you want to remove the legend.
 #' @param legend.size The size of the legend.
-#' @param interactive Logical: should the interactive app be activited?
+#' @param interactive Logical: should the interactive app be activated?
 #' @return A ggplot2 object.
 #' @details
 #' `SpaCET.visualize.spatialFeature` is able to plot multiple types of spatial features, including "QC", "GeneExp", "CellFraction", and "LRNetworkScore".
@@ -145,18 +145,6 @@ SpaCET.visualize.spatialFeature <- function(
         limits = NULL
       }
 
-    }else if(spatialType == "MostAbundantCellType"){
-      if(is.null(SpaCET_obj@results$deconvolution$propMat))
-      {
-        stop("Please run cell type deconvolution first.")
-      }
-
-      mat <- SpaCET_obj@results$deconvolution$propMat
-
-      scaleType="color-discrete"
-      legendName = "Cell Type"
-      limits = NULL
-
     }else if(spatialType == "CellTypeComposition"){
       if(is.null(SpaCET_obj@results$deconvolution$propMat))
       {
@@ -250,14 +238,16 @@ SpaCET.visualize.spatialFeature <- function(
       scaleType="color-discrete"
       legendName = spatialFeatures
       limits = NULL
+
     }else{
-      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, MostAbundantCellType, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
+      stop("Please set spatialType as one of these spatial feature types, i.e., QualityControl, GeneExpression, CellFraction, CellTypeComposition, LRNetworkScore, Interface, GeneSetScore, SecretedProteinActivity, and SignalingPattern.")
     }
 
 
     for(spatialFeature in spatialFeatures)
     {
-      if(spatialType == "LRNetworkScore"){
+      if(spatialType == "LRNetworkScore")
+      {
         if(spatialFeature == "Network_Score"){
           legendName = "Score"
         }else{
@@ -265,7 +255,8 @@ SpaCET.visualize.spatialFeature <- function(
         }
       }
 
-      if(spatialType == "Interface"){
+      if(spatialType == "Interface")
+      {
         if(is.null(spatialFeature))
         {
           stop("Please set spatialFeature.")
@@ -278,38 +269,8 @@ SpaCET.visualize.spatialFeature <- function(
         }
       }
 
-      if(spatialType == "MostAbundantCellType")
+      if(spatialType == "CellTypeComposition")
       {
-        if(!spatialFeature%in%c("MajorLineage","SubLineage"))
-        {
-          stop("Please set spatialFeatures as MajorLineage or SubLineage")
-        }else{
-          if(spatialFeature == "MajorLineage")
-          {
-            allCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
-            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
-            {
-              allCellTypes <- c("Malignant",allCellTypes)
-            }
-          }else{
-            allCellTypes <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
-            if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(SpaCET_obj@results$deconvolution$propMat))
-            {
-              allCellTypes <- c("Malignant",allCellTypes)
-            }
-          }
-
-          res_deconv_level <- mat[allCellTypes,,drop=F]
-
-          Content <- sapply(1:dim(res_deconv_level)[2],function(x) names(sort(res_deconv_level[,x],decreasing=T))[1])
-          names(Content) <- colnames(res_deconv_level)
-
-          Content <- Content[order(match(Content,allCellTypes))]
-
-          visualVector <- Content
-        }
-
-      }else if(spatialType == "CellTypeComposition"){
         if(!spatialFeature%in%c("MajorLineage","SubLineage"))
         {
           stop("Please set spatialFeatures as MajorLineage or SubLineage")
@@ -390,7 +351,7 @@ SpaCET.visualize.spatialFeature <- function(
     pp
 
   }else{
-    if(!grepl("visium", tolower(SpaCET_obj@input$platform)))
+    if(tolower(SpaCET_obj@input$platform)%in%c("visium","visiumhd"))
     {
       stop("This function is only applicable to 10X Visium data.")
     }
@@ -672,7 +633,7 @@ visualSpatial <- function(
 {
   library(ggplot2)
 
-  if(grepl("visium", tolower(platform)))
+  if(tolower(platform)%in%c("visium","visiumhd"))
   {
     coordi <- t(matrix(as.numeric(unlist(strsplit(names(visualVector),"x"))),nrow=2))
 

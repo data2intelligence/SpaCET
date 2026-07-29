@@ -2,7 +2,7 @@
 #' @description Explore different malignant cell states in tumor ST dataset.
 #' @param SpaCET_obj A SpaCET object.
 #' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
-#' @param malignantCutoff Fraction cutoff for defining spots with high abundant malignant cells. Default: 0.7.
+#' @param malignantCutoff Fraction cutoff for defining spots with highly abundant malignant cells. Default: 0.7.
 #' @param coreNo Core number in parallel.
 #' @return A SpaCET object
 #' @examples
@@ -176,7 +176,7 @@ SpaCET.deconvolution.malignant <- function(SpaCET_obj, Malignant="Malignant", ma
 #' @param SpaCET_obj A SpaCET object.
 #' @param Malignant Indicates the name of malignant cell type in the major lineage layer from the deconvolution results. Default: "Malignant".
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
-#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
+#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i.e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
 #' @param coreNo Core number in parallel.
@@ -318,10 +318,10 @@ SpaCET.deconvolution.malignant.customized.scRNAseq <- function(SpaCET_obj, Malig
 #' @title Deconvolve ST data set with matched scRNAseq data
 #' @description Estimate the fraction of cell lineage and sub lineage.
 #' @param SpaCET_obj A SpaCET object.
-#' @param sc_includeMalignant Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its build-in reference.
+#' @param sc_includeMalignant Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its built-in reference.
 #' @param cancerType Cancer type of the current tumor ST sample.
 #' @param sc_counts Single cell count matrix with gene name (row) x cell ID (column).
-#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.
+#' @param sc_annotation Single cell annotation matrix. This matrix should include two columns, i.e., cellID and cellType. Each row represents a single cell.
 #' @param sc_lineageTree Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.
 #' @param sc_downsampling Indicate whether downsample the single cell data for each cell type. Default: TRUE.
 #' @param sc_nCellEachLineage Cell count each lineage. Default: 100. If a cell type is comprised of >100 cells, only 100 cells per cell identity are randomly selected to generate cell type reference.
@@ -532,6 +532,64 @@ generateRef <- function(
 }
 
 
+#' @title Calculate the most abundant cell type
+#' @description Identify the most abundant major lineage and sublineage.
+#' @param SpaCET_obj A SpaCET object containing cell-type deconvolution results.
+#' @return A SpaCET object.
+#'
+#' @details
+#' The function compares the estimated fractions in
+#' \code{SpaCET_obj@results$deconvolution$propMat}. Candidate cell types are
+#' obtained from \code{SpaCET_obj@results$deconvolution$Ref$lineageTree}.
+#' The \code{Unidentifiable} component is not treated as a cell type. If two
+#' cell types have the same fraction, the first one in the reference lineage
+#' tree is selected.
+#'
+#' @examples
+#' \dontrun{
+#' SpaCET_obj <- SpaCET.calculate.mostAbundantCellType(SpaCET_obj)
+#' }
+#'
+#' @rdname SpaCET.calculate.mostAbundantCellType
+#' @export
+#'
+SpaCET.calculate.mostAbundantCellType <- function(SpaCET_obj)
+{
+  if(is.null(SpaCET_obj@results$deconvolution$propMat))
+  {
+    stop("Please do the complete deconvolution first by using SpaCET.deconvolution.")
+  }else{
+    res_deconv <- SpaCET_obj@results$deconvolution$propMat
+  }
+
+  for(lineageLevel in c("MajorLineage","SubLineage"))
+  {
+    if(lineageLevel == "MajorLineage")
+    {
+      allCellTypes <- names(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+    }else{
+      allCellTypes <- unlist(SpaCET_obj@results$deconvolution$Ref$lineageTree)
+    }
+
+    if(!"Malignant"%in%allCellTypes & "Malignant"%in%rownames(res_deconv))
+    {
+      allCellTypes <- c("Malignant",allCellTypes)
+    }
+
+    res_deconv_level <- res_deconv[allCellTypes,,drop=F]
+
+    Content <- sapply(1:dim(res_deconv_level)[2],function(x) names(sort(res_deconv_level[,x],decreasing=T))[1])
+    names(Content) <- colnames(res_deconv_level)
+
+    if(is.null(SpaCET_obj@input$metaData)) SpaCET_obj@input$metaData <- data.frame(row.names=names(Content))
+
+    SpaCET_obj@input$metaData[names(Content),paste0("Estimated_",lineageLevel)] <- Content
+  }
+
+  SpaCET_obj
+}
+
+
 #' @title Calculate gene set score for each spot
 #' @description Calculate spots' gene set score from the in-house or user-defined gene sets.
 #' @param SpaCET_obj A SpaCET object.
@@ -631,6 +689,7 @@ write.gmt <- function(gmt, gmtPath)
 #' @param SpaCET_obj A SpaCET object.
 #' @param mode Mode of spatial correlation, i.e., "univariate", "bivariate", "pairwise".
 #' @param item A vector or two-column matrix. See details.
+#' @param W Weight matrix.
 #' @param nPermutation Permutation number.
 #' @return A SpaCET object
 #' @details

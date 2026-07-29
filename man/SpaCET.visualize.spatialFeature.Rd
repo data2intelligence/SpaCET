@@ -51,7 +51,7 @@ SpaCET.visualize.spatialFeature(
 
 \item{legend.size}{The size of the legend.}
 
-\item{interactive}{Logical: should the interactive app be activited?}
+\item{interactive}{Logical: should the interactive app be activated?}
 }
 \value{
 A ggplot2 object.

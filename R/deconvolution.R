@@ -3,7 +3,7 @@
 #' @param SpaCET_obj A SpaCET object.
 #' @param cancerType Cancer type of the current tumor ST dataset.
 #' @param signatureType Indicate the tumor signature type, NULL, CNA, expr, or seq_depth. Default: NULL (automatically detect CNA or expr).
-#' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TURE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
+#' @param adjacentNormal Indicate whether your sample is normal tissue adjacent to the tumor. If TRUE, SpaCET will skip the stage of malignant cell inference. Default: FALSE.
 #' @param coreNo Core number in parallel computation.
 #' @return A SpaCET object.
 #' @examples
@@ -125,7 +125,7 @@ inferMal_cor <- function(st.matrix.data, cancerType, signatureType)
   cancerTypes <- sapply(strsplit(cancerTypes,"_",fixed=T),function(x) return(x[2]))
   if(!cancerType%in%cancerTypes)
   {
-    stop("The input cancer type does not match anyone in the build-in dictionary of SpaCET.
+    stop("The input cancer type does not match any entry in the built-in dictionary of SpaCET.
          Please make sure you have input the correct cancer type name.
          If yes, it means the dictionary of SpaCET does not include the signature for input cancer type.
          User can set cancerType='PANCAN' to use the pan-cancer expression signature.")

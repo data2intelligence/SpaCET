@@ -7,7 +7,7 @@
 convert.Seurat(Seurat_obj, platform, visiumPath = NULL, organism = "human")
 }
 \arguments{
-\item{Seurat_obj}{An Seurat object.}
+\item{Seurat_obj}{A Seurat object.}
 
 \item{platform}{A character string indicating the platform, i.e., "Visium", "OldST", or "Slide-Seq". "OldST" is the early in situ capturing method from which "Visium" was developed.}
 
@@ -19,7 +19,7 @@ convert.Seurat(Seurat_obj, platform, visiumPath = NULL, organism = "human")
 A SpaCET object.
 }
 \description{
-Convert an Seurat object to a SpaCET object.
+Convert a Seurat object to a SpaCET object.
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")

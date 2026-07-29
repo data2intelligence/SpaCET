@@ -19,13 +19,13 @@ SpaCET.deconvolution.matched.scRNAseq(
 \arguments{
 \item{SpaCET_obj}{A SpaCET object.}
 
-\item{sc_includeMalignant}{Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its build-in reference.}
+\item{sc_includeMalignant}{Indicate whether the single cell data include malignant cells. If FALSE, please input a cancer type and then SpaCET will infer the malignant cell fraction based on its built-in reference.}
 
 \item{cancerType}{Cancer type of the current tumor ST sample.}
 
 \item{sc_counts}{Single cell count matrix with gene name (row) x cell ID (column).}
 
-\item{sc_annotation}{Single cell annotation matrix. This matrix should include two columns, i,e., cellID and cellType. Each row represents a single cell.}
+\item{sc_annotation}{Single cell annotation matrix. This matrix should include two columns, i.e., cellID and cellType. Each row represents a single cell.}
 
 \item{sc_lineageTree}{Cell lineage tree. This should be organized by using a list, and the name of each element are major lineages while the value of elements are the corresponding sublineages. If a major lineage does not have any sublineages, the value of this major lineage should be itself.}
 

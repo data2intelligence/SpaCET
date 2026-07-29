@@ -44,8 +44,9 @@
     <li><a class="dropdown-item" href="../articles/hiresST_CRC.html">Application to high resolution spatial transcriptomics data</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Misc</h6></li>
+    <li><a class="dropdown-item" href="../articles/SpaCET_object.html">Creating a SpaCET object</a></li>
     <li><a class="dropdown-item" href="../articles/GeneSetScore.html">Gene set score calculation for spatial spots</a></li>
-    <li><a class="dropdown-item" href="../articles/SpatialCorrelation.html">Spatially variable genes and co-expressed ligand–receptor interactions</a></li>
+    <li><a class="dropdown-item" href="../articles/SpatialCorrelation.html">Spatially variable genes and ligand–receptor pairs</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
@@ -185,10 +186,7 @@ unavailable.</li>
 <span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="at">  pointSize = 0.6</span></span>
 <span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="at">)</span></span></code></pre></div>
 <p><img src="img/slideseq_prop.png" width="100%" style="border:none"></p>
-<p>User can check the most abundant cell type in each bead by setting
-<code>spatialType</code> as “MostAbundantCellType”.
-<code>spatialFeatures</code> could be “MajorLineage” or
-“SubLineage”.</p>
+<p>User can check the most abundant cell type in each bead.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load the color for cell types</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">hiresST_Path</span>,<span class="st">"/colors_vector.rda"</span><span class="op">)</span><span class="op">)</span></span>
@@ -199,13 +197,16 @@ unavailable.</li>
 <span><span class="co">## Malignant            CAF    Endothelial</span></span>
 <span><span class="co">## "#f3c300"      "#be0032"      "#0067a5"</span></span>
 <span></span>
+<span><span class="co"># calculate the most abundant major lineage and sublineage in each bead</span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SpaCET.calculate.mostAbundantCellType.html">SpaCET.calculate.mostAbundantCellType</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># show the spatial distribution of all cell types.</span></span>
 <span><span class="fu"><a href="../reference/SpaCET.visualize.spatialFeature.html">SpaCET.visualize.spatialFeature</a></span><span class="op">(</span></span>
 <span>  <span class="va">SpaCET_obj</span>, </span>
-<span>  spatialType <span class="op">=</span> <span class="st">"MostAbundantCellType"</span>, </span>
-<span>  spatialFeatures <span class="op">=</span> <span class="st">"MajorLineage"</span>, </span>
+<span>  spatialType <span class="op">=</span> <span class="st">"metaData"</span>, </span>
+<span>  spatialFeatures <span class="op">=</span> <span class="st">"Estimated_MajorLineage"</span>, </span>
 <span>  colors <span class="op">=</span> <span class="va">colors_vector</span>,</span>
-<span>  pointSize <span class="op">=</span> <span class="fl">0.6</span></span>
+<span>  pointSize <span class="op">=</span> <span class="fl">0.3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="img/slideseq_anno.png" width="80%" style="border:none"></p>
 </div>

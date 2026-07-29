@@ -124,7 +124,7 @@ SpaCET.visualize.spatialFeature(
 
 <img src="img/slideseq_prop.png" width="100%" style="border:none" />
 
-User can check the most abundant cell type in each bead by setting `spatialType` as "MostAbundantCellType". `spatialFeatures` could be "MajorLineage" or "SubLineage".
+User can check the most abundant cell type in each bead.
 
 ``` r
 # load the color for cell types
@@ -136,13 +136,16 @@ head(colors_vector,3)
 ## Malignant            CAF    Endothelial
 ## "#f3c300"      "#be0032"      "#0067a5"
 
+# calculate the most abundant major lineage and sublineage in each bead
+SpaCET_obj <- SpaCET.calculate.mostAbundantCellType(SpaCET_obj)
+
 # show the spatial distribution of all cell types.
 SpaCET.visualize.spatialFeature(
   SpaCET_obj, 
-  spatialType = "MostAbundantCellType", 
-  spatialFeatures = "MajorLineage", 
+  spatialType = "metaData", 
+  spatialFeatures = "Estimated_MajorLineage", 
   colors = colors_vector,
-  pointSize = 0.6
+  pointSize = 0.3
 )
 ```
 

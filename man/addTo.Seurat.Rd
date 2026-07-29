@@ -12,10 +12,10 @@ addTo.Seurat(SpaCET_obj, Seurat_obj)
 \item{Seurat_obj}{A Seurat object.}
 }
 \value{
-An Seurat object.
+A Seurat object.
 }
 \description{
-Add deconvolution results from a SpaCET object to an Seurat object as a new assay.
+Add deconvolution results from a SpaCET object to a Seurat object as a new assay.
 }
 \examples{
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")

@@ -36,12 +36,10 @@ devtools::install_github("data2intelligence/SpaCET")
 Or user can install `SpaCET` R package from the source code. Click <a href="https://api.github.com/repos/data2intelligence/SpaCET/tarball/HEAD" target="_blank">here</a> to download it.
 
 ``` r
-# install.packages("remotes")
-
 # install SpaCET dependencies
 remotes::install_deps("Path_to_the_source_code", force = TRUE)
 
-# install SpaCET in the R environment.
+# install SpaCET R package
 install.packages("Path_to_the_source_code", repos = NULL, type="source")
 ``` 
 
@@ -60,7 +58,7 @@ If you are not familiar with R language, you can use the Python version of SpaCE
 library(SpaCET)
 
 visiumPath <- file.path(system.file(package = "SpaCET"), "extdata/Visium_BC")
-SpaCET_obj <- create.SpaCET.object.10X(visiumPath = visiumPath)
+SpaCET_obj <- create.SpaCET.object.10X(dataPath = visiumPath, platform = "Visium", organism = "human")
 SpaCET_obj <- SpaCET.deconvolution(SpaCET_obj, cancerType="BRCA", coreNo=6)
 
 SpaCET_obj@results$deconvolution$propMat[1:13,1:5]
@@ -76,8 +74,9 @@ SpaCET is applicable for deconvolving spatial transcriptomics data across differ
 * [Application to high resolution spatial transcriptomics data](https://data2intelligence.github.io/SpaCET/articles/hiresST_CRC.html)
 
 #### Misc
+* [Creating a SpaCET object](https://data2intelligence.github.io/SpaCET/articles/SpaCET_object.html)
 * [Gene set score calculation for spatial spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
-* [Spatially variable genes and co-expressed ligand–receptor interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
+* [Spatially variable genes and ligand–receptor pairs](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
 
 ## Data availability
 This [Link](https://doi.org/10.5281/zenodo.14976008){target="_blank"} provides access to the 10 scRNA-seq datasets used to generate SpaCET's in-house cell-type reference, along with the 8 spatial transcriptomics samples demonstrated in our manuscript.
