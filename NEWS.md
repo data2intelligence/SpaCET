@@ -29,6 +29,6 @@
 
 ## SpaCET 1.0.0
 
-*2022-12-20*
+*2021-06-11*
 
 * Release SpaCET package.
