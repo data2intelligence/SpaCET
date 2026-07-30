@@ -94,8 +94,8 @@ compute gene set scores and assess spatial correlations.
   object](https://data2intelligence.github.io/SpaCET/articles/SpaCET_object.html)
 - [Gene set score calculation for spatial
   spots](https://data2intelligence.github.io/SpaCET/articles/GeneSetScore.html)
-- [Spatially variable genes and ligand–receptor
-  pairs](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
+- [Spatially variable genes and co-expressed ligand–receptor
+  interactions](https://data2intelligence.github.io/SpaCET/articles/SpatialCorrelation.html)
 
 ## Data availability
 
