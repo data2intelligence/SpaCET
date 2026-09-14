@@ -978,3 +978,29 @@ mouse2human_mat <- function(mat) {
 #
 #  return(SpaCET_obj)
 #}
+
+
+# Fork-based parallelism (pbmcapply::pbmclapply -> parallel::mclapply) deadlocks
+# when the parent process has already executed a multi-threaded BLAS call under
+# an OpenMP runtime (e.g. OpenBLAS-OpenMP, the FlexiBLAS default on Rocky/RHEL 9):
+# libgomp's worker-thread pool does not survive fork(), so the first threaded
+# BLAS call in a child waits forever. Pin BLAS/OpenMP to a single thread for the
+# duration of any function that forks, and restore afterwards (GitHub issue #66).
+# Setting OMP_NUM_THREADS via Sys.setenv() does not work once R has started.
+pinBLASThreads <- function()
+{
+  if(!requireNamespace("RhpcBLASctl", quietly=TRUE))
+  {
+    warning("RhpcBLASctl is not installed; if R uses an OpenMP-threaded BLAS, ",
+            "parallel steps may hang. Start R with OMP_NUM_THREADS=1.", call.=FALSE)
+    return(function() invisible(NULL))
+  }
+  omp0 <- RhpcBLASctl::omp_get_max_threads()
+  RhpcBLASctl::omp_set_num_threads(1)
+  RhpcBLASctl::blas_set_num_threads(1)
+  function()
+  {
+    RhpcBLASctl::omp_set_num_threads(omp0)
+    RhpcBLASctl::blas_set_num_threads(omp0)
+  }
+}

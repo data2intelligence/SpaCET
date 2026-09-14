@@ -466,6 +466,7 @@ SpatialDeconv <- function(
     coreNo
 )
 {
+  restoreThreads <- pinBLASThreads(); on.exit(restoreThreads(), add=TRUE)
   Reference <- Ref$refProfiles
   Signature <- Ref$sigGenes
   Tree <- Ref$lineageTree

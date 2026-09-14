@@ -177,6 +177,7 @@ SpaCET.visualize.colocalization <- function(SpaCET_obj)
 #'
 SpaCET.CCI.LRNetworkScore <- function(SpaCET_obj, coreNo=6)
 {
+  restoreThreads <- pinBLASThreads(); on.exit(restoreThreads(), add=TRUE)
   coreNoDect <- parallel::detectCores(logical = FALSE)
   if(coreNoDect<coreNo)
   {
