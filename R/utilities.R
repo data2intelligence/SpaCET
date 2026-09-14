@@ -996,11 +996,14 @@ pinBLASThreads <- function()
     return(function() invisible(NULL))
   }
   omp0 <- RhpcBLASctl::omp_get_max_threads()
-  RhpcBLASctl::omp_set_num_threads(1)
+  blas0 <- RhpcBLASctl::blas_get_num_procs()
   RhpcBLASctl::blas_set_num_threads(1)
+  RhpcBLASctl::omp_set_num_threads(1)
   function()
   {
+    # blas_set_num_threads() also moves the OpenMP count on OpenMP-threaded
+    # BLAS builds, but not the reverse, so restore the OpenMP count last.
+    RhpcBLASctl::blas_set_num_threads(blas0)
     RhpcBLASctl::omp_set_num_threads(omp0)
-    RhpcBLASctl::blas_set_num_threads(omp0)
   }
 }
