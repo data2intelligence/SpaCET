@@ -27,7 +27,9 @@ SpaCET.deconvolution <- function(SpaCET_obj, cancerType, signatureType=NULL, adj
   }
 
   st.matrix.data <- SpaCET_obj@input$counts
-  st.matrix.data <- st.matrix.data[Matrix::rowSums(st.matrix.data)>0,]
+
+  keepGenes <- Matrix::rowSums(st.matrix.data) > 0
+  st.matrix.data <- st.matrix.data[keepGenes,]
 
   if(tolower(SpaCET_obj@input$organism)=="mouse") st.matrix.data <- mouse2human_mat(st.matrix.data)
 
