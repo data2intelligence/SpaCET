@@ -456,6 +456,7 @@ generateRef <- function(
     coreNo = coreNo
 )
 {
+  restoreThreads <- pinBLASThreads(); on.exit(restoreThreads(), add=TRUE)
   sc.matrix.data.norm <- sweep(sc.matrix.data, 2, Matrix::colSums(sc.matrix.data), "/") *1e5
 
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
