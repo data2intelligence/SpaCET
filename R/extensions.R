@@ -457,6 +457,7 @@ generateRef <- function(
 )
 {
   restoreThreads <- pinBLASThreads(); on.exit(restoreThreads(), add=TRUE)
+
   sc.matrix.data.norm <- sweep(sc.matrix.data, 2, Matrix::colSums(sc.matrix.data), "/") *1e5
 
   sc.matrix.data.log2 <- log2(sc.matrix.data.norm+1)
@@ -471,13 +472,12 @@ generateRef <- function(
   {
     message(paste0("  ",cellType))
 
-    refProfiles[rownames(sc.matrix.data.norm),cellType] <- apply(
-      sc.matrix.data.norm[,sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]],drop=F],
-      1,mean)
+    refProfiles[rownames(sc.matrix.data.norm),cellType] <- Matrix::rowMeans(
+      sc.matrix.data.norm[,sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]],drop=F]
+      )
 
     run_limma <- function(cellTypeOther)
     {
-      library(limma)
       TT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellType]])
       WT <- as.numeric(sc.matrix.anno[,2]%in%sc.matrix.tree[[cellTypeOther]])
       design <- cbind(TT,WT)
@@ -506,9 +506,9 @@ generateRef <- function(
 
       for(cellTypeSub in cellTypeSubs)
       {
-        refProfiles[rownames(sc.matrix.data.norm),cellTypeSub] <- apply(
-          sc.matrix.data.norm[,sc.matrix.anno[,2]%in%cellTypeSub,drop=F],
-          1,mean)
+        refProfiles[rownames(sc.matrix.data.norm),cellTypeSub] <- Matrix::rowMeans(
+          sc.matrix.data.norm[,sc.matrix.anno[,2]%in%cellTypeSub,drop=F]
+          )
 
         library(limma)
         TT <- as.numeric(sc.matrix.anno[,2]%in%cellTypeSub)

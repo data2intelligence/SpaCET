@@ -304,6 +304,10 @@ SpaCET.visualize.spatialFeature <- function(
         if(spatialType == "GeneExpression")
         {
           visualVector <- sort(mat[spatialFeature,])
+        }else if(spatialType == "metaData"&length(colors)<=5)
+        {
+          temp <- mat[spatialFeature,]
+          visualVector <- temp[order(temp %in% names(colors), temp)]
         }else{
           visualVector <- mat[spatialFeature,]
         }

@@ -81,7 +81,7 @@
 <p>This tutorial describes the structure of a <code>SpaCET</code> object
 and the two ways to create one:</p>
 <ol style="list-style-type: decimal">
-<li>automatically from Visium, Visium HD, or Xenium output with
+<li>automatically from Visium, Visium HD, Xenium, or Atera output with
 <code>create.SpaCET.object.10X</code>;</li>
 <li>manually from a prepared count matrix and spatial coordinates with
 <code>create.SpaCET.object</code>.</li>
@@ -182,6 +182,11 @@ pancreatic ductal adenocarcinoma dataset from the <a href="oldST_PDAC.html"><cod
 <td>Xenium</td>
 <td><code>platform = "Xenium"</code></td>
 <td>Xenium output</td>
+</tr>
+<tr class="odd">
+<td>Atera</td>
+<td><code>platform = "Atera"</code></td>
+<td>Atera output</td>
 </tr>
 </tbody>
 </table>
@@ -323,6 +328,42 @@ sufficient. Likewise, either <code>cells.csv.gz</code> or
 must contain <code>cell_id</code>, <code>x_centroid</code>, and
 <code>y_centroid</code>.</p>
 </div>
+<div class="section level3">
+<h3 id="x-atera">10x Atera<a class="anchor" aria-label="anchor" href="#x-atera"></a>
+</h3>
+<p>Atera output uses the same cell-feature matrix and cell-summary
+formats as Xenium. Set <code>platform = "Atera"</code> and provide the
+Atera output directory. The constructor reads the cell-feature matrix
+and centroid coordinates, aligns the cell IDs, and stores the complete
+cell table as metadata.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">atera_path</span> <span class="op">&lt;-</span> <span class="st">"/path/to/atera_output"</span></span>
+<span></span>
+<span><span class="va">SpaCET_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create.SpaCET.object.10X.html">create.SpaCET.object.10X</a></span><span class="op">(</span></span>
+<span>  dataPath <span class="op">=</span> <span class="va">atera_path</span>,</span>
+<span>  platform <span class="op">=</span> <span class="st">"Atera"</span>,</span>
+<span>  organism <span class="op">=</span> <span class="st">"human"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">platform</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">spotCoordinates</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">SpaCET_obj</span><span class="op">@</span><span class="va">input</span><span class="op">$</span><span class="va">metaData</span><span class="op">)</span></span></code></pre></div>
+<p>The Atera directory should include:</p>
+<pre class="text"><code>atera_output/
+├── cell_feature_matrix/
+│   ├── barcodes.tsv.gz
+│   ├── features.tsv.gz
+│   └── matrix.mtx.gz
+├── cell_feature_matrix.h5
+├── cells.csv.gz
+└── cells.parquet</code></pre>
+<p>Either the MEX directory or <code>cell_feature_matrix.h5</code> is
+sufficient. Likewise, either <code>cells.csv.gz</code> or
+<code>cells.parquet</code> can provide the cell table. The cell table
+must contain <code>cell_id</code>, <code>x_centroid</code>, and
+<code>y_centroid</code>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="manually-create-a-spacet-object">Manually create a SpaCET object<a class="anchor" aria-label="anchor" href="#manually-create-a-spacet-object"></a>
@@ -349,7 +390,7 @@ correspond to one column of <code>counts</code>.</p>
 </h3>
 <p>The bundled PDAC example stores the count matrix and coordinates in
 <code>st_PDAC.rda</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">oldST_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oldST_PDAC"</span>, package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span></span>
@@ -376,7 +417,7 @@ correspond to one column of <code>counts</code>.</p>
 <p>The same constructor can be used for high-resolution platforms. The
 Slide-seq colorectal cancer example from the <a href="hiresST_CRC.html"><code>hiresST_CRC</code> vignette</a> supplies a
 sparse count matrix and bead coordinates.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hires_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"hiresST_CRC"</span>, package <span class="op">=</span> <span class="st">"SpaCET"</span><span class="op">)</span></span>
@@ -404,7 +445,7 @@ The liver hepatocellular carcinoma CosMx dataset can be downloaded from
 or the <a href="https://hpc.nih.gov/~Jiang_Lab/SecAct_Package/LIHC_CosMx_data.rda" class="external-link">NIH
 HPC mirror</a>. The downloaded R data file contains <code>counts</code>,
 <code>spotCoordinates</code>, and <code>metaData</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/data2intelligence/SpaCET" class="external-link">SpaCET</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"LIHC_CosMx_data.rda"</span><span class="op">)</span></span>
@@ -443,7 +484,7 @@ HPC mirror</a>. The downloaded R data file contains <code>counts</code>,
 </h3>
 <p>Metadata can contain annotations, sample groups, quality-control
 fields, or other information associated with spatial locations.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metaData</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tumor"</span>, <span class="st">"stroma"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  row.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span>

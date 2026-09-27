@@ -12,10 +12,18 @@ vignette: >
 output: github_document
 ---
 
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 This tutorial describes the structure of a `SpaCET` object and the two ways
 to create one:
 
-1. automatically from Visium, Visium HD, or Xenium output with
+1. automatically from Visium, Visium HD, Xenium, or Atera output with
    `create.SpaCET.object.10X`;
 2. manually from a prepared count matrix and spatial coordinates with
    `create.SpaCET.object`.
@@ -82,6 +90,7 @@ All supported 10x platforms use the same public constructor:
 | Visium HD, binned | `platform = "VisiumHD"` | One `binned_outputs/square_*um` directory |
 | Visium HD, segmented | `platform = "VisiumHD"` | The `segmented_outputs` directory |
 | Xenium | `platform = "Xenium"` | Xenium output |
+| Atera | `platform = "Atera"` | Atera output |
 
 ### 10x Visium
 
@@ -243,6 +252,45 @@ Likewise, either `cells.csv.gz` or `cells.parquet` can provide the cell
 table. The cell table must contain `cell_id`, `x_centroid`, and
 `y_centroid`.
 
+### 10x Atera
+
+Atera output uses the same cell-feature matrix and cell-summary formats as
+Xenium. Set `platform = "Atera"` and provide the Atera output directory. The
+constructor reads the cell-feature matrix and centroid coordinates, aligns
+the cell IDs, and stores the complete cell table as metadata.
+
+```{r automatic-atera, eval=FALSE}
+atera_path <- "/path/to/atera_output"
+
+SpaCET_obj <- create.SpaCET.object.10X(
+  dataPath = atera_path,
+  platform = "Atera",
+  organism = "human"
+)
+
+SpaCET_obj@input$platform
+dim(SpaCET_obj@input$counts)
+head(SpaCET_obj@input$spotCoordinates)
+head(SpaCET_obj@input$metaData)
+```
+
+The Atera directory should include:
+
+``` text
+atera_output/
+├── cell_feature_matrix/
+│   ├── barcodes.tsv.gz
+│   ├── features.tsv.gz
+│   └── matrix.mtx.gz
+├── cell_feature_matrix.h5
+├── cells.csv.gz
+└── cells.parquet
+```
+
+Either the MEX directory or `cell_feature_matrix.h5` is sufficient. Likewise,
+either `cells.csv.gz` or `cells.parquet` can provide the cell table. The cell
+table must contain `cell_id`, `x_centroid`, and `y_centroid`.
+
 ## Manually create a SpaCET object
 
 Use `create.SpaCET.object` when platform output is unavailable, when the
@@ -376,4 +424,3 @@ SpaCET_obj <- create.SpaCET.object(
   organism = "human"
 )
 ```
-
